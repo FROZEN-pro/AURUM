@@ -1,21 +1,22 @@
 /**
  * =============================================================
- *  AURUM · Google Apps Script Backend (code.gs)
- *  GitHub-dagi index.html / admin.html shu fayl bilan ishlaydi.
+ *  AURUM · Google Apps Script Backend v2 (code.gs)
+ *  index.html / admin.html shu fayl bilan ishlaydi.
  *
- *  SOZLASH (2 daqiqa):
- *  1. script.google.com → yangi loyiha → shu faylni Copy/Paste
- *  2. Project Settings → Properties → quyidagilarni qo’shing:
+ *  SOZLASH:
+ *  1. script.google.com → loyihangizni oching → kodning HAMMASINI
+ *     o'chirib, shu faylni to'liq Copy/Paste qiling
+ *  2. Project Settings → Properties:
  *        BOT_TOKEN   = 123456:ABC-...   (BotFather)
- *        ADMIN_TOKEN = o’zingiz uzoq tasodifiy satr
+ *        ADMIN_TOKEN = o'zingizning uzoq tasodifiy kalitingiz
  *        BROADCAST_CHAT = -1001234567890 yoki @kanal (ixtiyoriy)
- *  3. Deploy → New deployment → Web app
- *        Execute as: Me   ·   Who has access: Anyone
- *  4. Olingan /exec URL ni index.html va admin.html’dagi
- *     APP_CONFIG.API_URL ga yozing.
+ *        OWNER_CHAT  = sizning Telegram ID (test xabarlar uchun)
+ *        APP_URL     = https://frozen-pro.github.io/AURUM/
+ *  3. Deploy → Edit deployment → NEW version → Deploy
+ *     (Execute as: Me · Who has access: Anyone)
  *
- *  Google Sheets DB avtomatik yaratiladi (jadval: Videos, News,
- *  Users, Events, Settings, Announcements).
+ *  Sheets DB avtomatik: Videos, News, Users, Events, Settings,
+ *  Announcements, Likes, Comments, CommentLikes
  * =============================================================
  */
 
@@ -37,7 +38,10 @@ var SCHEMA = {
   Users:         ['id','tg','name','role','theme','sessions','last','status','createdAt'],
   Events:        ['ts','userId','event','itemId','theme','meta'],
   Settings:      ['key','value'],
-  Announcements: ['ts','title','body','button','sent']
+  Announcements: ['ts','title','body','button','sent'],
+  Likes:         ['id','videoId','userId','ts'],
+  Comments:      ['id','videoId','userId','name','text','ts','likes'],
+  CommentLikes:  ['id','commentId','userId','ts']
 };
 function sheet_(name) {
   var ss = getSS_(), sh = ss.getSheetByName(name);
@@ -56,8 +60,7 @@ function rows_(name) {
   for (var i = 1; i < v.length; i++) {
     var o = {};
     for (var j = 0; j < head.length; j++) o[head[j]] = v[i][j];
-    if (o.ts && typeof o.ts === 'object') o.ts = +new Date(o.ts);
-    if (o.createdAt && typeof o.createdAt === 'object') o.createdAt = +new Date(o.createdAt);
+    ['ts','createdAt'].forEach(function (k) { if (o[k] && typeof o[k] === 'object') o[k] = +new Date(o[k]); });
     out.push(o);
   }
   return out;
@@ -73,7 +76,7 @@ function findRow_(name, key, val) {
 }
 function upsert_(name, obj) {
   var sh = sheet_(name), head = SCHEMA[name];
-  var key = head[0]; // 'id' yoki 'ts'
+  var key = head[0];
   var kv = obj[key] != null ? obj[key] : (key === 'ts' ? Date.now() : 'x' + Date.now());
   var r = findRow_(name, key, kv);
   var line = head.map(function (h) { return obj[h] != null ? obj[h] : ''; });
@@ -97,42 +100,68 @@ function getSetting_(k, dflt) {
   var v = sheet_('Settings').getRange(r, 2).getValue();
   return v === '' ? dflt : v;
 }
+function uid_() { return 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+function trim_(s, n) { return String(s == null ? '' : s).slice(0, n); }
 
-/* ---------- JSON javob (CORS) ---------- */
+/* ---------- JSON javob ---------- */
 function json_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-/* ---------- Router ---------- */
+/* ---------- GET ---------- */
 function doGet(e) {
   var a = (e && e.parameter && e.parameter.action) || 'ping';
-  if (a === 'bootstrap') return json_({ ok: true, videos: active_(rows_('Videos')), news: active_(rows_('News')),
-    settings: { notice: getSetting_('notice', ''), app: 'AURUM' } });
-  if (a === 'ping') return json_({ ok: true, demo: false, name: 'AURUM backend', sheets: getSS_.getName(), t: Date.now() });
-  return json_({ ok: false, error: 'nodoma action' });
+  var me = (e && e.parameter && e.parameter.uid) || '';
+  try {
+    if (a === 'bootstrap') return json_(bootstrap_(me));
+    if (a === 'ping') return json_({ ok: true, name: 'AURUM backend v2', sheets: getSS_().getName(), t: Date.now() });
+    return json_({ ok: false, error: 'nodoma action' });
+  } catch (err) { return json_({ ok: false, error: String(err) }); }
+}
+function bootstrap_(me) {
+  var likes = rows_('Likes'), comments = rows_('Comments');
+  var likeCounts = {}, commentCounts = {}, myLikes = [];
+  likes.forEach(function (l) {
+    likeCounts[l.videoId] = (likeCounts[l.videoId] || 0) + 1;
+    if (me && l.userId === me) myLikes.push(l.videoId);
+  });
+  comments.forEach(function (c) { commentCounts[c.videoId] = (commentCounts[c.videoId] || 0) + 1; });
+  return {
+    ok: true,
+    videos: active_(rows_('Videos')),
+    news: active_(rows_('News')),
+    settings: { notice: getSetting_('notice', ''), app: 'AURUM' },
+    meta: { likeCounts: likeCounts, commentCounts: commentCounts, myLikes: myLikes }
+  };
 }
 function active_(arr) {
   return arr.filter(function (x) { return !x.status || x.status === 'active'; })
-    .map(function (x) { if (x.featured != null) x.featured = (x.featured === 1 || x.featured === '1' || x.featured === true) ? 1 : 0;
-      if (x.hot != null) x.hot = (x.hot === 1 || x.hot === '1' || x.hot === true) ? 1 : 0; return x; });
+    .map(function (x) {
+      if (x.featured != null) x.featured = (x.featured === 1 || x.featured === '1' || x.featured === true) ? 1 : 0;
+      if (x.hot != null) x.hot = (x.hot === 1 || x.hot === '1' || x.hot === true) ? 1 : 0;
+      return x;
+    });
 }
 
+/* ---------- POST router ---------- */
 function doPost(e) {
   var d = {};
   try { d = JSON.parse(e.postData.contents); } catch (x) { return json_({ ok: false, error: 'JSON buzilgan' }); }
-  switch (d.action) {
-    case 'track':    return handleTrack_(d);
-    case 'auth':     return handleAuth_(d);
-    case 'admin':    return handleAdmin_(d);
-    default:         return json_({ ok: false, error: 'action topilmadi: ' + d.action });
-  }
+  try {
+    switch (d.action) {
+      case 'track':    return handleTrack_(d);
+      case 'auth':     return handleAuth_(d);
+      case 'social':   return handleSocial_(d);
+      case 'admin':    return handleAdmin_(d);
+      default:         return json_({ ok: false, error: 'action topilmadi: ' + d.action });
+    }
+  } catch (err) { return json_({ ok: false, error: String(err) }); }
 }
 
 /* ---------- Hodisalarni yozish ---------- */
 function handleTrack_(d) {
-  sheet_('Events').appendRow([d.ts || Date.now(), d.userId || 'guest', d.event || '?', d.itemId || '', d.theme || '', String(d.meta || '').slice(0, 300)]);
-  // user faollik statistikasini yangilash
+  sheet_('Events').appendRow([d.ts || Date.now(), trim_(d.userId, 40), trim_(d.event, 40), trim_(d.itemId, 60), trim_(d.theme, 30), trim_(d.meta, 300)]);
   if (d.userId && d.userId !== 'guest') {
     var r = findRow_('Users', 'id', d.userId);
     if (r) {
@@ -147,6 +176,91 @@ function handleTrack_(d) {
   return json_({ ok: true });
 }
 
+/* ---------- Layk va izohlar (real-time) ---------- */
+function handleSocial_(d) {
+  var uid = trim_(d.uid, 40);
+  if (!uid) return json_({ ok: false, error: 'uid kerak' });
+
+  /* --- LAYK: yorib qo'shish, qayta bosib o'chirish --- */
+  if (d.op === 'like') {
+    var vid = trim_(d.videoId, 60);
+    if (!vid) return json_({ ok: false, error: 'videoId kerak' });
+    var lid = vid + '|' + uid;
+    var liked = !!findRow_('Likes', 'id', lid);
+    if (liked) {
+      delRow_('Likes', 'id', lid);
+    } else {
+      sheet_('Likes').appendRow([lid, vid, uid, Date.now()]);
+      sheet_('Events').appendRow([Date.now(), uid, 'like', vid, '', '']);
+    }
+    var count = rows_('Likes').filter(function (l) { return String(l.videoId) === vid; }).length;
+    return json_({ ok: true, liked: !liked, count: count });
+  }
+
+  /* --- IZOH QO'SHISH --- */
+  if (d.op === 'comment.add') {
+    var vid2 = trim_(d.videoId, 60);
+    var text = trim_(d.text, 900).replace(/\s+$/, '');
+    if (!vid2 || !text) return json_({ ok: false, error: 'videoId va matn kerak' });
+    var cid = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    sheet_('Comments').appendRow([cid, vid2, uid, trim_(d.name, 60) || 'Mehmon', text, Date.now(), 0]);
+    sheet_('Events').appendRow([Date.now(), uid, 'comment', vid2, '', '']);
+    var me = findRow_('Users', 'id', uid);
+    if (me) sheet_('Users').getRange(me, SCHEMA.Users.indexOf('last') + 1).setValue(Date.now());
+    return json_({ ok: true, comment: { id: cid, videoId: vid2, userId: uid, name: trim_(d.name, 60) || 'Mehmon', text: text, ts: Date.now(), likes: 0 } });
+  }
+
+  /* --- IZOHNI YOQTIRISH (toggle) --- */
+  if (d.op === 'comment.vote') {
+    var commentId = trim_(d.commentId, 40);
+    var clid = commentId + '|' + uid;
+    var crow = findRow_('Comments', 'id', commentId);
+    if (!crow) return json_({ ok: false, error: 'izoh topilmadi' });
+    var voted = !!findRow_('CommentLikes', 'id', clid);
+    var cur = +sheet_('Comments').getRange(crow, SCHEMA.Comments.indexOf('likes') + 1).getValue() || 0;
+    if (voted) {
+      delRow_('CommentLikes', 'id', clid);
+      sheet_('Comments').getRange(crow, SCHEMA.Comments.indexOf('likes') + 1).setValue(Math.max(0, cur - 1));
+    } else {
+      sheet_('CommentLikes').appendRow([clid, commentId, uid, Date.now()]);
+      sheet_('Comments').getRange(crow, SCHEMA.Comments.indexOf('likes') + 1).setValue(cur + 1);
+    }
+    return json_({ ok: true, voted: !voted, likes: cur + (voted ? -1 : 1) });
+  }
+
+  /* --- O'Z IZOHINI O'CHIRISH --- */
+  if (d.op === 'comment.delete') {
+    var cid2 = trim_(d.commentId, 40);
+    var row = findRow_('Comments', 'id', cid2);
+    if (!row) return json_({ ok: false, error: 'izoh topilmadi' });
+    var owner = String(sheet_('Comments').getRange(row, SCHEMA.Comments.indexOf('userId') + 1).getValue());
+    var isAdmin = d.admin === true;
+    if (owner !== uid && !isAdmin) return json_({ ok: false, error: 'faqat o\'zingizniki' });
+    sheet_('Comments').deleteRow(row);
+    return json_({ ok: true });
+  }
+
+  /* --- IZOHLAR RO'YXATI (video bo'yicha) + yangilanib turish uchun --- */
+  if (d.op === 'comment.list') {
+    var vid3 = trim_(d.videoId, 60);
+    var mine = {};
+    rows_('CommentLikes').forEach(function (cl) { if (cl.userId === uid) mine[cl.commentId] = true; });
+    var list = rows_('Comments')
+      .filter(function (c) { return String(c.videoId) === vid3; })
+      .sort(function (a, b) { return (+b.ts) - (+a.ts); })
+      .map(function (c) { c.canEdit = (c.userId === uid); return c; });
+    return json_({ ok: true, comments: list.slice(0, 200), votes: mine, mine: uid });
+  }
+
+  /* --- Mening layklangan videolarim (fav sinxroni) --- */
+  if (d.op === 'myLikes') {
+    var arr = rows_('Likes').filter(function (l) { return l.userId === uid; }).map(function (l) { return String(l.videoId); });
+    return json_({ ok: true, ids: arr });
+  }
+
+  return json_({ ok: false, error: 'social op topilmadi' });
+}
+
 /* ---------- Telegram WebApp initData tekshiruvi (HMAC-SHA256) ---------- */
 function handleAuth_(d) {
   var token = PROPS.getProperty('BOT_TOKEN');
@@ -155,10 +269,21 @@ function handleAuth_(d) {
   var u = parseInitUser_(d.initData || '');
   if (!u || !u.id) return json_({ ok: false, error: 'foydalanuvchi topilmadi' });
   var uid = 'tg' + u.id;
+  var name = [u.first_name, u.last_name].filter(Boolean).join(' ');
   var r = findRow_('Users', 'id', uid);
-  var role = r ? sheet_('Users').getRange(r, SCHEMA.Users.indexOf('role') + 1).getValue() : 'user';
-  if (!r) sheet_('Users').appendRow([uid, u.username || '', [u.first_name, u.last_name].filter(Boolean).join(' '), role, '', 1, Date.now(), 'active', Date.now()]);
-  return json_({ ok: true, user: { id: uid, name: [u.first_name, u.last_name].filter(Boolean).join(' '), username: u.username || '', role: role } });
+  var role = 'user';
+  if (r) {
+    var sh = sheet_('Users');
+    role = sh.getRange(r, SCHEMA.Users.indexOf('role') + 1).getValue() || 'user';
+    sh.getRange(r, SCHEMA.Users.indexOf('name') + 1).setValue(name);
+    sh.getRange(r, SCHEMA.Users.indexOf('last') + 1).setValue(Date.now());
+  } else {
+    role = getSetting_('first_user_admin', '') === '1' ? 'user' : 'user';
+    sheet_('Users').appendRow([uid, u.username || '', name, role, '', 1, Date.now(), 'active', Date.now()]);
+    setSetting_('first_user_admin', '1');
+  }
+  var likes = rows_('Likes').filter(function (l) { return l.userId === uid; }).map(function (l) { return String(l.videoId); });
+  return json_({ ok: true, user: { id: uid, name: name, username: u.username || '', role: role, photo: '' }, likes: likes });
 }
 function parseInitUser_(initData) {
   var p = parseQS_(initData);
@@ -183,7 +308,6 @@ function verifyInitData_(initData, botToken) {
   var calc = Utilities.computeHmacSha256Signature(dataCheckString, secret)
     .map(function (b) { return ('0' + (b & 0xff).toString(16)).slice(-2); }).join('');
   if (calc !== hash) return false;
-  // auth_date 16 soatdan yangi bo’lsin (replay hujumga qarshi)
   var age = Date.now() / 1000 - (+params.auth_date || 0);
   return age < 16 * 3600;
 }
@@ -193,33 +317,81 @@ function handleAdmin_(d) {
   var tok = PROPS.getProperty('ADMIN_TOKEN');
   if (!tok || d.token !== tok) return json_({ ok: false, error: 'unauthorized' });
   switch (d.op) {
-    case 'ping':  return json_({ ok: true, t: Date.now() });
+    case 'ping':  return json_({ ok: true, t: Date.now(), version: 'v2' });
     case 'pull':  return json_({ ok: true, data: { videos: rows_('Videos'), news: rows_('News'),
                           users: rows_('Users'), events: rows_('Events').slice(-3000),
-                          announcements: rows_('Announcements') } });
+                          announcements: rows_('Announcements'), likes: rows_('Likes'), comments: rows_('Comments') } });
     case 'push':  return handlePush_(d);
     case 'videos.save':   upsert_('Videos', Object.assign({ createdAt: Date.now() }, d.item)); return json_({ ok: true });
     case 'videos.delete': delRow_('Videos', 'id', d.id); return json_({ ok: true });
     case 'news.save':     upsert_('News', Object.assign({ createdAt: Date.now() }, d.item)); return json_({ ok: true });
     case 'news.delete':   delRow_('News', 'id', d.id); return json_({ ok: true });
     case 'users.save':    upsert_('Users', d.item || {}); return json_({ ok: true });
+    case 'users.delete':  delRow_('Users', 'id', d.id); return json_({ ok: true });
     case 'settings.save': setSetting_(d.key, d.value); return json_({ ok: true });
+    case 'comments.delete': {
+      var row = findRow_('Comments', 'id', d.id);
+      if (row) sheet_('Comments').deleteRow(row);
+      return json_({ ok: !!row });
+    }
+    case 'likes.delete': {
+      var lr = findRow_('Likes', 'id', trim_(d.videoId, 60) + '|' + trim_(d.userId, 40));
+      if (lr) sheet_('Likes').deleteRow(lr);
+      return json_({ ok: !!lr });
+    }
+    case 'events.clear': sheet_('Events').clear(); sheet_('Events').appendRow(SCHEMA.Events); return json_({ ok: true });
     case 'stats':
-      var ev = rows_('Events');
-      return json_({ ok: true, stats: { total: ev.length, byEvent: countBy_(ev, 'event'), byTheme: countBy_(ev, 'theme') } });
+      return json_({ ok: true, stats: adminStats_() });
     case 'announce':      return handleAnnounce_(d);
     default: return json_({ ok: false, error: 'op topilmadi' });
   }
 }
+function adminStats_() {
+  var ev = rows_('Events'), users = rows_('Users'), likes = rows_('Likes'),
+      comments = rows_('Comments'), videos = rows_('Videos'), news = rows_('News');
+  var now = Date.now();
+  var active7 = users.filter(function (u) { return (+u.last || 0) > now - 7 * 864e5; }).length;
+  var active30 = users.filter(function (u) { return (+u.last || 0) > now - 30 * 864e5; }).length;
+  var playBy = {}, likeBy = {}, cmtBy = {};
+  likes.forEach(function (l) { likeBy[l.videoId] = (likeBy[l.videoId] || 0) + 1; });
+  comments.forEach(function (c) { cmtBy[c.videoId] = (cmtBy[c.videoId] || 0) + 1; });
+  ev.forEach(function (r) { if (r.event === 'play' && r.itemId) playBy[r.itemId] = (playBy[r.itemId] || 0) + 1; });
+  var byVideo = videos.map(function (v) {
+    return { id: v.id, title: v.title, yt: v.yt, plays: playBy[v.id] || 0, likes: likeBy[v.id] || 0, comments: cmtBy[v.id] || 0 };
+  }).sort(function (a, b) { return (b.plays + b.likes * 2 + b.comments * 3) - (a.plays + a.likes * 2 + a.comments * 3); }).slice(0, 30);
+  return {
+    total: ev.length, byEvent: countBy_(ev, 'event'), byTheme: countBy_(ev, 'theme'),
+    users: users.length, active7: active7, active30: active30,
+    videos: videos.length, newsCount: news.length,
+    likes: likes.length, comments: comments.length,
+    byVideo: byVideo,
+    daily: dailyCounts_(ev, 14),
+    recentEvents: ev.slice(-80).reverse()
+  };
+}
+function dailyCounts_(ev, days) {
+  var out = [];
+  for (var i = days - 1; i >= 0; i--) {
+    var d0 = new Date(); d0.setHours(0, 0, 0, 0);
+    var start = +d0 - i * 864e5, end = start + 864e5;
+    var plays = 0, logins = 0;
+    ev.forEach(function (r) {
+      var t = +r.ts;
+      if (t >= start && t < end) { if (r.event === 'play') plays++; if (r.event === 'login') logins++; }
+    });
+    out.push({ d: start, plays: plays, logins: logins });
+  }
+  return out;
+}
 function countBy_(rows, key) {
   var o = {}; rows.forEach(function (r) { if (r[key]) o[r[key]] = (o[r[key]] || 0) + 1; }); return o;
 }
-/* admin push (butun bazani Sheets’ga yozish) */
+/* admin push (butun bazani Sheets'ga yozish) */
 function handlePush_(d) {
   var data = d.data || {};
-  ['videos', 'news'].forEach(function (k) {
+  [['videos','Videos'], ['news','News']].forEach(function (pair) {
+    var k = pair[0], name = pair[1];
     if (!data[k]) return;
-    var name = k === 'videos' ? 'Videos' : 'News';
     var sh = sheet_(name); sh.clear();
     sh.appendRow(SCHEMA[name]);
     data[k].forEach(function (item) {
@@ -254,4 +426,4 @@ function escHtml_(s) {
 }
 
 /* ---------- Bir martalik init (opsional) ---------- */
-function setup() { getSS_(); Logger.log('AURUM backend tayyor. Sheet: ' + getSS_().getUrl()); }
+function setup() { var ss = getSS_(); ['Likes','Comments','CommentLikes'].forEach(sheet_); Logger.log('AURUM backend v2 tayyor. Sheet: ' + ss.getUrl()); }

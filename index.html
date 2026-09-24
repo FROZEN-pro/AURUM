@@ -276,20 +276,94 @@ main{flex:1;min-width:0;padding:0 var(--pad) calc(var(--tab-h) + env(safe-area-i
 .t-card.on .check{display:grid}
 .t-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 
-/* ============================ PLAYER ============================ */
-#player{position:fixed;inset:0;z-index:100;background:#000;display:none;flex-direction:column}
+/* ============================ PLAYER (custom) ============================ */
+#player{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;
+  background:radial-gradient(140% 100% at 50% 0%, color-mix(in srgb,var(--bg2) 60%,#000), #000 70%)}
 #player.open{display:flex;animation:fadeIn .35s}
-#player .p-top{display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;color:#fff}
+#player .p-top{display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;color:#fff;flex:none}
 #player .p-top h3{font-family:var(--font-h);font-size:15px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#player iframe{flex:1;width:100%;border:0;min-width:0}
-#player .p-wrap{display:flex;flex:1;min-height:0}
+#player .p-wrap{display:flex;flex-direction:column;flex:1;min-height:0;overflow:auto}
+#player .p-main{flex:1;min-width:0;max-width:860px;width:100%;margin-inline:auto}
 #player .p-side{display:none}
-#player .p-actions{display:flex;gap:10px;padding:14px;color:#fff}
 .pbtn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:var(--r-btn);
   background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:13px;font-weight:600;
-  backdrop-filter:blur(8px);transition:.25s}
+  backdrop-filter:blur(8px);transition:.25s;cursor:pointer;text-decoration:none}
 .pbtn:hover{background:rgba(255,255,255,.2)}
 .pbtn.main{background:var(--grad);border-color:transparent;box-shadow:var(--glow)}
+.pbtn.on{background:var(--grad);border-color:transparent;box-shadow:var(--glow)}
+/* — stage — */
+.p-stage{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden;max-height:56dvh;width:100%}
+.p-stage #ytHost,.p-stage iframe,.p-stage video{position:absolute;inset:0;width:100%!important;height:100%!important;border:0}
+.pl-spin{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;opacity:0;transition:opacity .3s}
+.pl-spin i{width:44px;height:44px;border-radius:99px;border:3px solid rgba(255,255,255,.2);
+  border-top-color:var(--accent);animation:spinA .8s linear infinite;display:block}
+@keyframes spinA{to{transform:rotate(360deg)}}
+.pl-big{position:absolute;inset:0;margin:auto;width:74px;height:74px;border-radius:99px;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--accent) 88%,#000);box-shadow:0 12px 40px rgba(0,0,0,.55),0 0 34px color-mix(in srgb,var(--accent) 55%,transparent);
+  opacity:0;pointer-events:none;transform:scale(.7);transition:.28s var(--ease-spring,cubic-bezier(.34,1.56,.64,1))}
+.pl-big svg{width:30px;height:30px;fill:#fff;margin-left:4px}
+.p-stage.paused .pl-big,.p-stage.idle-start .pl-big{opacity:1;pointer-events:auto;transform:scale(1)}
+.pl-big:hover{filter:brightness(1.12)}
+.pl-toast{position:absolute;top:50%;transform:translateY(-50%) scale(.6);opacity:0;pointer-events:none;transition:.25s}
+.pl-toast b{display:grid;place-items:center;width:76px;height:76px;border-radius:99px;
+  background:rgba(0,0,0,.55);backdrop-filter:blur(4px);color:#fff;font-size:13px;border:1px solid rgba(255,255,255,.25)}
+#plTapL{left:6%} #plTapR{right:6%}
+.pl-toast.show{opacity:1;transform:translateY(-50%) scale(1)}
+.pl-err{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:8px;background:rgba(0,0,0,.88);color:#fff;text-align:center;padding:20px}
+.pl-err .big{font-size:44px} .pl-err h3{font-family:var(--font-h)} .pl-err p{font-size:13px;opacity:.7;margin-bottom:8px}
+/* — controls — */
+.pl-ctl{position:absolute;left:0;right:0;bottom:0;padding:26px 14px 10px;color:#fff;
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.78));transition:opacity .35s,transform .35s}
+.p-stage.ctl-off .pl-ctl{opacity:0;transform:translateY(12px);pointer-events:none}
+.pl-seek{position:relative;height:18px;cursor:pointer;display:flex;align-items:center;touch-action:none}
+.pl-seek i{position:absolute;left:0;right:0;height:4px;border-radius:99px;background:rgba(255,255,255,.22)}
+.pl-seek i#plBuf{width:0;background:rgba(255,255,255,.38)}
+.pl-seek b{position:absolute;left:0;height:4px;border-radius:99px;background:var(--grad);width:0;box-shadow:var(--glow)}
+.pl-seek u{position:absolute;width:13px;height:13px;border-radius:99px;background:#fff;left:0;transform:translateX(-50%) scale(0);
+  transition:transform .2s var(--ease-spring,cubic-bezier(.34,1.56,.64,1));box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.pl-seek:hover u,.pl-seek.drag u{transform:translateX(-50%) scale(1)}
+.pl-seek em{position:absolute;bottom:22px;transform:translateX(-50%);background:rgba(0,0,0,.82);border:1px solid rgba(255,255,255,.2);
+  color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:8px;opacity:0;transition:opacity .2s;pointer-events:none;font-style:normal}
+.pl-seek:hover em{opacity:1}
+.pl-row{display:flex;align-items:center;gap:4px;margin-top:2px}
+.pl-grow{flex:1}
+.plb{min-width:40px;height:40px;padding:0 6px;border-radius:12px;display:inline-grid;place-items:center;color:#fff;font-size:15px;font-weight:700;transition:.2s}
+.plb svg{width:17px;height:17px;fill:#fff}
+.plb:hover{background:rgba(255,255,255,.14)}
+.plb:active{transform:scale(.88)}
+.plb.mini{font-size:19px}
+.plb.speed{font-size:12.5px;letter-spacing:.02em}
+.pl-time{font-size:12px;font-variant-numeric:tabular-nums;opacity:.92;padding:0 8px;white-space:nowrap}
+.pl-volr{width:72px;accent-color:var(--accent);cursor:pointer}
+@media (max-width:560px){.pl-volr{display:none}}
+/* — info & comments — */
+.p-info{padding:16px 16px 30px;color:#fff;max-width:860px;margin-inline:auto;width:100%}
+.pi-title{font-family:var(--font-h);font-size:17px;line-height:1.35}
+.pi-meta{display:flex;gap:14px;font-size:12.5px;opacity:.65;margin-top:6px;flex-wrap:wrap}
+.pi-desc{font-size:13.5px;line-height:1.7;opacity:.85;margin-top:10px}
+.pi-acts{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.cmt-box{margin-top:16px;border-top:1px solid rgba(255,255,255,.12);padding-top:14px}
+.cmt-add{display:flex;gap:10px;align-items:flex-start}
+.cmt-add .field{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16);color:#fff;margin-top:0;flex:1;resize:vertical;min-height:46px}
+.cmt-send{width:auto;margin-top:0;padding:12px 18px;font-size:13.5px;align-self:stretch}
+.cmt-list{display:grid;gap:4px;margin-top:14px}
+.cmt{display:flex;gap:11px;padding:10px 8px;border-radius:14px;transition:background .25s;animation:cardIn .4s cubic-bezier(.22,1,.36,1) backwards}
+.cmt:hover{background:rgba(255,255,255,.05)}
+.cmt .ava{flex:none;width:36px;height:36px;border-radius:99px;background:var(--grad);display:grid;place-items:center;
+  font-weight:800;font-size:15px;color:#fff;font-family:var(--font-h)}
+.cmt .cw{flex:1;min-width:0}
+.cmt .cn{font-size:13px;font-weight:700;display:flex;gap:8px;align-items:baseline}
+.cmt .cn small{font-weight:500;opacity:.5;font-size:11px}
+.cmt .cx{font-size:13.5px;line-height:1.6;margin-top:3px;word-wrap:break-word;white-space:pre-wrap}
+.cmt .cacts{display:flex;gap:14px;margin-top:6px;font-size:11.5px;opacity:.75}
+.cmt .cacts button{color:#fff;font-size:11.5px;font-weight:600;transition:.2s;padding:2px 4px}
+.cmt .cacts button:hover{opacity:.8}
+.cmt .cacts button.voted{color:#ff6b8a}
+.cmt-more{display:block;margin:10px auto 0;padding:9px 18px;border-radius:99px;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.16);color:#fff;font-size:12.5px;font-weight:600}
+.cmt-live{display:inline-flex;align-items:center;gap:6px;font-size:11px;opacity:.6;margin-bottom:8px}
+.cmt-live::before{content:"";width:7px;height:7px;border-radius:99px;background:#30d158;animation:pulseFab 1.6s infinite}
+.cmt-empty{text-align:center;padding:26px 10px;opacity:.55;font-size:13px}
 
 /* ============================ READER ============================ */
 .reader-body{font-size:15px;line-height:1.75;color:var(--text)}
@@ -403,7 +477,9 @@ main{flex:1;min-width:0;padding:0 var(--pad) calc(var(--tab-h) + env(safe-area-i
     animation:sheetUpD .45s cubic-bezier(.22,1,.36,1);max-height:86dvh}
   @keyframes sheetUpD{from{transform:translate(-50%,-46%) scale(.96);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
   #toasts{bottom:34px}
-  #player .p-wrap{display:grid;grid-template-columns:1fr 340px;gap:0;flex:1;min-height:0}
+  #player .p-wrap{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:0;flex:1;min-height:0;overflow:hidden}
+  #player .p-main{max-width:none;margin:0;overflow:auto;scrollbar-width:thin}
+  #player .p-stage{max-height:52dvh;margin-inline:auto}
   #player .p-side{display:block;border-left:1px solid rgba(255,255,255,.1);color:#fff;padding:20px;overflow:auto}
 }
 .p-side h4{font-size:13px;letter-spacing:.1em;text-transform:uppercase;opacity:.6;margin-bottom:10px}
@@ -611,20 +687,62 @@ main{flex:1;min-width:0;padding:0 var(--pad) calc(var(--tab-h) + env(safe-area-i
   </nav>
 </div>
 
-<!-- ============ PLAYER OVERLAY ============ -->
-<div id="player">
+<!-- ============ PLAYER OVERLAY (custom AURUM player) ============ -->
+<div id="player" role="dialog" aria-modal="true">
   <div class="p-top">
-    <button class="icon-btn" id="pClose">✕</button>
+    <button class="icon-btn" id="pClose" aria-label="Yopish">✕</button>
     <h3 id="pTitle"></h3>
+    <button class="icon-btn" id="pCmtBtn" aria-label="Izohlar">💬</button>
   </div>
   <div class="p-wrap">
-    <iframe id="pFrame" allow="autoplay; encrypted-media; picture-in-picture; fullscreen"></iframe>
+    <div class="p-main">
+      <div class="p-stage" id="pStage">
+        <div id="ytHost"></div>
+        <div class="pl-spin" id="plSpin"><i></i></div>
+        <button class="pl-big" id="plBig" aria-label="Ko’rsatish"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+        <div class="pl-toast" id="plTapL"><b>↺ 10s</b></div>
+        <div class="pl-toast" id="plTapR"><b>10s ↻</b></div>
+        <div class="pl-err" id="plErr" hidden>
+          <div class="big">📡</div><h3>Bu video shu yerda o’ynamaydi</h3>
+          <p>YouTube bu videoni joylashtirishni cheklagan bo’lishi mumkin.</p>
+          <a class="pbtn main" id="plErrGo" target="_blank" rel="noopener">▶ YouTube’da ochish</a>
+        </div>
+        <div class="pl-ctl" id="plCtl">
+          <div class="pl-seek" id="plSeek"><i id="plBuf"></i><b id="plProg"></b><u id="plKnob"></u><em id="plTip"></em></div>
+          <div class="pl-row">
+            <button class="plb" id="plPlay" aria-label="Play / Pause"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+            <button class="plb mini" id="plBack" title="10s orqaga">↺</button>
+            <button class="plb mini" id="plFwd" title="10s oldinga">↻</button>
+            <span class="pl-time"><span id="plT">0:00</span> / <span id="plD">0:00</span></span>
+            <span class="pl-grow"></span>
+            <button class="plb mini" id="plVol" aria-label="Ovoz">🔊</button>
+            <input type="range" id="plVolR" class="pl-volr" min="0" max="100" value="100" aria-label="Ovoz balandligi">
+            <button class="plb speed" id="plSpeed" title="Tezlik">1×</button>
+            <button class="plb mini" id="plNext" title="Keyingi video">⏭</button>
+            <button class="plb mini" id="plFs" aria-label="To’liq ekran">⛶</button>
+          </div>
+        </div>
+      </div>
+      <div class="p-info" id="pInfo">
+        <h3 class="pi-title" id="piTitle"></h3>
+        <div class="pi-meta"><span id="pViews">👁 0</span><span id="pLikesN">♡ 0</span><span id="pCat"></span></div>
+        <p class="pi-desc" id="pDesc"></p>
+        <div class="pi-acts">
+          <button class="pbtn" id="pLike">🤍 Layk</button>
+          <button class="pbtn" id="pShare">📤 Ulashish</button>
+          <button class="pbtn" id="pComment">💬 Izohlar <b id="pCmtN"></b></button>
+        </div>
+        <div class="cmt-box" id="cmtBox" hidden>
+          <div class="cmt-add">
+            <textarea class="field" id="cmtText" placeholder="Fikringizni yozing…" maxlength="900" rows="2"></textarea>
+            <button class="btn cmt-send" id="cmtSend">Yuborish ➤</button>
+          </div>
+          <div class="cmt-list" id="cmtList"></div>
+          <button class="cmt-more" id="cmtMore" hidden>Ko’proq izoh ↧</button>
+        </div>
+      </div>
+    </div>
     <div class="p-side" id="pSide"></div>
-  </div>
-  <div class="p-actions">
-    <button class="pbtn" id="pFav">🤍 Sevkli</button>
-    <button class="pbtn" id="pShare">📤 Ulashish</button>
-    <span class="pbtn" id="pViews" style="margin-left:auto;pointer-events:none">👁 0</span>
   </div>
 </div>
 
@@ -638,20 +756,6 @@ main{flex:1;min-width:0;padding:0 var(--pad) calc(var(--tab-h) + env(safe-area-i
     <div class="t-tabs" id="tTabs"></div>
     <div class="t-grid" id="tGrid"></div>
     <button class="btn ghost" data-close style="margin-top:18px">Yopish</button>
-  </div>
-</div>
-
-<!-- ============ LOGIN SHEET ============ -->
-<div class="sheet" id="loginSheet">
-  <div class="veil" data-close></div>
-  <div class="panel" style="max-width:460px;margin:0 auto;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border-radius:26px;border-bottom:1px solid var(--line)">
-    <div class="grab"></div>
-    <h2 id="loginTitle">Xush kelibsing 👋</h2>
-    <p class="hint" id="loginHint">Profil, sevkli ro’yxat va sozlamalaringiz shu yerda saqlanadi.</p>
-    <input class="field" id="loginName" placeholder="Ismingni yoz…" maxlength="24">
-    <button class="btn" id="loginGo">Davom etish</button>
-    <button class="btn ghost" id="loginTg" style="display:none">✈️ Telegram orqali kirish</button>
-    <button class="btn ghost" data-close>Keyinroq</button>
   </div>
 </div>
 
@@ -674,7 +778,7 @@ main{flex:1;min-width:0;padding:0 var(--pad) calc(var(--tab-h) + env(safe-area-i
    to’ldiring (code.gs → Deploy → Web app URL):
    ============================================================ */
 window.APP_CONFIG = {
-  API_URL: "",                       // masalan: "https://script.google.com/macros/s/AKfycb.../exec"
+  API_URL: "https://script.google.com/macros/s/AKfycbxjJcHUaydjnmPkODmke3TXcH8Dbm4hwvO-F7goD5sa60yglJ7KCUXyMep8vkrdXuZj7Q/exec",
   ADMIN_PANEL: "admin.html",
   CHANNEL_URL: "https://t.me/your_channel"
 };
@@ -741,50 +845,27 @@ function artOf(i,vars){ // har karta/hero uchun noyob gradient "muqova"
   return `linear-gradient(${120+i*17}deg, hsl(${hue} 72% 32%), hsl(${(hue+55)%360} 78% 22%)), radial-gradient(120% 90% at 80% 10%, hsl(${(hue+90)%360} 85% 45% / .55), transparent)`;
 }
 
-/* ============================ DEMO DATA ============================ */
-const DEMO_VIDEOS=[
- {id:'v1', yt:'M7lc1UVf-VE',  title:'Kinematik sayohat: tog’lar ortiga', cat:'Sayohat', dur:'12:04', views:12400, featured:1, desc:'YouTube demo kanali yuqori sifatli sayohat kadrlari.'},
- {id:'v2', yt:'YE7VzlLtp-4',  title:'Ochiq kodli animatsiya studiyasi', cat:'Texnologiya', dur:'09:58', views:8300, featured:1, desc:'Blender ochiq manba jamosi haqida hujjatli.'},
- {id:'v3', yt:'aqz-KE-bpKQ',  title:'Big Buck Bunny — to’liq metraj', cat:'Kino', dur:'09:56', views:45200, featured:1, desc:'Blender Institute klassik multfilm.'},
- {id:'v4', yt:'ScMzIvxBSi4',  title:'Tabiat: okean tubidagi yorug’lik', cat:'Tabiat', dur:'04:12', views:9700, desc:'Chuqur suv ekotizimi haqida qisqa metraj.'},
- {id:'v5', yt:'ktvTqknDobU',  title:'Retro synthwave kechasi', cat:'Musika', dur:'15:00', views:22800, desc:'Sint-muzika va neon vizual aralashmasi.'},
- {id:'v6', yt:'LXb3EKWsInQ',  title:'Vacation — 4K tabiat shoular', cat:'Sayohat', dur:'06:08', views:18400, desc:'Dunyo bo’ylab 4K manzaralar kolleksiyasi.'},
- {id:'v7', yt:'TB0weVq9704',  title:'Kod yozish san’ati', cat:'Ta’lim', dur:'21:33', views:6600, desc:'Sofware muhandislari uchun amaliy mashg’ulot.'},
- {id:'v8', yt:'hHW1oY26kxQ',  title:'Space Explored: Mars missiyasi', cat:'Ilm-fan', dur:'11:11', views:31900, desc:'Qizil sayyorga parvoz vizualizatsiyasi.'},
- {id:'v9', yt:'9bZkp7q19f0',  title:'Top chart kliplar mashup', cat:'Musika', dur:'03:58', views:98200, live:1, desc:'Bu hafta chempion — trend mashup.'},
- {id:'v10',yt:'e-OpZ3zP+jT',  title:'Shahar ortidagi dizayn', cat:'Texnologiya', dur:'13:41', views:5400, desc:'UX research va shahar mijozlari.'}
-];
-const DEMO_NEWS=[
- {id:'n1', title:'YouTube maxfiy kanallar uchun yangi DRM qatlami joriy qildi', cat:'Tech', src:'TechCrunch uz', time:'2 soat', hot:1, read:4, emoji:'🔐', body:'Yangi imkoniyat creatorlarga kontentni faqat tasdiqlanmagan qurilmalarda ko’rishni chekishga ruxsat beradi.\n\nAURUM jamoasi bu o’zgarishni unlisted videolar orqali yengib o’tish yo’lini sinovdan o’tkazdi.\n\nMutaxassislar fikricha, kelgusi yilda barcha streaming ilovalar identifikatsiyani Telegram kabi tizimlar orqali olishi kutilmoqda.'},
- {id:'n2', title:'O’zbekiston IT-export hajmi rekordini yangiladi', cat:'Iqtisod', src:'Gazeta', time:'5 soat', hot:1, read:3, emoji:'💼', body:'Bu yil IT-xizmatlar eksporti o’tgan yilga nisbatan 40 foizga o’sdi.\n\nYangi startaplarning aksariyati mobil va web ilovalar ustiga ishlamoqda.'},
- {id:'n3', title:'Anime mavsumi: eng kutilgan 5 premyera e’lon qilindi', cat:'Madaniyat', time:'8 soat', read:5, emoji:'🌸', body:'Ushbu kuzgi mavsumda davomliq fasllar yetakchilik qiladi.\n\nSolo Leveling 2-fasr premyerasi allaqachon rekord ko’rishlarni yig’di.'},
- {id:'n4', title:'Super-qahramonlar kinokainoti qayta boshlanadi', cat:'Kino', time:'12 soat', read:6, emoji:'🎬', body:'Studio rasman yangi trilogiya rejasini tasdiqladi.\n\nDirektor sifatida tanilgan mustaqil kinorejissyor taklif qilindi.'},
- {id:'n5', title:'Web-gaming benchmark: mobil GPU’lar kompyuterga yetishdi', cat:'Tech', time:'1 kun', read:4, emoji:'🎮', body:'So’nggi testlarda flagship telefonlar o’rtacha laptop natijalariga yaqinlashdi.'},
- {id:'n6', title:'Olimlar muzliklar ostida tirik mikroorganizm topdi', cat:'Ilm-fan', time:'1 kun', read:3, emoji:'🔬', body:'4000 yillik muzdan olingan namunalar laboratoriyada faollashdi.'},
- {id:'n7', title:'Milliy terma jamoa saralash bosqichiga tayyor', cat:'Sport', time:'2 kun', read:2, emoji:'⚽', body:'Bosh murabbiy tarkib ro’yxatini e’lon qildi.'},
- {id:'n8', title:'Shahar transportida to’liq raqamli to’lov jarayoni', cat:'Jamiyat', time:'2 kun', read:3, emoji:'🚌', body:'Endi avtobus va metroda naqd pul umuman qabul qilinmaydi.'},
- {id:'n9', title:'Sun’iy intellekt kino montajida: birinchi AI-festival', cat:'Kino', time:'3 kun', read:5, emoji:'🤖', body:'Festivalga 120 dan ortiq AI-yordamida yaratilgan asar keldi.'},
- {id:'n10',title:'Telegram mini-app market 40 mlrd foydalanuvchiga chiqdi', cat:'Tech', time:'4 kun', hot:1, read:4, emoji:'✈️', body:'Mini-app ekosistimi o’yinchilar, do’konlar va streaming servislar hisobiga o’sdi.\n\nAURUM ham ushbu to’lqinning bir qismi sifatiga Telegram WebApp rejimida ishlaydi.'}
-];
-
 /* ============================ STATE / STORAGE ============================ */
 const LS = {
   get(k,d){ try{ const v=localStorage.getItem('aurum.'+k); return v?JSON.parse(v):d }catch(e){ return d } },
   set(k,v){ try{ localStorage.setItem('aurum.'+k,JSON.stringify(v)) }catch(e){} }
 };
+/* doimiy foydalanuvchi ID: Telegram’da tg<id>, tashqarida qurilmaviy u<random> */
+if(!LS.get('uid',null)) LS.set('uid','u'+Date.now().toString(36)+Math.random().toString(36).slice(2,8));
 const S = {
+  uid: LS.get('uid'),
   theme: LS.get('theme','classic-dark'),
   motion: LS.get('motion',true),
   notif:  LS.get('notif',true),
   hd:     LS.get('hd',false),
   favs:   LS.get('favs',[]),
   saved:  LS.get('saved',[]),
-  hist:   LS.get('hist',{}),          // id -> {t, pct}
+  hist:   LS.get('hist',{}),          // id -> {t, pct, sec}
   read:   LS.get('read',[]),
   user:   LS.get('user',null),        // {name, tg, role}
   themeSwitches: LS.get('themeSwitches',0),
-  videos: DEMO_VIDEOS,
-  news:   DEMO_NEWS,
+  videos: [], news: [],               // faqat backend’dan (real ma’lumot)
+  likeCounts: {}, commentCounts: {}, myLikes: LS.get('myLikes',[]),
   tab:'home', homeCat:'Hammasi', newsCat:'Hammasi', favTab:'v',
   query:''
 };
@@ -896,9 +977,24 @@ function bgOf(v,i,q){
   return (u?`url('${u}') , `:'')+artOf(i);
 }
 
+/* ============================ BACKEND API ============================ */
+async function api(body){
+  if(!window.APP_CONFIG.API_URL) return {ok:false, error:'API ulanmagan'};
+  try{
+    const r=await fetch(APP_CONFIG.API_URL,{method:'POST',body:JSON.stringify(body)});
+    return await r.json();
+  }catch(e){ return {ok:false, error:String(e)} }
+}
+function timeAgo(ts){
+  const d=(Date.now()-(+ts))/1000;
+  if(d<60) return 'hozir'; if(d<3600) return Math.floor(d/60)+' min';
+  if(d<86400) return Math.floor(d/3600)+' soat'; if(d<604800) return Math.floor(d/86400)+' kun';
+  return new Date(+ts).toLocaleDateString();
+}
+
 /* ============================ TRACKING (Sheets’ga boradi) ============================ */
 function track(event,itemId,meta){
-  const payload={event,itemId,meta:meta||'',userId:S.user?.tg||'guest',theme:S.theme,ts:Date.now()};
+  const payload={event,itemId,meta:meta||'',userId:S.uid,theme:S.theme,ts:Date.now()};
   if(window.APP_CONFIG.API_URL){
     try{ navigator.sendBeacon ?
       navigator.sendBeacon(APP_CONFIG.API_URL, new Blob([JSON.stringify({action:'track',...payload})],{type:'text/plain'}))
@@ -908,58 +1004,78 @@ function track(event,itemId,meta){
 
 /* ============================ RENDER: HOME ============================ */
 function videoCard(v,i){
-  const on=S.favs.includes(v.id);
+  const liked=S.myLikes.includes(v.id);
   return `<div class="card" data-play="${v.id}" style="animation-delay:${Math.min(i*45,400)}ms">
     <div class="thumb" style="--tbg:${bgOf(v,i)}">
       ${v.live?'<span class="live">LIVE</span>':''}
       <span class="dur">${v.dur||'—'}</span>
-      <button class="fav-pin ${on?'on':''}" data-fav="${v.id}">${on?'❤️':'🤍'}</button>
+      <button class="fav-pin ${liked?'on':''}" data-like="${v.id}">${liked?'❤️':'🤍'}</button>
       <span class="playmini"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
     </div>
     <div class="body"><div class="kicker">${esc(v.cat)}</div><h4>${esc(v.title)}</h4>
-      <div class="sub"><span>👁 ${fmt(v.views||0)}</span><span>·</span><span>${v.desc?esc(v.desc.split('.')[0]):''}</span></div>
+      <div class="sub"><span>👁 ${fmt(v.views||0)}</span><span>·</span><span>${liked?'❤️':'🤍'} ${fmt(S.likeCounts[v.id]||0)}</span>${S.commentCounts[v.id]?'<span>·</span><span>💬 '+fmt(S.commentCounts[v.id])+'</span>':''}</div>
     </div></div>`;
 }
 function renderHome(){
   const feats=S.videos.filter(v=>v.featured).slice(0,5);
+  $('.hero').style.display=feats.length?'':'none';
   $('#heroTrack').innerHTML = feats.map((v,i)=>`
     <div class="slide" data-play="${v.id}" style="--slide-bg:${bgOf(v,i*3+1)}">
       <div class="art"></div>
       <div class="meta"><span class="badge">✦ Featured · ${esc(v.cat)}</span>
         <h3>${esc(v.title)}</h3><p>${esc(v.desc||'')}</p>
-        <div class="s-meta"><span>👁 ${fmt(v.views||0)} ko'rish</span><span>⏱ ${v.dur}</span></div></div>
+        <div class="s-meta"><span>👁 ${fmt(v.views||0)} ko'rish</span><span>⏱ ${v.dur}</span><span>❤️ ${fmt(S.likeCounts[v.id]||0)}</span></div></div>
       <span class="play-fab"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
     </div>`).join('');
   $('#heroDots').innerHTML = feats.map((_,i)=>`<i class="${i===0?'on':''}"></i>`).join('');
-  const cats=['Hammasi',...new Set(S.videos.map(v=>v.cat))];
+  const cats=['Hammasi',...new Set(S.videos.map(v=>v.cat).filter(Boolean))];
   $('#homeChips').innerHTML = cats.map(c=>`<button class="chip ${c===S.homeCat?'on':''}" data-hcat="${c}">${c}</button>`).join('');
   let list=S.videos.filter(v=>S.homeCat==='Hammasi'||v.cat===S.homeCat);
   if(S.query){ const q=S.query.toLowerCase(); list=list.filter(v=>(v.title+v.cat+(v.desc||'')).toLowerCase().includes(q)); }
   $('#videoGrid').innerHTML = list.length? list.map(videoCard).join('') :
-    `<div class="empty" style="grid-column:1/-1"><div class="big">🔎</div><h3>Hech narsa topilmadi</h3><p>Boshqa kalit so’z bilan qidirib ko’ring.</p></div>`;
-  $('#cntAll').textContent=list.length+' ta video';
+    (S.videos.length
+      ? `<div class="empty" style="grid-column:1/-1"><div class="big">🔎</div><h3>Hech narsa topilmadi</h3><p>Boshqa kalit so’z yoki kategoriya tanlang.</p></div>`
+      : `<div class="empty" style="grid-column:1/-1"><div class="big">🎬</div><h3>Hali videolar yo’q</h3><p>Kontent backend’dan keladi — admin panel orqali video qo’shing.</p></div>`);
+  $('#cntAll').textContent=list.length? list.length+' ta video':'';
   // continue watching
   const hIds=Object.keys(S.hist).sort((a,b)=>S.hist[b].t-S.hist[a].t).slice(0,8);
   const hVids=hIds.map(id=>S.videos.find(v=>v.id===id)).filter(Boolean);
   $('#cwSec').style.display=hVids.length?'':'none';
   $('#cwRow').innerHTML=hVids.map((v,i)=>`<div class="cw" data-play="${v.id}">
     <div class="thumb" style="--tbg:${bgOf(v,i+6)};aspect-ratio:16/9;border-radius:var(--r-sm)"></div>
-    <div class="bar"><i style="width:${S.hist[v.id].pct||40}%"></i></div>
-    <div class="cap">${esc(v.title.slice(0,26))}… · ${Math.round(S.hist[v.id].pct||40)}%</div></div>`).join('');
+    <div class="bar"><i style="width:${Math.round(S.hist[v.id].pct||0)}%"></i></div>
+    <div class="cap">${esc(v.title.slice(0,26))}… · ${Math.round(S.hist[v.id].pct||0)}%</div></div>`).join('');
   bindPlay();
 }
 function bindPlay(){
   $$('[data-play]').forEach(el=>el.onclick=e=>{
-    if(e.target.closest('[data-fav]')) return;
+    if(e.target.closest('[data-like]')) return;
     openPlayer(el.dataset.play);
   });
-  $$('[data-fav]').forEach(el=>el.onclick=e=>{
+  $$('[data-like]').forEach(el=>el.onclick=e=>{
     e.stopPropagation();
-    const id=el.dataset.fav, ix=S.favs.indexOf(id);
-    if(ix>-1){S.favs.splice(ix,1); toast('Sevklidan olib tashlandi','💔')}
-    else{S.favs.push(id); toast('Sevgililar ro’yxatiga qo’shildi','❤️'); if(navigator.vibrate)navigator.vibrate(18)}
-    LS.set('favs',S.favs); track('fav',id); renderHome(); renderFav(); renderStats(); refreshPlayerFav();
+    toggleLike(el.dataset.like);
   });
+}
+
+/* ============================ LIKE (real-time, ♥ = sevklilar bilan bog’liq) ============================ */
+let likeBusy=false;
+async function toggleLike(id){
+  if(likeBusy) return; likeBusy=true;
+  const ix=S.myLikes.indexOf(id); // optimistic
+  if(ix>-1) S.myLikes.splice(ix,1); else S.myLikes.push(id);
+  if(S.likeCounts[id]==null) S.likeCounts[id]=0;
+  S.likeCounts[id]=Math.max(0,S.likeCounts[id]+(ix>-1?-1:1));
+  renderHome(); if(document.contains($('#videoGrid'))) $$('[data-like="'+id+'"]').forEach(b=>{b.classList.toggle('on',S.myLikes.includes(id));b.textContent=S.myLikes.includes(id)?'❤️':'🤍'});
+  updatePlayerLikeUI();
+  if(ix===-1 && !S.favs.includes(id)){ S.favs.push(id); LS.set('favs',S.favs); renderFav(); renderStats(); toast('Layklading — sevkli videolarga ham qo’shildi','❤️'); if(navigator.vibrate)navigator.vibrate(18); }
+  const j=await api({action:'social', op:'like', uid:S.uid, videoId:id});
+  if(j.ok){ S.likeCounts[id]=j.count; if(j.liked!==S.myLikes.includes(id)){ /* server holati ustun */
+      const k=S.myLikes.indexOf(id); if(j.liked&&k===-1)S.myLikes.push(id); if(!j.liked&&k>-1)S.myLikes.splice(k,1); } }
+  else toast(j.error||'Layk yuborilmadi','⚠️');
+  LS.set('myLikes',S.myLikes);
+  renderHome(); renderFav(); updatePlayerLikeUI();
+  likeBusy=false;
 }
 
 /* ============================ RENDER: NEWS ============================ */
@@ -971,6 +1087,12 @@ function nRow(n,i){
     </div></div>`;
 }
 function renderNews(){
+  if(!S.news.length){
+    $('#tickText').textContent='';
+    $('#newsChips').innerHTML=''; $('#nLead').innerHTML=''; $('#nSide').innerHTML='';
+    $('#nList').innerHTML=`<div class="empty"><div class="big">📭</div><h3>Hali yangiliklar yo’q</h3><p>Admin panel orqali yangilik qo’shilsa, shu yerda real vaqtda paydo bo’ladi.</p></div>`;
+    return;
+  }
   $('#tickText').textContent = S.news.filter(n=>n.hot).map(n=>n.title).join('   ✦   ') || S.news[0]?.title;
   const cats=['Hammasi',...new Set(S.news.map(n=>n.cat))];
   $('#newsChips').innerHTML = cats.map(c=>`<button class="chip ${c===S.newsCat?'on':''}" data-ncat="${c}">${c}</button>`).join('');
@@ -1037,11 +1159,12 @@ function renderStats(){
 function renderProfile(){
   const u=S.user;
   $('#pName').textContent=u?u.name:'Mehmon foydalanuvchi';
-  $('#pHandle').textContent=u?(u.tg?`@${u.tg} · Telegram`:'Web foydalanuvchi'):'Kirish uchun rasmni bosing';
+  $('#pHandle').textContent=u?(u.tg?`@${u.tg} · Telegram`:'Web foydalanuvchi'):'Telegram ilova orqali avtomatik kiriladi';
   $('#pAva').textContent=(u?u.name:'A').slice(0,1).toUpperCase();
   $('#avaBtn').textContent=(u?u.name:'A').slice(0,1).toUpperCase();
   $('#pPremium').classList.toggle('premium',!!u);
-  $('#pPremium').textContent=u?'✦ PREMIUM a’zo':'✦ Ho’p — profilla';
+  $('#pPremium').textContent=u?'✦ PREMIUM a’zo':'✦ Mehmon';
+  $('#rowAdmin').classList.toggle('hidden', u?.role!=='admin'); // admin panel faqat admin’ga ko’rinadi
 }
 
 /* ============================ TABS & SHEETS ============================ */
@@ -1133,38 +1256,255 @@ $('#q').addEventListener('keydown',e=>{
   if(e.key==='Enter' && ytId(e.target.value)){ e.preventDefault(); playLink(e.target.value); }
 });
 
-/* ============================ PLAYER ============================ */
-let curVideo=null;
+/* ============================ PLAYER — custom AURUM engine ============================ */
+let curVideo=null, yt=null, ytApiP=null, plTick=null, ctlIdle=null, lastVol=100;
+const SPEEDS=[0.5,0.75,1,1.25,1.5,1.75,2]; let speedIx=LS.get('speedIx',2);
+function ytApi(){
+  if(ytApiP) return ytApiP;
+  ytApiP=new Promise(res=>{
+    if(window.YT&&YT.Player) return res();
+    window.onYouTubeIframeAPIReady=()=>res();
+    const s=document.createElement('script'); s.src='https://www.youtube.com/iframe_api';
+    document.head.appendChild(s);
+  });
+  return ytApiP;
+}
+function fmtTime(s){ s=Math.max(0,Math.floor(s||0)); const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
+  return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0'); }
+const pl$=id=>document.getElementById(id);
+function ctlShow(){ const st=pl$('pStage'); st.classList.remove('ctl-off');
+  clearTimeout(ctlIdle); if(yt&&yt.getPlayerState&&yt.getPlayerState()===1) ctlIdle=setTimeout(()=>st.classList.add('ctl-off'),2800); }
+async function ytEnsure(vid,startAt){
+  await ytApi();
+  if(yt&&yt.loadVideoById){ yt.loadVideoById({videoId:vid,startSeconds:startAt||0}); return; }
+  if(!document.getElementById('ytFrame')){
+    const host=pl$('ytHost'); const d=document.createElement('div'); d.id='ytFrame'; host.appendChild(d);
+  }
+  YT.ready(()=>{
+    yt=new YT.Player('ytFrame',{
+      videoId:vid, playerVars:{controls:0,disablekb:1,modestbranding:1,rel:0,iv_load_policy:3,playsinline:1,
+        origin:location.origin},
+      events:{
+        onReady:()=>{ pl$('plSpin').style.opacity=0; yt.setPlaybackRate(SPEEDS[speedIx]); yt.playVideo(); attachCatch(); },
+        onStateChange:e=>{
+          const st=pl$('pStage');
+          st.classList.toggle('paused', e.data===2);
+          st.classList.remove('idle-start');
+          pl$('plSpin').style.opacity=(e.data===3||e.data===-1)?1:0;
+          pl$('plPlay').innerHTML=e.data===1
+            ?'<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>'
+            :'<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+          if(e.data===1){ ctlShow(); } else clearTimeout(ctlIdle);
+          if(e.data===0) playNext();
+        },
+        onError:e=>{
+          if([2,5,101,150].includes(e.data)){
+            pl$('plErr').hidden=false; pl$('plSpin').style.opacity=0;
+            pl$('plErrGo').href='https://www.youtube.com/watch?v='+ytId(curVideo.yt||curVideo.id.replace(/^ext-/,''));
+          }
+        }
+      }
+    });
+    setTimeout(()=>{ if(yt&&yt.getCurrentTime) yt.seekTo(startAt||0,true); },900);
+  });
+}
+function attachCatch(){
+  if(attachCatch.done) return; attachCatch.done=true;
+  const st=pl$('pStage'); let lastTap=0,lastX=0;
+  st.addEventListener('pointerdown',e=>{ if(e.target.closest('.pl-ctl,.pl-big,.pl-err,.pbtn')) return; },true);
+  st.addEventListener('click',e=>{
+    if(e.target.closest('.pl-ctl,.pl-big,.pl-err')) return;
+    const now=Date.now(), r=st.getBoundingClientRect(), x=e.clientX-r.left;
+    if(now-lastTap<330){
+      const d=x<r.width/2?-10:10; seekBy(d);
+      const t=pl$(d<0?'plTapL':'plTapR'); t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),480);
+      lastTap=0;
+    }else{
+      lastTap=now; lastX=x;
+      setTimeout(()=>{ if(lastTap===now){ // single tap = controls/play
+        if(st.classList.contains('ctl-off')){ ctlShow(); }
+        else togglePlay(); } },330);
+    }
+  });
+}
+function seekBy(d){ try{ yt.seekTo(Math.max(0,Math.min(yt.getDuration(),yt.getCurrentTime()+d)),true); pl$('plT').textContent=fmtTime(yt.getCurrentTime()); }catch(e){} }
+function togglePlay(){ if(!yt)return; try{ yt.getPlayerState()===1?yt.pauseVideo():yt.playVideo(); }catch(e){} }
+function plPoll(){
+  if(!yt||!yt.getCurrentTime) return;
+  try{
+    const t=yt.getCurrentTime()||0, d=yt.getDuration()||0, b=(yt.getVideoLoadedFraction&&yt.getVideoLoadedFraction())||0;
+    if(!pl$('plSeek').classList.contains('drag')){
+      const pct=d?Math.min(100,t/d*100):0;
+      pl$('plProg').style.width=pct+'%'; pl$('plKnob').style.left=pct+'%';
+      pl$('plBuf').style.width=(b*100)+'%';
+    }
+    pl$('plT').textContent=fmtTime(t); pl$('plD').textContent=fmtTime(d);
+    if(curVideo&&d>0){ S.hist[curVideo.id]={t:Date.now(),pct:Math.min(100,t/d*100),sec:Math.floor(t)}; LS.set('hist',S.hist); }
+  }catch(e){}
+}
 function openPlayer(id){
   const v=S.videos.find(x=>x.id===id); if(!v) return;
   curVideo=v;
-  $('#pTitle').textContent=v.title;
-  $('#pFrame').src=`https://www.youtube.com/embed/${ytId(v.yt)||v.yt}?autoplay=1&rel=0`;
-  $('#pSide').innerHTML=`<h4>${esc(v.cat)} · ${v.dur}</h4><div class="desc">${esc(v.desc||'')}</div>
-    <div class="side-videos">${S.videos.filter(x=>x.id!==id).slice(0,6).map((x,j)=>`
+  const vid=ytId(v.yt)||'';
+  pl$('pTitle').textContent=v.title; pl$('piTitle').textContent=v.title;
+  pl$('pDesc').textContent=v.desc||''; pl$('pCat').textContent=v.cat||'';
+  pl$('pViews').textContent='👁 '+fmt(v.views||0);
+  pl$('plErr').hidden=true; pl$('plSpin').style.opacity=1;
+  pl$('pStage').classList.add('paused','idle-start');
+  const hist=S.hist[id]||{};
+  ytEnsure(vid, (hist.pct>2&&hist.pct<97)?(+hist.sec||0):0);
+  pl$('pSide').innerHTML=`<h4 style="font-size:13px;letter-spacing:.1em;text-transform:uppercase;opacity:.6;margin-bottom:10px">Navbatda</h4>
+    <div class="side-videos">${S.videos.filter(x=>x.id!==id).slice(0,8).map((x,j)=>`
       <div class="sv" data-splay="${x.id}"><i style="--tbg:${bgOf(x,j)}"></i>
-        <div><b>${esc(x.title)}</b><span>${esc(x.cat)} · ${x.dur}</span></div></div>`).join('')}</div>`;
+        <div><b>${esc(x.title)}</b><span>${esc(x.cat)} · ${x.dur||'—'} · ♡ ${fmt(S.likeCounts[x.id]||0)}</span></div></div>`).join('')}</div>`;
   $$('[data-splay]').forEach(el=>el.onclick=()=>openPlayer(el.dataset.splay));
-  $('#pViews').textContent='👁 '+fmt(v.views+Math.floor(Math.random()*40));
-  refreshPlayerFav();
+  updatePlayerLikeUI();
   $('#player').classList.add('open'); document.body.style.overflow='hidden';
-  S.hist[id]={t:Date.now(),pct:Math.min(95,(S.hist[id]?.pct||18)+Math.random()*22+8)};
-  LS.set('hist',S.hist); renderStats(); track('watch',id);
+  track('play',id); track('watch',id);
+  clearInterval(plTick); plTick=setInterval(plPoll,250);
+  S.hist[id]=Object.assign({t:Date.now(),pct:0,sec:0},S.hist[id]); renderStats();
+  cmtReset(id);
+  ctlShow();
 }
-function refreshPlayerFav(){
+function playNext(){
   if(!curVideo) return;
-  const on=S.favs.includes(curVideo.id);
-  $('#pFav').textContent=on?'❤️ Sevklida':'🤍 Sevkli';
+  const list=S.videos.filter(x=>x.id!==curVideo.id);
+  if(!list.length) return;
+  const i=S.videos.findIndex(x=>x.id===curVideo.id);
+  const nx=S.videos[(i+1)%S.videos.length];
+  toast('Keyingi video: '+nx.title.slice(0,32)+'…','⏭');
+  openPlayer(nx.id);
 }
-$('#pFav').onclick=()=>{ if(!curVideo)return; const ix=S.favs.indexOf(curVideo.id);
-  ix>-1?S.favs.splice(ix,1):S.favs.push(curVideo.id); LS.set('favs',S.favs);
-  refreshPlayerFav(); renderHome(); renderFav(); toast(ix>-1?'Olib tashlandi':'Sevkliga qo’shildi', ix>-1?'💔':'❤️');};
+function updatePlayerLikeUI(){
+  if(!curVideo) return;
+  const liked=S.myLikes.includes(curVideo.id);
+  pl$('pLike').textContent=liked?'❤️ Layklandi':'🤍 Layk';
+  pl$('pLike').classList.toggle('on',liked);
+  pl$('pLikesN').textContent='♡ '+fmt(S.likeCounts[curVideo.id]||0);
+}
+/* — seek bar (pointer drag) — */
+(function(){
+  const s=pl$('plSeek'); let dragging=false;
+  const frac=e=>{ const r=s.getBoundingClientRect(); return Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)); };
+  s.addEventListener('pointerdown',e=>{ if(!yt)return; dragging=true; s.classList.add('drag'); s.setPointerCapture(e.pointerId); move(e); });
+  s.addEventListener('pointermove',e=>{ const f=frac(e); pl$('plTip').style.left=f*100+'%';
+    try{ pl$('plTip').textContent=fmtTime(f*(yt.getDuration()||0)); }catch(x){}
+    if(dragging) move(e); });
+  s.addEventListener('pointerup',e=>{ if(!dragging)return; dragging=false; s.classList.remove('drag');
+    try{ yt.seekTo(frac(e)*(yt.getDuration()||0),true); }catch(x){} });
+  function move(e){ const f=frac(e); pl$('plProg').style.width=f*100+'%'; pl$('plKnob').style.left=f*100+'%'; }
+})();
+/* — control wiring — */
+pl$('plPlay').onclick=togglePlay; pl$('plBig').onclick=togglePlay;
+pl$('plBack').onclick=()=>{seekBy(-10); ctlShow()}; pl$('plFwd').onclick=()=>{seekBy(10); ctlShow()};
+pl$('plNext').onclick=playNext;
+pl$('plSpeed').onclick=()=>{ speedIx=(speedIx+1)%SPEEDS.length; LS.set('speedIx',speedIx);
+  try{ yt.setPlaybackRate(SPEEDS[speedIx]); }catch(e){}
+  pl$('plSpeed').textContent=SPEEDS[speedIx]+'×'; toast('Tezlik: '+SPEEDS[speedIx]+'×','⏩'); ctlShow(); };
+pl$('plVolR').oninput=e=>{ const n=+e.target.value; try{ yt.setVolume(n); n>0?yt.unMute():yt.mute(); }catch(x){}
+  pl$('plVol').textContent=n===0?'🔇':(n<50?'🔉':'🔊'); lastVol=n||lastVol; };
+pl$('plVol').onclick=()=>{ try{ const v=yt.isMuted()?(lastVol||80):0; yt.setVolume(v); v?yt.unMute():yt.mute();
+  pl$('plVolR').value=v; pl$('plVol').textContent=v?'🔊':'🔇'; }catch(e){} ctlShow(); };
+pl$('plFs').onclick=()=>{ const st=pl$('pStage');
+  if(document.fullscreenElement) document.exitFullscreen();
+  else (st.requestFullscreen||st.webkitRequestFullscreen||function(){}).call(st); };
+document.addEventListener('fullscreenchange',()=>{ try{ if(document.fullscreenElement) yt.playVideo(); }catch(e){} });
 $('#pShare').onclick=()=>share(curVideo?.title);
+$('#pLike').onclick=()=>{ if(curVideo) toggleLike(curVideo.id); };
 function closePlayer(){
-  $('#player').classList.remove('open'); $('#pFrame').src=''; document.body.style.overflow='';
+  $('#player').classList.remove('open'); document.body.style.overflow='';
+  clearInterval(plTick); clearInterval(cmtTimer); clearTimeout(ctlIdle);
+  try{ yt&&yt.pauseVideo&&yt.pauseVideo(); }catch(e){}
+  if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
   renderHome();
 }
 $('#pClose').onclick=closePlayer;
+
+/* ============================ COMMENTS (real-time) ============================ */
+let cmts=[], cmtVotes={}, cmtVid=null, cmtShowAll=false, cmtTimer=null;
+function cmtReset(vid){
+  cmtVid=vid; cmts=[]; cmtShowAll=false; renderCmts(true);
+  $('#cmtBox').hidden=true;
+  loadCmts();
+}
+async function loadCmts(silent){
+  if(!cmtVid) return;
+  const j=await api({action:'social',op:'comment.list',videoId:cmtVid,uid:S.uid});
+  if(j.ok){ const n=j.comments.length; cmts=j.comments; cmtVotes=j.votes||{};
+    S.commentCounts[cmtVid]=n; renderCmts(); if(!silent) return;
+  }
+}
+function renderCmts(loading){
+  pl$('pCmtN').textContent=cmts.length?'('+cmts.length+')':'';
+  pl$('pCmtBtn')?.setAttribute('aria-label','Izohlar '+(cmts.length||0));
+  const box=$('#cmtBox');
+  const list=loading?[]:(cmtShowAll?cmts:cmts.slice(0,12));
+  box.querySelector('#cmtList').innerHTML =
+    (loading?`<div class="cmt-empty">Yuklanmoqda…</div>`:(list.length?list.map(cmtItem).join(''):
+      `<div class="cmt-empty">Hali izoh yo’q — birinchi bo’lib fikr bildir 💬</div>`));
+  $('#cmtMore').hidden=loading||cmts.length<=12||cmtShowAll;
+  bindCmtActions();
+}
+function cmtItem(c){
+  const mine=c.userId===S.uid;
+  const voted=!!cmtVotes[c.id];
+  return `<div class="cmt" data-cid="${c.id}">
+    <span class="ava">${esc((c.name||'M').trim().slice(0,1).toUpperCase())}</span>
+    <div class="cw"><div class="cn">${esc(c.name||'Mehmon')}<small>${timeAgo(c.ts)}</small></div>
+      <div class="cx">${esc(c.text)}</div>
+      <div class="cacts">
+        <button data-vote="${c.id}" class="${voted?'voted':''}">${voted?'❤️':'🤍'} ${c.likes||''}</button>
+        ${mine?'<button data-del="'+c.id+'">🗑 O’chirish</button>':''}
+      </div></div></div>`;
+}
+function bindCmtActions(){
+  $$('[data-vote]').forEach(b=>b.onclick=async()=>{
+    const id=b.dataset.vote; const cur=cmts.find(c=>c.id===id); if(!cur) return;
+    const nowVoted=!!cmtVotes[id];
+    nowVoted?delete cmtVotes[id]:cmtVotes[id]=true;
+    cur.likes=Math.max(0,(cur.likes||0)+(nowVoted?-1:1)); renderCmts();
+    const j=await api({action:'social',op:'comment.vote',commentId:id,uid:S.uid});
+    if(!j.ok) toast(j.error||'Xatolik','⚠️'); else { cmtVotes[id]=j.voted?true:false; delete cmtVotes[id]; if(j.voted)cmtVotes[id]=true; cur.likes=j.likes; renderCmts(); }
+  });
+  $$('[data-del]').forEach(b=>b.onclick=async()=>{
+    if(!confirm('Izohingiz o’chirilsinmi?')) return;
+    const j=await api({action:'social',op:'comment.delete',commentId:b.dataset.del,uid:S.uid});
+    if(j.ok){ cmts=cmts.filter(c=>c.id!==b.dataset.del); renderCmts(); toast('Izoh o’chirildi','🗑'); }
+    else toast(j.error||'O’chirib bo’lmadi','⚠️');
+  });
+}
+$('#cmtSend').onclick=async()=>{
+  const t=pl$('cmtText').value.trim(); if(!t||!cmtVid) return;
+  $('#cmtSend').disabled=true;
+  const j=await api({action:'social',op:'comment.add',videoId:cmtVid,uid:S.uid,name:S.user?.name||'Mehmon',text:t});
+  $('#cmtSend').disabled=false;
+  if(j.ok){ pl$('cmtText').value=''; cmts.unshift(j.comment); renderCmts(); toast('Izohingiz yuborildi','💬'); }
+  else toast(j.error||'Yuborilmadi','⚠️');
+};
+$('#cmtMore').onclick=()=>{ cmtShowAll=true; renderCmts(); };
+function openCmts(){
+  const box=$('#cmtBox'); box.hidden=false;
+  box.scrollIntoView({behavior:'smooth',block:'start'});
+  loadCmts(); clearInterval(cmtTimer); cmtTimer=setInterval(()=>loadCmts(true),12000);
+}
+$('#pComment').onclick=$('#pCmtBtn').onclick=()=>{
+  if($('#cmtBox').hidden) openCmts();
+  else { $('#cmtBox').hidden=true; clearInterval(cmtTimer); }
+};
+/* — keyboard shortcuts — */
+document.addEventListener('keydown',e=>{
+  if(!$('#player').classList.contains('open')) return;
+  if(e.target.matches('input,textarea')) return;
+  const k=e.key.toLowerCase();
+  if(k===' '||k==='k'){ e.preventDefault(); togglePlay(); ctlShow(); }
+  else if(k==='arrowright'){ seekBy(5); ctlShow(); }
+  else if(k==='arrowleft'){ seekBy(-5); ctlShow(); }
+  else if(k==='arrowup'){ pl$('plVolR').value=Math.min(100,+pl$('plVolR').value+5); pl$('plVolR').oninput({target:pl$('plVolR')}); }
+  else if(k==='arrowdown'){ pl$('plVolR').value=Math.max(0,+pl$('plVolR').value-5); pl$('plVolR').oninput({target:pl$('plVolR')}); }
+  else if(k==='m'){ pl$('plVol').click(); }
+  else if(k==='f'){ pl$('plFs').click(); }
+  else if(k==='c'){ $('#pComment').click(); }
+});
 
 /* ============================ SHARE & TELEGRAM ============================ */
 function share(text){
@@ -1195,15 +1535,7 @@ function renderThemeShop(){
   });
 }
 $('#themeQuick').onclick=$('#rowTheme').onclick=()=>{renderThemeShop(); openSheet('#themeSheet')};
-$('#avaBtn').onclick=()=>{ S.user?go('profile'):openSheet('#loginSheet') };
-
-/* ============================ LOGIN ============================ */
-$('#loginGo').onclick=()=>{
-  const name=$('#loginName').value.trim()||'Mehmon';
-  S.user={name,tg:null,role:'user'}; LS.set('user',S.user);
-  closeSheets(); renderProfile(); toast(`Salom, ${name}! Profil faollashdi`,'👋'); track('login','local');
-};
-$('#loginTg').onclick=()=>tgAuth();
+$('#avaBtn').onclick=()=>go('profile');
 
 /* ============================ SWITCHES ============================ */
 function bindSwitch(el,key,after){
@@ -1224,49 +1556,52 @@ $('#rowReset').onclick=()=>{
   }
 };
 
-/* ============================ TELEGRAM WEBAPP ============================ */
+/* ============================ TELEGRAM WEBAPP (avtomatik kirish) ============================ */
 function tgInit(){
-  const tg=window.Telegram?.WebApp;
-  if(!tg) { $('#loginTg').style.display='none'; return; }
+  const tg=window.Telegram?.WebApp; if(!tg) return;
   try{
     tg.ready(); tg.expand();
     const t=tv(S.theme);
     tg.setHeaderColor?.(t.v.bg0); tg.setBackgroundColor?.(t.v.bg0);
     tg.setHeaderButton?.('theme', {text:'🎨 Tema', onClick:()=>{renderThemeShop();openSheet('#themeSheet')}});
     tg.enableClosingConfirmation?.();
-    $('#loginTg').style.display='';
-    if(tg.initData && !S.user){ tgAuth(); }
-    else if(tg.initData && S.user?.tg){ renderProfile(); }
+    if(tg.initData) tgAuth();
   }catch(e){console.warn('tg',e)}
 }
 async function tgAuth(){
   const tg=window.Telegram?.WebApp; if(!tg?.initData) return;
+  const apply=(id,name,username,role,likes)=>{
+    S.user={name:name||'Telegram user',tg:username||null,role:role||'user'}; LS.set('user',S.user);
+    if(id && id!==S.uid){ S.uid=id; LS.set('uid',id); }
+    (likes||[]).forEach(v=>{ if(!S.myLikes.includes(v))S.myLikes.push(v); if(!S.favs.includes(v))S.favs.push(v); });
+    LS.set('myLikes',S.myLikes); LS.set('favs',S.favs);
+    renderHome(); renderFav(); renderProfile(); renderStats(); updatePlayerLikeUI?.();
+    track('login','tg'); toast(`Xush kelibsiz, ${S.user.name}!`,'✈️');
+  };
   try{
-    const host=document.createElement('div');
     if(window.APP_CONFIG.API_URL){
       const r=await fetch(APP_CONFIG.API_URL,{method:'POST',body:JSON.stringify({action:'auth',initData:tg.initData})});
       const j=await r.json();
-      if(j.ok&&j.user){ S.user={name:j.user.name||'Telegram user',tg:j.user.username,role:j.user.role||'user',photo:j.user.photo};
-        LS.set('user',S.user); renderProfile(); toast(`Xush kelibsiz, ${S.user.name}!`,'✈️'); closeSheets(); return; }
+      if(j.ok&&j.user){ apply(j.user.id,j.user.name,j.user.username,j.user.role,j.likes); return; }
     }
-    // fallback: so’zsiz auth (API ulanmagan)
-    const u=tg.initDataUnsafe?.user;
-    if(u){ S.user={name:u.first_name+(u.last_name?' '+u.last_name:''),tg:u.username||null,role:'user'};
-      LS.set('user',S.user); renderProfile(); closeSheets(); toast(`Telegram: ${S.user.name}`,'✈️'); }
-  }catch(e){ console.warn(e); toast('Telegram auth vaqtincha mavjud emas','⚠️'); }
+  }catch(e){ console.warn('tgAuth',e); }
+  const u=tg.initDataUnsafe?.user;   // API vaqtincha ishlamasa — lokal identifikatsiya
+  if(u) apply('tg'+u.id,(u.first_name||'')+(u.last_name?' '+u.last_name:''),u.username||null,null,null);
 }
 
 /* ============================ BOOT ============================ */
 async function loadRemote(){
   if(!window.APP_CONFIG.API_URL) return;
   try{
-    const r=await fetch(APP_CONFIG.API_URL+'?action=bootstrap'); const j=await r.json();
-    if(j.ok){
-      if(j.videos?.length) S.videos=j.videos;
-      if(j.news?.length) S.news=j.news;
-      toast('Kontent sinxronlandi','☁️');
-    }
-  }catch(e){ console.info('Demo rejim (API mavjud emas yoki hali sozlanmagan).'); }
+    const r=await fetch(APP_CONFIG.API_URL+'?action=bootstrap&uid='+encodeURIComponent(S.uid));
+    const j=await r.json(); if(!j.ok) return;
+    S.videos=j.videos||[]; S.news=j.news||[];
+    const m=j.meta||{};
+    S.likeCounts=m.likeCounts||{}; S.commentCounts=m.commentCounts||{};
+    if(Array.isArray(m.myLikes)) S.myLikes=m.myLikes;
+    S.myLikes.forEach(v=>{ if(!S.favs.includes(v))S.favs.push(v); });
+    LS.set('myLikes',S.myLikes); LS.set('favs',S.favs);
+  }catch(e){ console.warn('bootstrap',e); }
 }
 (async function boot(){
   applyTheme(S.theme,false);
@@ -1276,9 +1611,8 @@ async function loadRemote(){
   }
   renderHome(); renderNews(); renderFav(); renderProfile(); renderStats();
   moveSlider();
-  await loadRemote(); renderHome(); renderNews();
+  await loadRemote(); renderHome(); renderNews(); renderFav(); renderStats();
   tgInit();
-  if(!S.user && !window.Telegram?.WebApp?.initData) setTimeout(()=>openSheet('#loginSheet'),1400);
 })();
 /* hero auto-rotate */
 setInterval(()=>{

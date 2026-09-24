@@ -1,14 +1,19 @@
 # 👑 AURUM — theme-able shaxsiy streaming web-app
 
 Bitta faylli, premium dizaynli streaming ilova: **12 ta olam temasi** (Anime · Disney · Kino · Klassik),
-YouTube player, yangiliklar lentasi, sevkli ro'yxat, profil va to'liq analitikali **Admin panel**.
+**custom YouTube pleyer** (seek, tezlik, ±10s, avto-kechiktirish, keyingi video), real-vaqt **layk** va
+**izoh (komment)** tizimi, yangiliklar lentasi, sevkli ro'yxat, profil va to'liq analitikali **Admin panel**.
 Backend — Google Sheets + Apps Script, integratsiya — GitHub Pages va Telegram WebApp.
 
 ```
-index.html   — foydalanuvchi ilovasi (responsive, PC + smartphone)
-admin.html   — Command Center (CRUD + grafiklar + Telegram broadcast)
-code.gs      — Google Apps Script backend (Sheets DB + Telegram auth HMAC)
+index.html   — foydalanuvchi ilovasi (responsive, PC + smartphone, custom player, layk + izoh)
+admin.html   — Command Center (faqat REAL ma'lumot: CRUD + toploader + moderatsiya + analitika)
+code.gs      — Google Apps Script backend v2 (Sheets DB + Telegram auth HMAC + layk/izoh API)
 ```
+
+> ⚠️ **code.gs yangilangan versiyasi chiqqanda:** Apps Script'da kodni qayta paste qilib
+> **Deploy → Manage deployments → ✏️ → Version: New version → Deploy** bo'lishi shart.
+> Aks holda eski versiya xizmat qilaveradi (`admin ping` javobida `version:"v2"` bo'lmasa — deploy qilinmagan).
 
 ---
 
@@ -18,7 +23,8 @@ code.gs      — Google Apps Script backend (Sheets DB + Telegram auth HMAC)
 2. **Settings → Pages → Source: Deploy from a branch → main / (root) → Save**
 3. Sayt: `https://USERNAME.github.io/AURUM/` — admin: `.../AURUM/admin.html`
 
-> Ilova API'siz ham to'liq ishlaydi (demo kontent + localStorage). Backend qo'shgach jonli bo'ladi.
+> Ilovada hech qanday demo/test ma'lumot yo'q — kontent faqat backend'dan keladi.
+> Kontent bo'lmasa: «Hali videolar yo'q» holati ko'rsatiladi.
 
 ## 2. Google Sheets + Apps Script backend
 
@@ -56,11 +62,18 @@ Shuningdek, ilovadagi **qidiruv paneliga** linkni qo'yib Enter bossangiz — vid
 1. **@BotFather** → `/newbot` → token oling (yoki mavjud bot)
 2. Bot sozlamalari: `/setdomain` yoki BotFather → *Bot Settings → Menu Button* →
    WebApp URL: `https://USERNAME.github.io/AURUM/`
-3. Botga `/start` o'rniga havola orqali kirilsa `window.Telegram.WebApp` avtomatik aniqlanadi:
-   - Fullscreen expand, header/footer tema rangga moslanadi
-   - **Auth:** `initData` Apps Script'ga borib HMAC-SHA256 (`WebAppData` kaliti) bilan tekshiriladi —
-     soxta login imkonsiz, foydalanuvchi `Users` jadvaliga tushadi
-   - Profil → Telegram tugmasi, share tugmasi, theme quick-button ham Telegram ichida ishlaydi
+3. Botga havola orqali kirilganda `window.Telegram.WebApp` avtomatik aniqlanadi:
+   - **Avtomatik kirish:** ism yozish kerak emas — `initData` Apps Script'ga borib
+     HMAC-SHA256 (`WebAppData` kaliti, 16 soatlik `auth_date` oynasi) bilan tekshiriladi,
+     foydalanuvchi `Users` jadvaliga tushadi va uning `tg<id>` identifikatori layk/izohlarda ishlatiladi
+   - Fullscreen expand, header rang temaga moslanadi, 🎨 Tema tugma Telegram header'da
+   - Ilova tashqarisida (oddiy brauzerda) ham ishlaydi — qurilmaviy `u<id>` ishlatiladi,
+     keyin Telegram orqali kirsa layk/izohlar shu hisobga o'tadi
+4. **Admin panelni botga ulash:** BotFather → *Bot Settings → Menu Button* → URL:
+   `https://USERNAME.github.io/AURUM/admin.html#tok=ADMIN_TOKENINGIZ`
+   — panel token'siz ochiladi (token hash orqali uzatiladi, localStorage'da saqlanadi).
+   Oddiy foydalanuvchilarga admin panel **hech qayerda ko'rinmaydi** (Profil'dagi havola
+   faqat `role=admin` larda chiqadi).
 
 ## 4. Temalar (12 ta olam)
 
@@ -75,15 +88,19 @@ Profil → **🎨 Temalar do'koni** — tanlanganda butun ilova o'zgaradi:
 
 Sozlamalar: `Animatsiyalar` switch'i barcha harakatlarni o'chiradi (tejamkorlik/prefers-reduced-motion uchun).
 
-## 5. Admin panel imkoniyatlari
+## 5. Admin panel imkoniyatlari (v2 — faqat REAL ma'lumot)
 
-- **Dashboard:** 6 ta KPI, 14 kunlik aktivlik grafigi, kategoriya donut', tema reytingi, jonli hodisalar oqimi
-- **Videolar / Yangiliklar:** qidiruv + filtr + CRUD, status (active/draft), featured boshqaruvi
-- **Foydalanuvchilar:** Telegram profillar, rol (user/vip/tester), bloklash
-- **Temalar analitikasi:** tanlovlar, ushlab turish %, trend
-- **E'lonlar:** Telegram broadcast (sarlavha + matn + inline tugma), test-rejim, tarix
-- **Sozlamalar:** API/token/chat, JSON import/export, Sheets'ga push/pull
-- API ulanmagan bo'lsa avtomatik **DEMO rejim** — hammasi brauzerda, grafiklar butun boshli ko'rsatiladi
+- **Dashboard:** 7 ta KPI (hodisalar, play, foydalanuvchi+faollik, layklar, izohlar, videolar, yangiliklar),
+  14 kunlik play/login grafigi, hodisa donut'i, tema reytingi, **top-30 video jalb jadvali**, jonli oqim
+- **Videolar:** qidiruv + filtr + CRUD, status (active/draft), featured, **📥 Toploader** —
+  bir nechta YouTube linkni darhol import qilish (oEmbed orqali sarlavha avtomatik, `tavsif:` qo'shib yozish mumkin)
+- **Yangiliklar:** CRUD, HOT, status
+- **Moderatsiya:** barcha izohlarni ko'rish/qidirish/filtr (video bo'yicha) va o'chirish; layklar ro'yxati + o'chirish
+- **Foydalanuvchilar:** qidiruv/rol filtri, rol almashtirish (user/vip/admin), bloklash, o'chirish
+- **E'lonlar:** Telegram broadcast (kanal + test), tarix Sheets'dan
+- **Sozlamalar:** API/token, ping (backend `version:"v2"` ekanini tekshiradi), JSON backup, event tarixini tozalash
+- Hech qanday demo/seed ma'lumot yo'q — token noto'g'ri bo'lsa panel umuman kirmaydi
+- Ma'lumotlar har **30 soniyada** avtomatik yangilanadi
 
 ## 6. Lokal ishga tushirish
 
