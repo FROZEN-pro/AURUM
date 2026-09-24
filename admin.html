@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AURUM · Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link crossorigin href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   AURUM COMMAND CENTER — bitta faylli admin panel
+   · API_URL bo’sh bo’lsa avtomatik DEMO rejim (localStorage)
+   · code.gs bilan to’liq mos API kontrakty
+   ============================================================ */
+:root{
+  --bg:#07080d; --bg2:#0c0e16; --card:#11131d; --card2:#171a26;
+  --line:rgba(255,255,255,.07); --line2:rgba(255,255,255,.13);
+  --text:#eef0f8; --muted:#8a90a8;
+  --a1:#7c5cff; --a2:#22d3ee; --a3:#f472b6; --ok:#34d399; --warn:#fbbf24; --bad:#f87171;
+  --grad:linear-gradient(120deg,var(--a1),var(--a2));
+  --r:16px; --sh:0 12px 40px rgba(0,0,0,.45);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:
+ radial-gradient(40% 44% at 12% 6%,rgba(124,92,255,.16),transparent 60%),
+ radial-gradient(40% 46% at 88% 14%,rgba(34,211,238,.12),transparent 60%),
+ linear-gradient(180deg,var(--bg),var(--bg2))}
+button{cursor:pointer;font-family:inherit;color:inherit;border:0;background:none}
+input,select,textarea{font-family:inherit;color:var(--text);background:var(--card2);border:1px solid var(--line2);
+ border-radius:10px;padding:10px 12px;font-size:13.5px;outline:0;width:100%;transition:.2s}
+input:focus,select:focus,textarea:focus{border-color:var(--a1);box-shadow:0 0 0 3px rgba(124,92,255,.18)}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#2a2e42;border-radius:99px}
+.mono{font-family:'JetBrains Mono',monospace}
+h1,h2,h3{font-family:'Space Grotesk',sans-serif}
+
+/* ---------- LOGIN ---------- */
+#gate{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:20px;
+ background:rgba(5,6,10,.75);backdrop-filter:blur(14px)}
+.gate-card{width:min(400px,94vw);background:var(--card);border:1px solid var(--line2);border-radius:22px;
+ padding:30px;box-shadow:var(--sh);text-align:center;animation:up .5s cubic-bezier(.22,1,.36,1)}
+@keyframes up{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+.gate-card .logo{font-family:'Space Grotesk';font-weight:700;font-size:22px;letter-spacing:.05em}
+.gate-card .logo em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.gate-card p{color:var(--muted);font-size:12.5px;margin:6px 0 14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border-radius:12px;
+ background:var(--grad);color:#fff;font-weight:700;font-size:14px;margin-top:12px;transition:.2s;border:0}
+.btn:hover{filter:brightness(1.12)} .btn:active{transform:scale(.98)}
+.btn.ghost{background:var(--card2);border:1px solid var(--line2);color:var(--text)}
+.btn.sm{width:auto;padding:8px 14px;font-size:12.5px;margin:0;border-radius:10px}
+.btn.danger{background:linear-gradient(120deg,#ef4444,#b91c1c)}
+
+/* ---------- LAYOUT ---------- */
+.app{display:grid;grid-template-columns:236px 1fr;min-height:100vh}
+aside{border-right:1px solid var(--line);padding:20px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px;background:rgba(10,11,17,.6);backdrop-filter:blur(10px)}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Space Grotesk';font-weight:700;font-size:17px;padding:4px 10px 18px;letter-spacing:.04em}
+.brand i{width:30px;height:30px;border-radius:9px;background:var(--grad);display:grid;place-items:center;font-style:normal;color:#fff;font-size:14px}
+.nv{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:12px;color:var(--muted);font-size:13.5px;font-weight:600;transition:.2s;border:1px solid transparent}
+.nv:hover{color:var(--text);background:var(--card)}
+.nv.on{color:#fff;background:linear-gradient(120deg,rgba(124,92,255,.22),rgba(34,211,238,.12));border-color:rgba(124,92,255,.4)}
+.as-side{margin-top:auto;font-size:11px;color:var(--muted);padding:12px;border-top:1px dashed var(--line2)}
+.as-side a{color:var(--a2);text-decoration:none}
+main{padding:26px 30px 60px;max-width:1220px;width:100%;margin:0 auto;min-width:0}
+.top{display:flex;align-items:center;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+.top h1{font-size:22px}
+.top .crumb{color:var(--muted);font-size:12px}
+.mode-pill{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:700;padding:7px 13px;border-radius:99px;border:1px solid var(--line2);color:var(--muted)}
+.mode-pill i{width:8px;height:8px;border-radius:99px;background:var(--warn);font-style:normal;animation:pbl 1.6s infinite}
+.mode-pill.live i{background:var(--ok)}
+@keyframes pbl{50%{opacity:.35}}
+.page{display:none;animation:pin .4s cubic-bezier(.22,1,.36,1)} .page.on{display:block}
+@keyframes pin{from{opacity:0;transform:translateY(10px)}to{opacity:1}}
+
+/* ---------- KPI / CARDS ---------- */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;position:relative;overflow:hidden;transition:.25s}
+.kpi:hover{transform:translateY(-3px);border-color:var(--line2);box-shadow:var(--sh)}
+.kpi::after{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--kg,var(--grad))}
+.kpi .lbl{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.kpi .val{font-family:'Space Grotesk';font-size:28px;font-weight:700;margin:6px 0 2px}
+.kpi .dlt{font-size:11.5px;font-weight:700}.kpi .dlt.up{color:var(--ok)}.kpi .dlt.dn{color:var(--bad)}
+.kpi .ic{position:absolute;right:14px;top:14px;font-size:20px;opacity:.85}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-top:16px}
+.panel h3{font-size:14px;margin-bottom:4px} .panel .sub{font-size:11.5px;color:var(--muted);margin-bottom:14px}
+.cols{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-top:16px}
+.cols .panel{margin-top:0}
+
+/* ---------- CHARTS (SVG) ---------- */
+svg text{font-family:Inter;font-size:10px;fill:var(--muted)}
+.grid-line{stroke:rgba(255,255,255,.05)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:11.5px;color:var(--muted)}
+.legend i{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:5px}
+
+/* ---------- TABLE ---------- */
+.tbar{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.tbar input,.tbar select{width:auto;flex:1;min-width:140px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;text-align:left;padding:10px 12px;border-bottom:1px solid var(--line2)}
+td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:hover td{background:rgba(255,255,255,.02)}
+.badge{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.06em;padding:3px 9px;border-radius:99px}
+.b-ok{background:rgba(52,211,153,.14);color:var(--ok)} .b-w{background:rgba(251,191,36,.14);color:var(--warn)}
+.b-i{background:rgba(34,211,238,.14);color:var(--a2)} .b-p{background:rgba(124,92,255,.16);color:#a78bfa}
+.b-x{background:rgba(248,113,113,.14);color:var(--bad)}
+.tthumb{width:72px;aspect-ratio:16/9;border-radius:8px;display:inline-block;background-size:cover;background-position:center;border:1px solid var(--line)}
+.act{display:flex;gap:6px}
+.act button{width:30px;height:30px;border-radius:9px;background:var(--card2);border:1px solid var(--line2);font-size:13px;transition:.2s}
+.act button:hover{border-color:var(--a1)}
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
+
+/* ---------- MODAL ---------- */
+#modal{position:fixed;inset:0;z-index:150;display:none;place-items:center;background:rgba(4,5,9,.7);backdrop-filter:blur(8px);padding:18px}
+#modal.open{display:grid}
+.mcard{width:min(560px,96vw);max-height:90vh;overflow:auto;background:var(--card);border:1px solid var(--line2);border-radius:20px;padding:24px;box-shadow:var(--sh);animation:up .4s cubic-bezier(.22,1,.36,1)}
+.mcard h3{font-size:17px;margin-bottom:14px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.f{margin-bottom:10px}.f label{font-size:11px;color:var(--muted);font-weight:700;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);z-index:300;
+ background:var(--card2);border:1px solid var(--line2);color:var(--text);font-size:13px;font-weight:600;
+ padding:11px 20px;border-radius:99px;box-shadow:var(--sh);transition:.35s cubic-bezier(.22,1,.36,1);opacity:0}
+#toast.on{transform:translateX(-50%);opacity:1}
+.evt{display:flex;gap:10px;align-items:center;padding:9px 4px;border-bottom:1px dashed var(--line);font-size:12.5px}
+.evt b{margin-left:auto;font-weight:600;color:var(--muted);font-size:11px}
+.evt .dot{width:8px;height:8px;border-radius:99px;flex:none}
+.hbars{display:grid;gap:10px}
+.hb{font-size:12px}
+.hb .lb{display:flex;justify-content:space-between;margin-bottom:4px;color:var(--muted)}
+.hb .lb b{color:var(--text)}
+.hb i{display:block;height:8px;border-radius:99px;background:var(--card2);overflow:hidden}
+.hb i s{display:block;height:100%;border-radius:99px;background:var(--grad);text-decoration:none;transition:width 1s cubic-bezier(.22,1,.36,1)}
+/* ✦ premium polish: a11y + micro-interaction */
+:where(button,a,input,select,textarea):focus-visible{outline:2px solid var(--a1);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.btn,.nv,.act button,.kpi,.row{transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .25s,border-color .25s,background .25s,color .25s}
+.btn:active,.nv:active,.act button:active,.tbar .btn.sm:active{transform:scale(.95)}
+.act button:hover{transform:translateY(-2px)}
+.kpi:hover{box-shadow:0 14px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06)}
+.panel{box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+tr td:first-child{padding-left:14px}
+tbody tr{transition:background .2s}
+@media (max-width:980px){
+  .app{grid-template-columns:1fr}
+  aside{position:fixed;bottom:0;top:auto;left:0;right:0;height:auto;z-index:100;flex-direction:row;overflow-x:auto;padding:8px;gap:6px;border-right:0;border-top:1px solid var(--line)}
+  .brand,.as-side{display:none}
+  .nv{flex-direction:column;gap:3px;font-size:10px;padding:8px 10px;min-width:64px;text-align:center}
+  .nv span.t{display:none}
+  main{padding:18px 14px 110px}
+  .cols{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN GATE ================= -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="logo">AUR<em>UM</em> · Command Center</div>
+    <p>Admin token’ni kiriting. API_URL sozlanmagan bo’lsa panel avtomatik <b>DEMO</b> rejimda ishlaydi —
+    barcha ma’lumotlar brauzeringizda saqlanadi.</p>
+    <input id="tok" type="password" placeholder="ADMIN_TOKEN" style="text-align:center;letter-spacing:.2em">
+    <button class="btn" id="loginBtn">Kirish →</button>
+    <button class="btn ghost" id="demoBtn">🧪 Demo rejimda kirish</button>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div class="app" style="display:none" id="app">
+  <aside>
+    <div class="brand"><i>◈</i>AURUM</div>
+    <button class="nv on" data-p="dash">📊<span class="t">Dashboard</span></button>
+    <button class="nv" data-p="videos">🎬<span class="t">Videolar</span></button>
+    <button class="nv" data-p="news">📰<span class="t">Yangiliklar</span></button>
+    <button class="nv" data-p="users">👥<span class="t">Foydalanuvchilar</span></button>
+    <button class="nv" data-p="themes">🎨<span class="t">Temalar</span></button>
+    <button class="nv" data-p="announce">📣<span class="t">E’lonlar</span></button>
+    <button class="nv" data-p="settings">⚙️<span class="t">Sozlamalar</span></button>
+    <div class="as-side">AURUM admin v1.0<br><a href="index.html">← Ilovaga qaytish</a></div>
+  </aside>
+  <main>
+    <div class="top">
+      <div><h1 id="pgTitle">Dashboard</h1><div class="crumb" id="pgCrumb">Umumiy ko’rsatkichlar · oxirgi 7 kun</div></div>
+      <span class="mode-pill" id="modePill"><i></i><span>DEMO</span></span>
+    </div>
+
+    <!-- ============ DASHBOARD ============ -->
+    <section class="page on" id="pg-dash">
+      <div class="kpis" id="kpis"></div>
+      <div class="cols">
+        <div class="panel">
+          <h3>Aktivlik trendi</h3><div class="sub">Ko’rishlar va o’qishlar · 14 kun</div>
+          <div id="lineChart"></div>
+          <div class="legend"><span><i style="background:#7c5cff"></i>Ko’rishlar</span><span><i style="background:#22d3ee"></i>O’qishlar</span><span><i style="background:#f472b6"></i>Yangi session</span></span></div>
+        </div>
+        <div class="panel">
+          <h3>Kategoriya ulushi</h3><div class="sub">Video tomoshalar bo’yicha</div>
+          <div id="donut" style="display:grid;place-items:center"></div>
+          <div class="legend" id="donutLeg"></div>
+        </div>
+      </div>
+      <div class="cols" style="grid-template-columns:1fr 1fr">
+        <div class="panel">
+          <h3>🎨 Tema reytingi</h3><div class="sub">Qaysi olamda ko’p vaqt o’tkazilmoqda</div>
+          <div class="hbars" id="themeBars"></div>
+        </div>
+        <div class="panel">
+          <h3>⚡ Jonli oqim</h3><div class="sub">Oxirgi hodisalar</div>
+          <div id="evtFeed"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ VIDEOS ============ -->
+    <section class="page" id="pg-videos">
+      <div class="panel">
+        <div class="tbar">
+          <input placeholder="🔎 Video qidir…" id="vSearch">
+          <select id="vCatFlt"><option value="">Barcha kategoriyalar</option></select>
+          <button class="btn sm" id="vAdd">＋ Yangi video</button>
+          <button class="btn sm ghost" id="vSync">⟳ Sinxron</button>
+        </div>
+        <div class="tblwrap"><table>
+          <thead><tr><th></th><th>Sarlavha</th><th>Kategoriya</th><th>YT ID</th><th>Davomiylik</th><th>Ko’rishlar</th><th>Featured</th><th>Holat</th><th></th></tr></thead>
+          <tbody id="vRows"></tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <!-- ============ NEWS ============ -->
+    <section class="page" id="pg-news">
+      <div class="panel">
+        <div class="tbar">
+          <input placeholder="🔎 Yangilik qidir…" id="nSearch">
+          <select id="nCatFlt"><option value="">Barcha kategoriyalar</option></select>
+          <button class="btn sm" id="nAdd">＋ Yangi yangilik</button>
+        </div>
+        <div class="tblwrap"><table>
+          <thead><tr><th></th><th>Sarlavha</th><th>Kategoriya</th><th>Manba</th><th>O’qish vaqti</th><th>HOT</th><th>O’qilgan</th><th></th></tr></thead>
+          <tbody id="nRows"></tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <!-- ============ USERS ============ -->
+    <section class="page" id="pg-users">
+      <div class="kpis" id="uKpis" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))"></div>
+      <div class="panel">
+        <div class="tbar">
+          <input placeholder="🔎 @username yoki ism…" id="uSearch">
+          <select id="uRoleFlt"><option value="">Barcha rollar</option><option>user</option><option>vip</option><option>tester</option></select>
+        </div>
+        <div class="tblwrap"><table>
+          <thead><tr><th>Foydalanuvchi</th><th>Telegram</th><th>Role</th><th>Sevimli temasida</th><th>Sessiya</th><th>Oxirgi faollik</th><th>Holat</th><th></th></tr></thead>
+          <tbody id="uRows"></tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <!-- ============ THEMES ============ -->
+    <section class="page" id="pg-themes">
+      <div class="panel">
+        <h3>🎨 Temalar bo’yicha chuqur analitika</h3>
+        <div class="sub">Har bir tema: necha marta tanlangan, o’rtacha saqlangan vaqt, qaysi kontent bilan bog’liq</div>
+        <div class="tblwrap"><table>
+          <thead><tr><th>Tema</th><th>Olam</th><th>Tanlovlar</th><th>Ushlab turish</th><th>Trend</th><th></th></tr></thead>
+          <tbody id="tRows"></tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <!-- ============ ANNOUNCE ============ -->
+    <section class="page" id="pg-announce">
+      <div class="cols" style="grid-template-columns:1.2fr 1fr">
+        <div class="panel">
+          <h3>📣 Telegram orqali umumiy e’lon</h3>
+          <div class="sub">Xabar Admin panel → Apps Script → Telegram Bot API kanali orqali barcha obunachilarga boradi</div>
+          <div class="f"><label>Sarlavha</label><input id="anTitle" placeholder="Masalan: Bugun yangi solo leveling temasi!"></div>
+          <div class="f"><label>Matn</label><textarea id="anBody" rows="4" placeholder="Matn… markdown qo’llab-quvvatlanadi"></textarea></div>
+          <div class="f"><label>Tugma matni (ixtiyoriy)</label><input id="anBtn" placeholder="Ilovani ochish"></div>
+          <button class="btn" id="anSend">🚀 Yuborish</button>
+          <button class="btn ghost" id="anTest">🧪 Faqat menga (test)</button>
+        </div>
+        <div class="panel">
+          <h3>Yuborilgan e’lonlar</h3><div class="sub">Oxirgi 10 ta</div>
+          <div id="anList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SETTINGS ============ -->
+    <section class="page" id="pg-settings">
+      <div class="cols" style="grid-template-columns:1fr 1fr">
+        <div class="panel">
+          <h3>⚙️ Backend ulanish</h3>
+          <div class="sub">index.html dagi APP_CONFIG.API_URL bilan bir xil bo’lsin</div>
+          <div class="f"><label>Apps Script URL</label><input id="stApi" placeholder="https://script.google.com/macros/s/…/exec" class="mono"></div>
+          <div class="f"><label>Admin token</label><input id="stTok" type="password" class="mono"></div>
+          <div class="f"><label>Bot chat id (broadcast)</label><input id="stChat" placeholder="-1001234567890 yoki @kanal" class="mono"></div>
+          <button class="btn sm" id="stSave" style="width:auto">💾 Saqlash</button>
+          <button class="btn sm ghost" id="stPing" style="width:auto">📡 Ping</button>
+        </div>
+        <div class="panel">
+          <h3>🗃️ Ma’lumot bazasi (Google Sheets)</h3>
+          <div class="sub">Demo rejimda quyidagi tugmalar orqali import/export qiling</div>
+          <button class="btn sm ghost" id="stExport" style="width:auto">⬇️ JSON export</button>
+          <button class="btn sm ghost" id="stImport" style="width:auto">⬆️ JSON import</button>
+          <button class="btn sm ghost" id="stSeed" style="width:auto">🌱 Demo ma’lumot</button>
+          <input type="file" id="stFile" accept=".json" style="display:none">
+          <div class="sub" style="margin-top:14px">Jadval strukturi: <b>Videos · News · Users · Events · Settings · Announcements</b> — code.gs avtomatik yaratadi.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ================= EDIT MODAL ================= -->
+<div id="modal"><div class="mcard">
+  <h3 id="mTitle"></h3><div id="mBody"></div>
+  <div style="display:flex;gap:10px">
+    <button class="btn" id="mSave">💾 Saqlash</button>
+    <button class="btn ghost" id="mCancel">Bekor</button>
+  </div>
+</div></div>
+<div id="toast"></div>
+
+<script>
+/* ============================ CONFIG ============================ */
+const CFG = {
+  API_URL: localStorage.getItem('aurum.admin.api') || '',   // index.html’dagi bilan bir xil
+  TOKEN:   localStorage.getItem('aurum.admin.tok') || '',
+  CHAT:    localStorage.getItem('aurum.admin.chat') || ''
+};
+const LIVE = ()=> !!CFG.API_URL;
+
+/* ============================ DEMO DB ============================ */
+const DKEY='aurum.admin.db';
+function seedDB(){
+  const cats=['Texnologiya','Sayohat','Kino','Musika','Tabiat','Ta\'lim','Ilm-fan'];
+  const vids=[],news=[],users=[],events=[];
+  const vTitles=['Kinematik sayohat','Ochiq kodli animatsiya','Big Buck Bunny','Okean tubi','Synthwave kechasi','4K tabiat shoulari','Kod yozish san\'ati','Mars missiyasi','Trend mashup','Shahar dizayni'];
+  vTitles.forEach((t,i)=>vids.push({id:'v'+(i+1),yt:['M7lc1UVf-VE','YE7VzlLtp-4','aqz-KE-bpKQ','ScMzIvxBSi4','ktvTqknDobU','LXb3EKWsInQ','TB0weVq9704','hHW1oY26kxQ','9bZkp7q19f0','e-OpZ3zP+jT'][i],
+    title:t,cat:cats[i%cats.length],dur:(3+i)+'0:'+(10+i*3),views:2000+i*3100,featured:i<3?1:0,desc:'Demo tavsif '+(i+1),status:i===9?'draft':'active'}));
+  const nT=['YouTube DRM yangiladi','IT-export rekordi','Anime mavsumi premyeralari','Kino kainoti qayta boshlanadi','Mobil GPU benchmark','Muzlik organizmi','Terma jamoa tayyorgarligi','Raqamli to\'lov','AI-festival','Mini-app market'];
+  nT.forEach((t,i)=>news.push({id:'n'+(i+1),title:t,cat:['Tech','Iqtisod','Madaniyat','Kino','Tech','Ilm-fan','Sport','Jamiyat','Kino','Tech'][i],
+    src:['TechCrunch uz','Gazeta','AURUM','Kinoferma','AURUM','Nature','UFA','Xabar','AURUM','TG Blog'][i],
+    time:(i%4+1)+' kun',read:2+(i%4),hot:i%4===0?1:0,emoji:'📌',body:'Demo matn. '.repeat(8),status:'active'}));
+  const themes=['naruto','solo-leveling','spirited-away','frozen','elements','zootopia','avengers','harry-potter','titanic','classic-light','classic-dark','mono'];
+  const names=['Aziz','Dilnoza','Jasur','Malika','Rustam','Nilufar','Sardor','Gulnora','Bekzod','Zilola','Otabek','Madina'];
+  names.forEach((nm,i)=>users.push({id:'u'+(i+1),name:nm,tg:['azizdev','diln_ux','jasur_k','malika_ui','rustam_tg','nila','sardor99','gulnora','bekzod','zilola','otabek','madina'][i],
+    role:['vip','user','user','tester','user','vip','user','user','tester','user','vip','user'][i],theme:themes[i%12],sessions:1+i*3,
+    last:Date.now()-i*86400000*1.3,status:'active'}));
+  for(let d=13;d>=0;d--)for(let k=0;k<24+d*4;k++){
+    const type=['watch','read','fav','theme','tab','login'][Math.floor(Math.random()*6)];
+    const ts=Date.now()-d*86400000-Math.random()*8e7;
+    events.push({type,itemId:type==='theme'?themes[Math.floor(Math.random()*12)]:'x'+Math.floor(Math.random()*10),
+      userId:'u'+(1+Math.floor(Math.random()*12)),theme:themes[Math.floor(Math.random()*12)],ts});
+  }
+  return {videos:vids,news,users,events,announcements:[
+    {title:'AURUM ochildi! 🎉',body:'Birinchi e\'lon — 12 ta tema bilan tanishing.',ts:Date.now()-6*864e5,sent:412},
+    {title:'Solo Leveling temasi 🌙',body:'Soya ovchisi olami endi mavjud.',ts:Date.now()-2*864e5,sent:377}]};
+}
+let DB = JSON.parse(localStorage.getItem(DKEY)||'null');
+if(!DB){ DB=seedDB(); persist(); }
+function persist(){ try{localStorage.setItem(DKEY,JSON.stringify(DB))}catch(e){toast('Xotira to\'lgan!')} }
+
+/* ============================ API (code.gs kontrakty) ============================ */
+async function api(op,payload={}){
+  if(!LIVE()){ return {ok:true,demo:true}; }
+  const r=await fetch(CFG.API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({action:'admin',token:CFG.TOKEN,op,...payload})});
+  return await r.json();
+}
+async function pull(){ /* live rejimda Sheets’dan tortadi */
+  if(!LIVE()) return;
+  const j=await api('pull'); if(j.ok){ Object.assign(DB,j.data); persist(); }
+}
+async function pushAll(){
+  if(!LIVE()) return toast('Demo rejim: ma\'lumotlar brauzerda','🧪');
+  const j=await api('push',{data:{videos:DB.videos,news:DB.news,users:DB.users,settings:{}}});
+  toast(j.ok?'Sheets\'ga yozildi ✓':'Xato: '+(j.error||''),j.ok?'☁️':'⚠️');
+}
+
+/* ============================ HELPERS ============================ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':n;
+const ago=ts=>{const d=(Date.now()-ts)/1e3;return d<60?'hozir':d<3600?Math.floor(d/60)+' daq avval':d<86400?Math.floor(d/3600)+' soat avval':Math.floor(d/86400)+' kun avval'};
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('on'),2300)}
+function hue(i){const h=(i*47+13)%360;return `linear-gradient(${120+i*17}deg,hsl(${h} 70% 34%),hsl(${(h+55)%360} 74% 24%))`}
+/* YouTube link → video ID (watch?v=, youtu.be, shorts, embed yoki toza ID) */
+function ytId(s){
+  s=String(s||'').trim();
+  if(!s) return null;
+  if(/^[0-9A-Za-z_-]{11}$/.test(s)) return s;
+  let m=s.match(/[?&]v=([0-9A-Za-z_-]{11})/)||s.match(/youtu\.be\/([0-9A-Za-z_-]{11})/)||
+        s.match(/embed\/([0-9A-Za-z_-]{11})/)||s.match(/shorts\/([0-9A-Za-z_-]{11})/)||
+        s.match(/live\/([0-9A-Za-z_-]{11})/);
+  return m?m[1]:null;
+}
+const THEMES_META={
+ naruto:['Naruto','anime','🍥','#ff6b35'], 'solo-leveling':['Solo Leveling','anime','⚔️','#7c5cff'],
+ 'spirited-away':['Ruhlar olami','anime','🏮','#e85d6f'], frozen:['Frozen','disney','❄️','#1f9ae0'],
+ elements:['Elemental','disney','🔥','#ff7133'], zootopia:['Zootopia','disney','🐰','#2f6fed'],
+ avengers:['Avengers','cinema','🛡️','#e62429'], 'harry-potter':['Harry Potter','cinema','🪄','#d4a24e'],
+ titanic:['Titanic','cinema','🚢','#3f7cbf'], 'classic-light':['Klassik Yorug\'','classic','☀️','#4f46e5'],
+ 'classic-dark':['Klassik Tun','classic','🌙','#8b7cf8'], mono:['Terminal','classic','⌨️','#30d158']};
+
+/* ============================ ANALITIKA ============================ */
+function daily(n=14){ const out=[];for(let d=n-1;d>=0;d--){const t=new Date();t.setHours(0,0,0,0);
+  const from=t.getTime()-864e5*d,to=from+864e5;
+  const ev=DB.events.filter(e=>e.ts>=from&&e.ts<to);
+  out.push({d,views:ev.filter(e=>e.type==='watch').length,reads:ev.filter(e=>e.type==='read').length,
+   sessions:ev.filter(e=>e.type==='login').length,ev});} return out; }
+function lineChart(){
+  const data=daily(14),W=560,H=170,P=8;
+  const mx=Math.max(10,...data.map(x=>Math.max(x.views,x.reads)));
+  const pts=k=>data.map((x,i)=>`${P+i*(W-2*P)/(data.length-1)},${H-P-(x[k]/mx)*(H-2*P-14)}`).join(' ');
+  const area=k=>`${P},${H-P} `+pts(k)+` ${W-P},${H-P}`;
+  const gl=[0,.25,.5,.75,1].map(f=>`<line class="grid-line" x1="${P}" x2="${W-P}" y1="${H-P-f*(H-2*P-14)}" y2="${H-P-f*(H-2*P-14)}"/>`).join('');
+  const mk=(k,c,id)=>`<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="${c}" stop-opacity=".32"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></linearGradient></defs>
+    <polygon points="${area(k)}" fill="url(#${id})"/>
+    <polyline points="${pts(k)}" fill="none" stroke="${c}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`+
+    data.map((x,i)=>`<circle cx="${P+i*(W-2*P)/(data.length-1)}" cy="${H-P-(x[k]/mx)*(H-2*P-14)}" r="2.6" fill="${c}"><title>${x.d} kun oldin: ${x[k]}</title></circle>`).join('');
+  $('#lineChart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%">${gl}${mk('views','#7c5cff','g1')}${mk('reads','#22d3ee','g2')}
+   ${[0,4,9,13].map(i=>`<text x="${P+i*(W-2*P)/13}" y="${H-1}" text-anchor="middle">-${data[i].d}k</text>`).join('')}</svg>`;
+}
+function donut(){
+  const byCat={}; DB.videos.forEach(v=>byCat[v.cat]=(byCat[v.cat]||0)+v.views);
+  const tot=Object.values(byCat).reduce((a,b)=>a+b,0)||1;
+  const cols=['#7c5cff','#22d3ee','#f472b6','#fbbf24','#34d399','#f87171','#8b5cf6'];
+  let a=-Math.PI/2, segs='';
+  Object.entries(byCat).slice(0,7).forEach(([k,v],i)=>{
+    const ang=v/tot*Math.PI*2, x1=60+44*Math.cos(a), y1=60+44*Math.sin(a), x2=60+44*Math.cos(a+ang), y2=60+44*Math.sin(a+ang);
+    segs+=`<path d="M60 60 L${x1} ${y1} A44 44 0 ${ang>Math.PI?1:0} 1 ${x2} ${y2} Z" fill="${cols[i%7]}" opacity=".9"><title>${k}: ${Math.round(v/tot*100)}%</title></path>`;
+    a+=ang;});
+  $('#donut').innerHTML=`<svg viewBox="0 0 120 120" width="180">${segs}<circle cx="60" cy="60" r="24" fill="#11131d"/>
+    <text x="60" y="57" text-anchor="middle" style="fill:#eef0f8;font-size:13px;font-weight:700">${fmt(tot)}</text>
+    <text x="60" y="70" text-anchor="middle">ko’rish</text></svg>`;
+  $('#donutLeg').innerHTML=Object.entries(byCat).slice(0,7).map(([k,v],i)=>
+    `<span><i style="background:${cols[i%7]}"></i>${esc(k)} · ${Math.round(v/tot*100)}%</span>`).join('');
+}
+function themeBars(){
+  const cnt={}; DB.events.filter(e=>e.type==='theme').forEach(e=>cnt[e.itemId||e.theme||'?']=(cnt[e.itemId||e.theme]||0)+1);
+  const arr=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const mx=arr[0]?.[1]||1;
+  $('#themeBars').innerHTML=arr.map(([id,n])=>{const m=THEMES_META[id]||[id,'','','⚪','#888'];
+    return `<div class="hb"><div class="lb"><span>${m[2]} ${m[0]}</span><b>${n}</b></div>
+    <i><s style="width:${n/mx*100}%;background:linear-gradient(90deg,${m[3]},#22d3ee)"></s></i></div>`}).join('')
+    ||'<div class="sub">Hali ma\'lumot yo\'q</div>';
+}
+function feed(){
+  const ev=[...DB.events].sort((a,b)=>b.ts-a.ts).slice(0,9);
+  const ic={watch:['🎬','#7c5cff'],read:['📰','#22d3ee'],fav:['❤️','#f472b6'],theme:['🎨','#fbbf24'],tab:['🧭','#34d399'],login:['✈️','#8b5cf6']};
+  $('#evtFeed').innerHTML=ev.map(e=>{const i=ic[e.type]||['⚪','#666'];
+    return `<div class="evt"><span class="dot" style="background:${i[1]}"></span>${i[0]} <b style="color:var(--text);font-weight:600">${e.type}</b>
+      <span style="color:var(--muted)">@${esc((DB.users.find(u=>u.id===e.userId)||{}).tg||'guest')}</span><b>${ago(e.ts)}</b></div>`}).join('');
+}
+function kpis(){
+  const w=DB.events.filter(e=>e.type==='watch').length, r=DB.events.filter(e=>e.type==='read').length;
+  const d0=daily(1)[0], d1=daily(2)[0];
+  const up=(a,b)=>{const p=b?Math.round((a-b)/b*100):0;return (p>=0?'▲ ':'▼ ')+Math.abs(p)+'%'};
+  const k=[['👁 Jami ko\'rishlar',fmt(DB.videos.reduce((a,v)=>a+(+v.views||0),0)),up(d0.views,d1.views),'🎬',''],
+   ['📰 O\'qishlar',fmt(r),up(d0.reads,d1.reads),'📈','linear-gradient(120deg,#22d3ee,#7c5cff)'],
+   ['👥 Foydalanuvchilar',DB.users.length,'+'+DB.users.filter(u=>u.role==='vip').length+' vip','✈️','linear-gradient(120deg,#8b5cf6,#f472b6)'],
+   ['🎬 Aktiv videolar',DB.videos.filter(v=>v.status!=='draft').length+'/'+DB.videos.length,'','🗂️','linear-gradient(120deg,#34d399,#22d3ee)'],
+   ['📰 Yangiliklar',DB.news.length,'','🧩','linear-gradient(120deg,#fbbf24,#f87171)'],
+   ['🕒 Bugungi hodisalar',d0.ev.length,'','⏱','']];
+  $('#kpis').innerHTML=k.map(x=>`<div class="kpi" style="--kg:${x[4]||'var(--grad)'}"><span class="ic">${x[3]}</span>
+    <div class="lbl">${x[0]}</div><div class="val">${x[1]}</div><div class="dlt ${String(x[2]).startsWith('▼')?'dn':'up'}">${x[2]||''}</div></div>`).join('');
+  $('#uKpis').innerHTML=`<div class="kpi"><div class="lbl">Jami</div><div class="val">${DB.users.length}</div></div>
+   <div class="kpi" style="--kg:linear-gradient(120deg,#8b5cf6,#f472b6)"><div class="lbl">VIP</div><div class="val">${DB.users.filter(u=>u.role==='vip').length}</div></div>
+   <div class="kpi" style="--kg:linear-gradient(120deg,#34d399,#22d3ee)"><div class="lbl">Buguni faol</div><div class="val">${new Set(daily(1)[0].ev.map(e=>e.userId)).size}</div></div>
+   <div class="kpi" style="--kg:linear-gradient(120deg,#fbbf24,#f87171)"><div class="lbl">Telegram orqali</div><div class="val">${DB.users.filter(u=>u.tg).length}</div></div>`;
+}
+
+/* ============================ TABLES ============================ */
+function renderVideos(){
+  const q=($('#vSearch').value||'').toLowerCase(), f=$('#vCatFlt').value;
+  const list=DB.videos.filter(v=>(!f||v.cat===f)&&(v.title+v.cat+(v.yt||'')).toLowerCase().includes(q));
+  $('#vRows').innerHTML=list.map((v,i)=>`<tr>
+   <td><span class="tthumb" style="background:${v.yt?`url('https://i.ytimg.com/vi/${ytId(v.yt)||v.yt}/mqdefault.jpg') , `:''}${hue(i)}"></span></td>
+   <td><b>${esc(v.title)}</b><div style="font-size:11px;color:var(--muted)">${esc((v.desc||'').slice(0,40))}</div></td>
+   <td><span class="badge b-i">${esc(v.cat)}</span></td>
+   <td class="mono" style="font-size:11px">${esc(v.yt)}</td><td>${esc(v.dur)}</td>
+   <td>${fmt(v.views)}</td><td>${v.featured?'⭐':'—'}</td>
+   <td><span class="badge ${v.status==='draft'?'b-w':'b-ok'}">${v.status||'active'}</span></td>
+   <td><div class="act"><button data-e="v" data-id="${v.id}">✏️</button><button data-d="v" data-id="${v.id}">🗑️</button></div></td></tr>`).join('');
+  bindActs();
+  $('#vCatFlt').innerHTML='<option value="">Barcha kategoriyalar</option>'+[...new Set(DB.videos.map(v=>v.cat))].map(c=>`<option>${esc(c)}</option>`).join('');
+}
+function renderNews(){
+  const q=($('#nSearch').value||'').toLowerCase(), f=$('#nCatFlt').value;
+  const reads={}; DB.events.filter(e=>e.type==='read').forEach(e=>reads[e.itemId]=(reads[e.itemId]||0)+1);
+  const list=DB.news.filter(n=>(!f||n.cat===f)&&(n.title+n.cat).toLowerCase().includes(q));
+  $('#nRows').innerHTML=list.map(n=>`<tr>
+   <td><span class="tthumb" style="background:${hue(n.id.charCodeAt(1))};display:grid;place-items:center;font-size:20px">${n.emoji||'📰'}</span></td>
+   <td><b>${esc(n.title)}</b></td><td><span class="badge b-i">${esc(n.cat)}</span></td>
+   <td style="color:var(--muted)">${esc(n.src)}</td><td>${n.read} daq</td>
+   <td>${n.hot?'<span class="badge b-x">🔥 HOT</span>':'—'}</td><td>${reads[n.id]||0}</td>
+   <td><div class="act"><button data-e="n" data-id="${n.id}">✏️</button><button data-d="n" data-id="${n.id}">🗑️</button></div></td></tr>`).join('');
+  bindActs();
+  $('#nCatFlt').innerHTML='<option value="">Barcha kategoriyalar</option>'+[...new Set(DB.news.map(n=>n.cat))].map(c=>`<option>${esc(c)}</option>`).join('');
+}
+function renderUsers(){
+  const q=($('#uSearch').value||'').toLowerCase(), f=$('#uRoleFlt').value;
+  const list=DB.users.filter(u=>(!f||u.role===f)&&(u.name+(u.tg||'')).toLowerCase().includes(q));
+  $('#uRows').innerHTML=list.map(u=>{const m=THEMES_META[u.theme]||['?','','',''];
+   return `<tr><td><b>${esc(u.name)}</b><div style="font-size:11px;color:var(--muted)">${u.id}</div></td>
+   <td class="mono" style="font-size:12px">${u.tg?'@'+esc(u.tg):'—'}</td>
+   <td><span class="badge ${u.role==='vip'?'b-p':u.role==='tester'?'b-w':'b-i'}">${u.role}</span></td>
+   <td>${m[2]} ${m[0]}</td><td>${u.sessions}</td><td style="color:var(--muted)">${ago(u.last)}</td>
+   <td><span class="badge ${u.status==='banned'?'b-x':'b-ok'}">${u.status||'active'}</span></td>
+   <td><div class="act"><button data-tog="${u.id}">${u.status==='banned'?'🔓':'🚫'}</button></div></td></tr>`}).join('');
+  $$('[data-tog]').forEach(b=>b.onclick=()=>{const u=DB.users.find(x=>x.id===b.dataset.tog);
+    u.status=u.status==='banned'?'active':'banned';persist();renderUsers();toast(u.name+(u.status==='banned'?' bloklandi':' blokdan chiqdi'),'🛡️')});
+}
+function renderThemes(){
+  const cnt={};
+  DB.events.filter(e=>e.type==='theme').forEach(e=>{const id=e.itemId||e.theme;cnt[id]=(cnt[id]||0)+1});
+  const all=Object.keys(THEMES_META);
+  const keep={}; all.forEach(id=>keep[id]= 55+((cnt[id]||0)*7)%40);
+  const mx=Math.max(1,...Object.values(cnt));
+  $('#tRows').innerHTML=all.map(id=>{const m=THEMES_META[id],n=cnt[id]||0;
+   return `<tr><td><span style="display:inline-block;width:26px;height:26px;border-radius:8px;background:${m[3]};vertical-align:-6px"></span> <b>${m[2]} ${m[0]}</b></td>
+   <td><span class="badge b-i">${m[1]}</span></td><td><b>${n}</b></td>
+   <td><div style="width:130px"><div style="height:6px;border-radius:99px;background:var(--card2)"><div style="height:100%;width:${keep[id]}%;border-radius:99px;background:${m[3]}"></div></div>
+   <span style="font-size:10.5px;color:var(--muted)">${keep[id]}% ushlab qolgan</span></div></td>
+   <td style="color:${n?'var(--ok)':'var(--muted)'}">${n?'▲':'▬'} ${Math.round(n/mx*100)}%</td>
+   <td class="mono" style="font-size:11px;color:var(--muted)">#a-${id.slice(0,8)}</td></tr>`}).join('');
+}
+function renderAnnounce(){
+  $('#anList').innerHTML=[...DB.announcements].reverse().slice(0,10).map(a=>`<div class="evt">
+   <span class="dot" style="background:var(--a3)"></span><span><b style="color:var(--text)">${esc(a.title)}</b>
+   <div style="font-size:11px;color:var(--muted)">${esc(a.body.slice(0,60))}…</div></span>
+   <b>${a.sent??'—'} ✉️ · ${ago(a.ts)}</b></div>`).join('')||'<div class="sub">Hali e\'lon yo\'q</div>';
+}
+function bindActs(){
+  $$('[data-e]').forEach(b=>b.onclick=()=>b.dataset.e==='v'?editVideo(b.dataset.id):editNews(b.dataset.id));
+  $$('[data-d]').forEach(b=>b.onclick=()=>{
+    if(!confirm('O\'chirilsinmi?'))return;
+    if(b.dataset.d==='v')DB.videos=DB.videos.filter(x=>x.id!==b.dataset.id); else DB.news=DB.news.filter(x=>x.id!==b.dataset.id);
+    persist();renderAll();toast('O\'chirildi','🗑️'); if(LIVE())api(b.dataset.d==='v'?'videos.delete':'news.delete',{id:b.dataset.id});});
+}
+
+/* ============================ MODAL (editor) ============================ */
+let editing=null;
+function openModal(title,fields,obj,onSave){
+  editing={fields,obj,onSave};
+  $('#mTitle').textContent=title;
+  $('#mBody').innerHTML=fields.map(f=>`<div class="f"><label>${f.label}</label>
+    ${f.type==='textarea'?`<textarea data-k="${f.k}" rows="3">${esc(obj[f.k]??'')}</textarea>`
+    :f.type==='select'?`<select data-k="${f.k}">${f.opts.map(o=>`<option ${String(obj[f.k])===String(o)?'selected':''}>${esc(o)}</option>`).join('')}</select>`
+    :f.type==='check'?`<label style="display:flex;gap:8px;align-items:center;text-transform:none;font-size:13px"><input type="checkbox" style="width:auto" data-k="${f.k}" ${obj[f.k]?'checked':''}> ${f.on||'Ha'}</label>`
+    :`<input data-k="${f.k}" value="${esc(obj[f.k]??'')}" placeholder="${f.ph||''}" class="${f.mono?'mono':''}">`}
+    </div>`).join('');
+  $('#mBody').style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 10px';
+  $$('#mBody textarea').forEach(t=>t.closest('.f').style.gridColumn='span 2');
+  $('#modal').classList.add('open');
+}
+$('#mCancel').onclick=()=>$('#modal').classList.remove('open');
+$('#mSave').onclick=async()=>{
+  const o=editing.obj;
+  $$('#mBody [data-k]').forEach(el=>{ o[el.dataset.k]= el.type==='checkbox'? (el.checked?1:0) : el.value; });
+  editing.onSave(o); persist(); $('#modal').classList.remove('open'); renderAll(); toast('Saqlandi ✓','💾');
+  if(LIVE()){ await api(editing.kind==='v'?'videos.save':'news.save',{item:o}); }
+};
+function editVideo(id){
+  const v=structuredClone(Object.assign({id:'v'+Date.now(),status:'active'},DB.videos.find(x=>x.id===id)||{}));
+  openModal(id?`Video tahrir · ${id}`:'Yangi video',[
+   {k:'title',label:'Sarlavha'},{k:'yt',label:'YouTube link yoki ID',mono:1,ph:'https://youtu.be/… yoki M7lc1UVf-VE'},
+   {k:'dur',label:'Davomiylik',ph:'12:04'},{k:'cat',label:'Kategoriya',type:'select',opts:['Texnologiya','Sayohat','Kino','Musika','Tabiat','Ta\'lim','Ilm-fan','O\'yinlar']},
+   {k:'views',label:'Boshlang\'ich ko\'rishlar'},{k:'featured',label:'Featured (hero slider)',type:'check',on:'⭐ Featured'},
+   {k:'status',label:'Holat',type:'select',opts:['active','draft']},
+   {k:'desc',label:'Tavsif',type:'textarea'}],v,o=>{
+    o.featured=+o.featured; o.yt=(ytId(o.yt)||o.yt).trim();
+    const i=DB.videos.findIndex(x=>x.id===o.id);
+    if(i>-1)DB.videos[i]=o; else DB.videos.push(o); editing.kind='v';});
+}
+function editNews(id){
+  const n=structuredClone(Object.assign({id:'n'+Date.now(),status:'active'},DB.news.find(x=>x.id===id)||{}));
+  openModal(id?`Yangilik tahrir · ${id}`:'Yangi yangilik',[
+   {k:'title',label:'Sarlavha'},{k:'cat',label:'Kategoriya',type:'select',opts:['Tech','Iqtisod','Madaniyat','Kino','Ilm-fan','Sport','Jamiyat']},
+   {k:'src',label:'Manba'},{k:'time',label:'Vaqt belgisi',ph:'2 soat'},
+   {k:'read',label:'O\'qish daqiqa'},{k:'emoji',label:'Emoji ikonka'},
+   {k:'hot',label:'HOT',type:'check',on:'🔥 HOT ko\'rsatish'},{k:'status',label:'Holat',type:'select',opts:['active','draft']},
+   {k:'body',label:'Matn (bo\'sh qator = paragraf)',type:'textarea'}],n,o=>{
+    o.hot=+o.hot; const i=DB.news.findIndex(x=>x.id===o.id);
+    if(i>-1)DB.news[i]=o; else DB.news.push(o); editing.kind='n';});
+}
+
+/* ============================ NAV ============================ */
+$$('.nv').forEach(b=>b.onclick=()=>{
+  $$('.nv').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  $$('.page').forEach(p=>p.classList.remove('on')); $('#pg-'+b.dataset.p).classList.add('on');
+  const T={dash:['Dashboard','Umumiy ko\'rsatkichlar · oxirgi 14 kun'],videos:['Videolar','Kontent bazasi · YouTube ID boshqaruvi'],
+   news:['Yangiliklar','News feed boshqaruvi'],users:['Foydalanuvchilar','Telegram auth orqali kelgan profillar'],
+   themes:['Temalar','12 ta olam bo\'yicha retentsion analitika'],announce:['E\'lonlar','Telegram broadcast markazi'],
+   settings:['Sozlamalar','Backend, token va ma\'lumot eksporti']};
+  $('#pgTitle').textContent=T[b.dataset.p][0]; $('#pgCrumb').textContent=T[b.dataset.p][1];
+  renderAll();
+});
+function renderAll(){ kpis(); lineChart(); donut(); themeBars(); feed();
+  renderVideos(); renderNews(); renderUsers(); renderThemes(); renderAnnounce(); }
+
+/* ============================ ANNOUNCE ============================ */
+async function sendAnnounce(test){
+  const title=$('#anTitle').value.trim(), body=$('#anBody').value.trim();
+  if(!title||!body) return toast('Sarlavha va matn kerak','⚠️');
+  DB.announcements.push({title,body,ts:Date.now(),sent:test?'test':DB.users.length*97+41});
+  persist(); renderAnnounce(); $('#anTitle').value=$('#anBody').value='';
+  if(LIVE()){
+    const j=await api('announce',{title,text:body,button:$('#anBtn').value||undefined,test:!!test});
+    toast(j.ok?'Telegram\'ga yuborildi 🚀':'Xato: '+(j.error||''),j.ok?'📣':'⚠️');
+  } else toast(test?'Demo: faqat o\'zingizga ketardi ✓':'Demo: barcha obunachilarga ketardi ✓','📣');
+}
+$('#anSend').onclick=()=>sendAnnounce(false);
+$('#anTest').onclick=()=>sendAnnounce(true);
+
+/* ============================ SETTINGS ============================ */
+$('#stApi').value=CFG.API_URL; $('#stTok').value=CFG.TOKEN; $('#stChat').value=CFG.CHAT;
+$('#stSave').onclick=()=>{ localStorage.setItem('aurum.admin.api',$('#stApi').value.trim());
+  localStorage.setItem('aurum.admin.tok',$('#stTok').value.trim());
+  localStorage.setItem('aurum.admin.chat',$('#stChat').value.trim());
+  CFG.API_URL=$('#stApi').value.trim(); CFG.TOKEN=$('#stTok').value.trim(); CFG.CHAT=$('#stChat').value.trim();
+  updMode(); toast('Saqlandi — sahifani yangilang','⚙️'); };
+async function pingApi(){
+  if(!LIVE()) return toast('API_URL bo\'sh — demo rejim','🧪');
+  try{ const r=await fetch(CFG.API_URL+'?action=ping'); const j=await r.json();
+    toast(j.ok?'Backend online ✓ ('+(j.demo?'demo':'sheets')+')':'Backend javob bermadi',j.ok?'📡':'⚠️');
+  }catch(e){ toast('Tarmoq xatosi','⚠️'); }
+}
+$('#stPing').onclick=pingApi;
+$('#vSync').onclick=async()=>{ await pull(); renderAll(); toast(LIVE()?'Sheets\'dan tortildi ✓':'Demo rejim — API kerak','⟳'); };
+$('#stExport').onclick=()=>{ const blob=new Blob([JSON.stringify(DB,null,1)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='aurum-db.json'; a.click(); };
+$('#stImport').onclick=()=>$('#stFile').click();
+$('#stFile').onchange=e=>{ const f=e.target.files[0]; if(!f)return;
+  const rd=new FileReader(); rd.onload=()=>{ try{ DB=JSON.parse(rd.result); persist(); renderAll(); toast('Import ✓','🗃️'); }catch(x){ toast('JSON buzilgan','⚠️'); } }; rd.readAsText(f); };
+$('#stSeed').onclick=()=>{ if(confirm('Demo ma\'lumotlar qayta tiklansinmi?')){ DB=seedDB(); persist(); renderAll(); toast('Demo bazasi tiklandi','🌱'); } };
+$('#vAdd').onclick=()=>editVideo(null);
+$('#nAdd').onclick=()=>editNews(null);
+['#vSearch','#vCatFlt','#nSearch','#nCatFlt','#uSearch','#uRoleFlt'].forEach(s=>{
+  $(s).addEventListener('input',()=>{renderVideos();renderNews();renderUsers()})});
+
+/* ============================ MODE / LOGIN ============================ */
+function updMode(){ const p=$('#modePill');
+  p.classList.toggle('live',LIVE()); p.querySelector('span').textContent=LIVE()?'LIVE · Google Sheets':'DEMO · localStorage'; }
+function enter(){ $('#gate').style.display='none'; $('#app').style.display='grid';
+  sessionStorage.setItem('aurum.admin.in','1'); updMode(); renderAll(); }
+$('#loginBtn').onclick=async()=>{
+  CFG.TOKEN=$('#tok').value.trim();
+  if(!CFG.TOKEN) return toast('Token kiriting','⚠️');
+  if(LIVE()){ try{ const j=await (await fetch(CFG.API_URL,{method:'POST',body:JSON.stringify({action:'admin',token:CFG.TOKEN,op:'ping'})})).json();
+      if(!j.ok){ toast('Token noto\'g\'ri yoki backend javob bermadi','⛔'); return; } }
+    catch(e){ toast('Backendga ulanib bo\'lmadi','⛔'); return; } }
+  localStorage.setItem('aurum.admin.tok',CFG.TOKEN); enter(); toast('Xush kelibsiz, Administrator','🛡️');
+};
+$('#demoBtn').onclick=()=>{ CFG.API_URL=''; enter(); toast('Demo rejim yoqildi','🧪'); };
+
+/* boot */
+if(CFG.TOKEN&&sessionStorage.getItem('aurum.admin.in')) enter();
+</script>
+</body>
+</html>
