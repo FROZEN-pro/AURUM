@@ -359,7 +359,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 /* ============================ CONFIG ============================ */
 const CFG = {
   API_URL: localStorage.getItem('aurum.admin.api') ||
-    'https://script.google.com/macros/s/AKfycbxjJcHUaydjnmPkODmke3TXcH8Dbm4hwvO-F7goD5sa60yglJ7KCUXyMep8vkrdXuZj7Q/exec',
+    'https://script.google.com/macros/s/AKfycbysfIFbYeJIE5eaINhc2BElTQd96zMvFRAR6wUvTFSHQMjod-6PGNg4m4m5UZgQ7Socaw/exec',
   TOKEN: localStorage.getItem('aurum.admin.tok') || ''
 };
 let DB = {videos:[],news:[],users:[],events:[],announcements:[],likes:[],comments:[]};
@@ -773,7 +773,7 @@ $('#loginBtn').onclick=async()=>{
     let j=null; try{ j=await r.json() }catch(e){}
     if(!j){ gateErr('Apps Script javob bermadi. URL noto\u2018g\u2018ri yoki deploy eski bo\u2018lishi mumkin.'); return }
     if(!j.ok){ gateErr('Token noto\u2018g\u2018ri ('+esc(j.error||'unauthorized')+')'); return }
-    if(j.version!=='v2') gateErr('Diqqat: backend eski versiyada ishlayapti. code.gs v2 ni qayta deploy qiling — layk/izoh ishlamaydi.');
+    if(j.version!=='v2.1') gateErr('Diqqat: backend eski versiyada ishlayapti. code.gs v2.1 ni qayta deploy qiling — layk/izoh ishlamaydi.');
     localStorage.setItem('aurum.admin.api',CFG.API_URL); localStorage.setItem('aurum.admin.tok',CFG.TOKEN);
     $('#stApi2').value=CFG.API_URL; $('#stTok').value=CFG.TOKEN;
     await enter(); toast('Xush kelibsiz, Administrator','🛡️');

@@ -1,28 +1,14 @@
-/**
- * =============================================================
- *  AURUM · Google Apps Script Backend v2 (code.gs)
- *  index.html / admin.html shu fayl bilan ishlaydi.
- *
- *  SOZLASH:
- *  1. script.google.com → loyihangizni oching → kodning HAMMASINI
- *     o'chirib, shu faylni to'liq Copy/Paste qiling
- *  2. Project Settings → Properties:
- *        BOT_TOKEN   = 123456:ABC-...   (BotFather)
- *        ADMIN_TOKEN = o'zingizning uzoq tasodifiy kalitingiz
- *        BROADCAST_CHAT = -1001234567890 yoki @kanal (ixtiyoriy)
- *        OWNER_CHAT  = sizning Telegram ID (test xabarlar uchun)
- *        APP_URL     = https://frozen-pro.github.io/AURUM/
- *  3. Deploy → Edit deployment → NEW version → Deploy
- *     (Execute as: Me · Who has access: Anyone)
- *
- *  Sheets DB avtomatik: Videos, News, Users, Events, Settings,
- *  Announcements, Likes, Comments, CommentLikes
- * =============================================================
- */
+// AURUM · Google Apps Script Backend v2.1
+// index.html va admin.html shu fayl bilan ishlaydi.
+// Script Properties: ADMIN_TOKEN, BOT_TOKEN, BROADCAST_CHAT,
+//                  OWNER_CHAT, APP_URL, SHEET_ID
+// Kod o`zgarsa: Deploy > Manage deployments > Edit > New version > Deploy
+// Sheets DB avtomatik: Videos, News, Users, Events, Settings,
+//                     Announcements, Likes, Comments, CommentLikes
 
 var PROPS = PropertiesService.getScriptProperties();
 
-/* ---------- Sheet yordamchilari ---------- */
+// ---------- Sheet yordamchilari ----------
 function getSS_() {
   var id = PROPS.getProperty('SHEET_ID');
   var ss = id ? SpreadsheetApp.openById(id) : null;
@@ -103,19 +89,19 @@ function getSetting_(k, dflt) {
 function uid_() { return 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 function trim_(s, n) { return String(s == null ? '' : s).slice(0, n); }
 
-/* ---------- JSON javob ---------- */
+// ---------- JSON javob ----------
 function json_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-/* ---------- GET ---------- */
+// ---------- GET ----------
 function doGet(e) {
   var a = (e && e.parameter && e.parameter.action) || 'ping';
   var me = (e && e.parameter && e.parameter.uid) || '';
   try {
     if (a === 'bootstrap') return json_(bootstrap_(me));
-    if (a === 'ping') return json_({ ok: true, name: 'AURUM backend v2', sheets: getSS_().getName(), t: Date.now() });
+    if (a === 'ping') return json_({ ok: true, name: 'AURUM backend v2.1', sheets: getSS_().getName(), t: Date.now() });
     return json_({ ok: false, error: 'nodoma action' });
   } catch (err) { return json_({ ok: false, error: String(err) }); }
 }
@@ -144,7 +130,7 @@ function active_(arr) {
     });
 }
 
-/* ---------- POST router ---------- */
+// ---------- POST router ----------
 function doPost(e) {
   var d = {};
   try { d = JSON.parse(e.postData.contents); } catch (x) { return json_({ ok: false, error: 'JSON buzilgan' }); }
@@ -159,7 +145,7 @@ function doPost(e) {
   } catch (err) { return json_({ ok: false, error: String(err) }); }
 }
 
-/* ---------- Hodisalarni yozish ---------- */
+// ---------- Hodisalarni yozish ----------
 function handleTrack_(d) {
   sheet_('Events').appendRow([d.ts || Date.now(), trim_(d.userId, 40), trim_(d.event, 40), trim_(d.itemId, 60), trim_(d.theme, 30), trim_(d.meta, 300)]);
   if (d.userId && d.userId !== 'guest') {
@@ -176,12 +162,12 @@ function handleTrack_(d) {
   return json_({ ok: true });
 }
 
-/* ---------- Layk va izohlar (real-time) ---------- */
+// ---------- Layk va izohlar (real-time) ----------
 function handleSocial_(d) {
   var uid = trim_(d.uid, 40);
   if (!uid) return json_({ ok: false, error: 'uid kerak' });
 
-  /* --- LAYK: yorib qo'shish, qayta bosib o'chirish --- */
+  // --- LAYK: yorib qo'shish, qayta bosib o'chirish ---
   if (d.op === 'like') {
     var vid = trim_(d.videoId, 60);
     if (!vid) return json_({ ok: false, error: 'videoId kerak' });
@@ -197,7 +183,7 @@ function handleSocial_(d) {
     return json_({ ok: true, liked: !liked, count: count });
   }
 
-  /* --- IZOH QO'SHISH --- */
+  // --- IZOH QO'SHISH ---
   if (d.op === 'comment.add') {
     var vid2 = trim_(d.videoId, 60);
     var text = trim_(d.text, 900).replace(/\s+$/, '');
@@ -210,7 +196,7 @@ function handleSocial_(d) {
     return json_({ ok: true, comment: { id: cid, videoId: vid2, userId: uid, name: trim_(d.name, 60) || 'Mehmon', text: text, ts: Date.now(), likes: 0 } });
   }
 
-  /* --- IZOHNI YOQTIRISH (toggle) --- */
+  // --- IZOHNI YOQTIRISH (toggle) ---
   if (d.op === 'comment.vote') {
     var commentId = trim_(d.commentId, 40);
     var clid = commentId + '|' + uid;
@@ -228,7 +214,7 @@ function handleSocial_(d) {
     return json_({ ok: true, voted: !voted, likes: cur + (voted ? -1 : 1) });
   }
 
-  /* --- O'Z IZOHINI O'CHIRISH --- */
+  // --- O'Z IZOHINI O'CHIRISH ---
   if (d.op === 'comment.delete') {
     var cid2 = trim_(d.commentId, 40);
     var row = findRow_('Comments', 'id', cid2);
@@ -240,7 +226,7 @@ function handleSocial_(d) {
     return json_({ ok: true });
   }
 
-  /* --- IZOHLAR RO'YXATI (video bo'yicha) + yangilanib turish uchun --- */
+  // --- IZOHLAR RO'YXATI (video bo'yicha) + yangilanib turish uchun ---
   if (d.op === 'comment.list') {
     var vid3 = trim_(d.videoId, 60);
     var mine = {};
@@ -252,7 +238,7 @@ function handleSocial_(d) {
     return json_({ ok: true, comments: list.slice(0, 200), votes: mine, mine: uid });
   }
 
-  /* --- Mening layklangan videolarim (fav sinxroni) --- */
+  // --- Mening layklangan videolarim (fav sinxroni) ---
   if (d.op === 'myLikes') {
     var arr = rows_('Likes').filter(function (l) { return l.userId === uid; }).map(function (l) { return String(l.videoId); });
     return json_({ ok: true, ids: arr });
@@ -261,7 +247,7 @@ function handleSocial_(d) {
   return json_({ ok: false, error: 'social op topilmadi' });
 }
 
-/* ---------- Telegram WebApp initData tekshiruvi (HMAC-SHA256) ---------- */
+// ---------- Telegram WebApp initData tekshiruvi (HMAC-SHA256) ----------
 function handleAuth_(d) {
   var token = PROPS.getProperty('BOT_TOKEN');
   if (!token) return json_({ ok: false, error: 'BOT_TOKEN sozlanmagan' });
@@ -278,9 +264,7 @@ function handleAuth_(d) {
     sh.getRange(r, SCHEMA.Users.indexOf('name') + 1).setValue(name);
     sh.getRange(r, SCHEMA.Users.indexOf('last') + 1).setValue(Date.now());
   } else {
-    role = getSetting_('first_user_admin', '') === '1' ? 'user' : 'user';
     sheet_('Users').appendRow([uid, u.username || '', name, role, '', 1, Date.now(), 'active', Date.now()]);
-    setSetting_('first_user_admin', '1');
   }
   var likes = rows_('Likes').filter(function (l) { return l.userId === uid; }).map(function (l) { return String(l.videoId); });
   return json_({ ok: true, user: { id: uid, name: name, username: u.username || '', role: role, photo: '' }, likes: likes });
@@ -312,19 +296,27 @@ function verifyInitData_(initData, botToken) {
   return age < 16 * 3600;
 }
 
-/* ---------- Admin API ---------- */
+// ---------- Admin API ----------
+function withCreated_(item) {
+  var o = { createdAt: Date.now() };
+  item = item || {};
+  for (var k in item) if (item.hasOwnProperty(k)) o[k] = item[k];
+  if (item.createdAt) o.createdAt = item.createdAt;
+  return o;
+}
 function handleAdmin_(d) {
   var tok = PROPS.getProperty('ADMIN_TOKEN');
-  if (!tok || d.token !== tok) return json_({ ok: false, error: 'unauthorized' });
+  if (!tok) return json_({ ok: false, error: 'ADMIN_TOKEN sozlanmagan' });
+  if (String(d.token == null ? '' : d.token).trim() !== String(tok).trim()) return json_({ ok: false, error: 'unauthorized' });
   switch (d.op) {
-    case 'ping':  return json_({ ok: true, t: Date.now(), version: 'v2' });
+    case 'ping':  return json_({ ok: true, t: Date.now(), version: 'v2.1' });
     case 'pull':  return json_({ ok: true, data: { videos: rows_('Videos'), news: rows_('News'),
                           users: rows_('Users'), events: rows_('Events').slice(-3000),
                           announcements: rows_('Announcements'), likes: rows_('Likes'), comments: rows_('Comments') } });
     case 'push':  return handlePush_(d);
-    case 'videos.save':   upsert_('Videos', Object.assign({ createdAt: Date.now() }, d.item)); return json_({ ok: true });
+    case 'videos.save':   upsert_('Videos', withCreated_(d.item)); return json_({ ok: true });
     case 'videos.delete': delRow_('Videos', 'id', d.id); return json_({ ok: true });
-    case 'news.save':     upsert_('News', Object.assign({ createdAt: Date.now() }, d.item)); return json_({ ok: true });
+    case 'news.save':     upsert_('News', withCreated_(d.item)); return json_({ ok: true });
     case 'news.delete':   delRow_('News', 'id', d.id); return json_({ ok: true });
     case 'users.save':    upsert_('Users', d.item || {}); return json_({ ok: true });
     case 'users.delete':  delRow_('Users', 'id', d.id); return json_({ ok: true });
@@ -386,7 +378,7 @@ function dailyCounts_(ev, days) {
 function countBy_(rows, key) {
   var o = {}; rows.forEach(function (r) { if (r[key]) o[r[key]] = (o[r[key]] || 0) + 1; }); return o;
 }
-/* admin push (butun bazani Sheets'ga yozish) */
+// admin push (butun bazani Sheets'ga yozish)
 function handlePush_(d) {
   var data = d.data || {};
   [['videos','Videos'], ['news','News']].forEach(function (pair) {
@@ -401,7 +393,7 @@ function handlePush_(d) {
   return json_({ ok: true });
 }
 
-/* ---------- Telegram broadcast ---------- */
+// ---------- Telegram broadcast ----------
 function handleAnnounce_(d) {
   var token = PROPS.getProperty('BOT_TOKEN');
   var chat = PROPS.getProperty('BROADCAST_CHAT');
@@ -425,5 +417,5 @@ function escHtml_(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-/* ---------- Bir martalik init (opsional) ---------- */
+// ---------- Bir martalik init (opsional) ----------
 function setup() { var ss = getSS_(); ['Likes','Comments','CommentLikes'].forEach(sheet_); Logger.log('AURUM backend v2 tayyor. Sheet: ' + ss.getUrl()); }
