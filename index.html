@@ -215,9 +215,27 @@ main{flex:1;min-width:0;padding:0 var(--pad) calc(var(--tab-h) + env(safe-area-i
 .p-head::before{content:"";position:absolute;inset:0;background:
   radial-gradient(60% 90% at 90% 10%,color-mix(in srgb,var(--accent) 22%,transparent),transparent 60%);pointer-events:none}
 .p-ava{width:70px;height:70px;border-radius:22px;background:var(--grad);display:grid;place-items:center;
-  font-size:28px;font-weight:800;color:#fff;box-shadow:var(--glow);flex:none;font-family:var(--font-h)}
-.p-head h3{font-family:var(--font-h);font-size:19px}
-.p-head .handle{font-size:12.5px;color:var(--muted)}
+  font-size:28px;font-weight:800;color:#fff;box-shadow:var(--glow);flex:none;font-family:var(--font-h);
+  position:relative;overflow:hidden}
+.p-ava img,.avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.avatar{position:relative;overflow:hidden}
+.avatar img{border-radius:inherit}
+.p-id{min-width:0;flex:1}
+.p-head h3{font-family:var(--font-h);font-size:19px;overflow-wrap:anywhere}
+.p-head .handle{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+.tg-id{display:inline-flex;align-items:center;gap:8px;margin-top:6px;padding:4px 6px 4px 10px;
+  border-radius:99px;background:color-mix(in srgb,var(--accent) 14%,transparent);
+  border:1px solid color-mix(in srgb,var(--accent) 34%,transparent);
+  font-size:11.5px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
+.tg-id b{letter-spacing:.02em}
+.copy-id{padding:3px 9px;border-radius:99px;font-size:10px;font-weight:800;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--accent);background:var(--surface2);border:1px solid var(--line);
+  transition:.25s;flex:none}
+.copy-id:active{transform:scale(.9)}
+.p-auth{display:flex;align-items:center;gap:8px;margin-top:11px;padding:11px 14px;border-radius:var(--r);
+  background:color-mix(in srgb,var(--accent) 10%,var(--surface));border:1px solid var(--line);
+  font-size:12.5px;color:var(--muted)}
+.p-auth b{color:var(--text)}
 .pill{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;letter-spacing:.06em;
   padding:4px 10px;border-radius:99px;margin-top:7px;border:1px solid var(--line);color:var(--muted)}
 .pill.premium{background:var(--grad);color:#fff;border-color:transparent;box-shadow:var(--glow)}
@@ -581,6 +599,113 @@ main{flex:1;min-width:0;padding:0 var(--pad) calc(var(--tab-h) + env(safe-area-i
 .nrow:hover .nart{transform:scale(1.06) rotate(-2deg)}
 .slide .s-meta{display:flex;gap:14px;margin-top:9px;font-size:11.5px;font-weight:600;opacity:.92}
 .slide .s-meta span{display:inline-flex;align-items:center;gap:5px}
+
+/* ============================================================
+   SMARTFON QATLAMI — ilova faqat telefon kengligiga moslanadi:
+   gorizontal shishish yo‘q, hech narsa kesilmaydi.
+   ============================================================ */
+[hidden]{display:none!important}
+html,body{max-width:100%}
+@media (max-width:720px){
+  :root{--r:16px;--r-sm:11px;--pad:13px;--tab-h:64px}
+  body{font-size:14px}
+  /* — topbar: izuv maydoni kichrayishiga yo‘l qo‘ymaydi — */
+  .topbar{gap:8px;padding:calc(9px + env(safe-area-inset-top)) 0 9px}
+  .topbar>*{min-width:0}
+  .logo{font-size:17px;gap:7px;flex:none}
+  .logo .gem{width:26px;height:26px;border-radius:8px}
+  .logo .gem svg{width:13px;height:13px}
+  .search{flex:1 1 0;min-width:0;padding:8px 12px;gap:6px}
+  .search input{min-width:0;font-size:13px}
+  .icon-btn,.avatar{width:36px;height:36px;font-size:15px}
+  .avatar{font-size:13px}
+  /* — bo‘limlar — */
+  .sec{margin-top:20px}
+  .sec-h{margin-bottom:10px}
+  .sec-h h2{font-size:16.5px}
+  .sec-h .more{font-size:11.5px;white-space:nowrap}
+  .chips{gap:7px}
+  .chip{padding:7px 13px;font-size:12.5px}
+  /* — hero — */
+  .hero-track{gap:11px}
+  .slide{flex:0 0 calc(100% - 22px);min-height:186px}
+  .slide .meta{padding:14px}
+  .slide h3{font-size:clamp(17px,4.8vw,21px)}
+  .slide p{font-size:12px}
+  .slide .s-meta{gap:7px 12px;flex-wrap:wrap;font-size:11px}
+  .play-fab{width:46px;height:46px;right:14px;bottom:14px}
+  .play-fab svg{width:18px;height:18px}
+  /* — video grid: telefonda doim 2 ustun — */
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+  .card .body{padding:9px 10px 11px}
+  .card h4{font-size:12.5px;-webkit-line-clamp:2}
+  .card .sub{font-size:10.5px;gap:6px}
+  .thumb .dur{font-size:9.5px;padding:2px 6px;right:6px;bottom:6px}
+  .fav-pin{width:27px;height:27px;font-size:12px;left:6px;bottom:6px}
+  .hrow{gap:11px}
+  .cw{flex:0 0 178px}
+  /* — news — */
+  .nlead{min-height:198px}
+  .nlead .meta{padding:14px}
+  .nlead h3{font-size:17px}
+  .nlead p{font-size:12.5px}
+  .nrow{gap:11px;padding:10px}
+  .nrow .nart{flex:0 0 78px;height:58px;font-size:22px}
+  .nrow h4{font-size:13px}
+  .ticker{padding:7px 4px 7px 10px}
+  /* — profile — */
+  .p-head{padding:14px;gap:13px;border-radius:var(--r)}
+  .p-ava{width:62px;height:62px;border-radius:19px;font-size:25px}
+  .p-head h3{font-size:18px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .stat{padding:12px 8px}
+  .stat b{font-size:19px}
+  .stat span{font-size:10px}
+  .rows{gap:8px}
+  .row{padding:12px 13px;gap:11px;font-size:13.5px}
+  .row .ic{width:33px;height:33px;font-size:15px;border-radius:10px}
+  /* — tema do‘koni — */
+  .sheet .panel{padding:15px 14px calc(18px + env(safe-area-inset-bottom));
+    border-radius:22px 22px 0 0;max-height:90dvh}
+  .sheet .panel h2{font-size:19px}
+  /* kitobcha (reader) telefonda pastdan ochiladigan to‘liq varaq bo‘ladi */
+  #readerSheet .panel{left:0!important;right:0!important;top:auto!important;bottom:0!important;
+    transform:none!important;width:auto;max-width:none;margin:0;border-radius:22px 22px 0 0;
+    max-height:92dvh;animation:sheetUp .45s cubic-bezier(.22,1,.36,1)}
+  .t-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  /* — pleyer boshqaruv qatori kichik ekranda joylashadi — */
+  .p-top{padding:calc(8px + env(safe-area-inset-top)) 10px 8px;gap:8px}
+  .p-stage{max-height:none}
+  .pl-ctl{padding:22px 9px 8px}
+  .pl-row{flex-wrap:wrap;gap:1px 0;row-gap:2px}
+  .pl-grow{display:none}
+  .plb{min-width:38px;height:36px;font-size:14px}
+  .plb.mini{font-size:17px}
+  .pl-time{font-size:11.5px;padding:0 6px}
+  .pl-big{width:62px;height:62px}
+  .pl-big svg{width:26px;height:26px}
+  .p-info{padding:14px 14px 30px}
+  .pi-title{font-size:16px}
+  .pi-acts{gap:8px}
+  .pbtn{padding:10px 14px;font-size:12.5px}
+  .cmt-add{gap:8px}
+  .cmt .ava{width:32px;height:32px;font-size:13px}
+  .cmt .cx{font-size:13px}
+  /* — qolgan qismlar — */
+  .empty{padding:44px 16px}
+  .empty .big{font-size:44px}
+  .reader-hero{height:150px;font-size:44px}
+  #toasts{bottom:calc(var(--tab-h) + env(safe-area-inset-bottom) + 14px);max-width:94vw}
+  .toast{font-size:12.5px;padding:10px 15px}
+}
+@media (max-width:390px){
+  .grid{gap:9px}
+  .card h4{font-size:12px}
+  .slide{flex:0 0 calc(100% - 18px)}
+  .cw{flex:0 0 164px}
+  .p-ava{width:56px;height:56px;border-radius:17px;font-size:22px}
+  .plb{min-width:34px}
+}
 </style>
 </head>
 <body>
@@ -599,7 +724,7 @@ main{flex:1;min-width:0;padding:0 var(--pad) calc(var(--tab-h) + env(safe-area-i
         <span>🔍</span><input id="q" placeholder="Qidiruv yoki YouTube linkni qo'y…" autocomplete="off">
       </label>
       <button class="icon-btn" id="themeQuick" title="Tez tema">🎨</button>
-      <button class="avatar" id="avaBtn">A</button>
+      <button class="avatar" id="avaBtn" aria-label="Profil"><img id="avaImg" alt="" hidden><span id="avaTxt">A</span></button>
     </header>
 
     <!-- ============ HOME ============ -->
@@ -650,13 +775,21 @@ main{flex:1;min-width:0;padding:0 var(--pad) calc(var(--tab-h) + env(safe-area-i
     <!-- ============ PROFILE ============ -->
     <section class="screen" id="scr-profile">
       <div class="p-head">
-        <div class="p-ava" id="pAva">A</div>
-        <div>
+        <div class="p-ava" id="pAva">
+          <img id="pAvaImg" alt="" hidden>
+          <span id="pAvaTxt">A</span>
+        </div>
+        <div class="p-id">
           <h3 id="pName">Mehmon foydalanuvchi</h3>
           <div class="handle" id="pHandle">telegramda emas</div>
+          <div class="tg-id" id="pTgId" hidden>
+            <span>ID: <b id="pTgIdVal">—</b></span>
+            <button class="copy-id" id="pIdCopy" type="button" aria-label="ID ni nusxalash">Nusxa</button>
+          </div>
           <span class="pill" id="pPremium">✦ PREMIUM</span>
         </div>
       </div>
+      <div class="p-auth" id="pAuth" hidden>✈️ Hisobingiz <b>Telegram</b> akkaunti orqali avtomatik tanildi</div>
       <div class="stats">
         <div class="stat"><b id="stWatch">0</b><span>KO’RILGAN</span></div>
         <div class="stat"><b id="stFav">0</b><span>SEVKTLI</span></div>
@@ -862,7 +995,7 @@ const S = {
   saved:  LS.get('saved',[]),
   hist:   LS.get('hist',{}),          // id -> {t, pct, sec}
   read:   LS.get('read',[]),
-  user:   LS.get('user',null),        // {name, tg, role}
+  user:   LS.get('user',null),        // {name, tg, role, tgId, photo, premium}
   themeSwitches: LS.get('themeSwitches',0),
   videos: [], news: [],               // faqat backend’dan (real ma’lumot)
   likeCounts: {}, commentCounts: {}, myLikes: LS.get('myLikes',[]),
@@ -1156,16 +1289,43 @@ function renderStats(){
   $('#stNews').textContent=S.read.length;
   $('#stTheme').textContent=S.themeSwitches;
 }
+function avatarSrc(u){
+  if(!u) return '';
+  if(u.photo) return u.photo;
+  if(u.tg) return `https://t.me/i/userpic/320/${encodeURIComponent(u.tg)}.jpg`;
+  return '';
+}
+function paintAvatar(imgSel,txtSel,label,src){
+  const img=$(imgSel), txt=$(txtSel);
+  txt.textContent=label; img.hidden=true;
+  if(!src) return;
+  img.onload=()=>{ img.hidden=false };
+  img.onerror=()=>{ img.hidden=true };
+  img.src=src;
+}
 function renderProfile(){
   const u=S.user;
-  $('#pName').textContent=u?u.name:'Mehmon foydalanuvchi';
-  $('#pHandle').textContent=u?(u.tg?`@${u.tg} · Telegram`:'Web foydalanuvchi'):'Telegram ilova orqali avtomatik kiriladi';
-  $('#pAva').textContent=(u?u.name:'A').slice(0,1).toUpperCase();
-  $('#avaBtn').textContent=(u?u.name:'A').slice(0,1).toUpperCase();
+  const name=u?(u.name||'Telegram foydalanuvchisi'):'Mehmon foydalanuvchi';
+  $('#pName').textContent=name;
+  $('#pHandle').textContent=u?(u.tg?`@${u.tg}`:'Telegram akkaunt'):'Telegram ilova orqali avtomatik kiriladi';
+  let tgId=u?.tgId||'';
+  if(!tgId && String(S.uid).startsWith('tg')) tgId=String(S.uid).slice(2);
+  $('#pTgId').hidden=!tgId;
+  $('#pTgIdVal').textContent=tgId||'—';
+  $('#pAuth').hidden=!tgId;
+  const src=avatarSrc(u);
+  paintAvatar('#pAvaImg','#pAvaTxt',name.slice(0,1).toUpperCase(),src);
+  paintAvatar('#avaImg','#avaTxt',name.slice(0,1).toUpperCase(),src);
   $('#pPremium').classList.toggle('premium',!!u);
-  $('#pPremium').textContent=u?'✦ PREMIUM a’zo':'✦ Mehmon';
+  $('#pPremium').textContent=u?(u.premium?'✦ Telegram PREMIUM':'✦ Telegram a’zo'):'✦ Mehmon';
   $('#rowAdmin').classList.toggle('hidden', u?.role!=='admin'); // admin panel faqat admin’ga ko’rinadi
 }
+$('#pIdCopy').addEventListener('click',async e=>{
+  e.stopPropagation();
+  const id=$('#pTgIdVal').textContent;
+  try{ await navigator.clipboard.writeText(id); toast('Telegram ID nusxa olindi','📋'); }
+  catch(err){ toast('Nusxa olish imkonsiz','⚠️'); }
+});
 
 /* ============================ TABS & SHEETS ============================ */
 function go(tab){
@@ -1570,10 +1730,12 @@ function tgInit(){
 }
 async function tgAuth(){
   const tg=window.Telegram?.WebApp; if(!tg?.initData) return;
-  const apply=(id,name,username,role,likes)=>{
-    S.user={name:name||'Telegram user',tg:username||null,role:role||'user'}; LS.set('user',S.user);
-    if(id && id!==S.uid){ S.uid=id; LS.set('uid',id); }
-    (likes||[]).forEach(v=>{ if(!S.myLikes.includes(v))S.myLikes.push(v); if(!S.favs.includes(v))S.favs.push(v); });
+  const apply=(u)=>{
+    S.user={name:u.name||'Telegram user',tg:u.username||null,role:u.role||'user',
+      tgId:u.tgId||'',photo:u.photo||null,premium:!!u.premium};
+    LS.set('user',S.user);
+    if(u.id && u.id!==S.uid){ S.uid=u.id; LS.set('uid',u.id); }
+    (u.likes||[]).forEach(v=>{ if(!S.myLikes.includes(v))S.myLikes.push(v); if(!S.favs.includes(v))S.favs.push(v); });
     LS.set('myLikes',S.myLikes); LS.set('favs',S.favs);
     renderHome(); renderFav(); renderProfile(); renderStats(); updatePlayerLikeUI?.();
     track('login','tg'); toast(`Xush kelibsiz, ${S.user.name}!`,'✈️');
@@ -1582,11 +1744,12 @@ async function tgAuth(){
     if(window.APP_CONFIG.API_URL){
       const r=await fetch(APP_CONFIG.API_URL,{method:'POST',body:JSON.stringify({action:'auth',initData:tg.initData})});
       const j=await r.json();
-      if(j.ok&&j.user){ apply(j.user.id,j.user.name,j.user.username,j.user.role,j.likes); return; }
+      if(j.ok&&j.user){ apply({...j.user,likes:j.likes}); return; }
     }
   }catch(e){ console.warn('tgAuth',e); }
-  const u=tg.initDataUnsafe?.user;   // API vaqtincha ishlamasa — lokal identifikatsiya
-  if(u) apply('tg'+u.id,(u.first_name||'')+(u.last_name?' '+u.last_name:''),u.username||null,null,null);
+  const lu=tg.initDataUnsafe?.user;   // API vaqtincha ishlamasa — lokal identifikatsiya
+  if(lu) apply({id:'tg'+lu.id,name:[lu.first_name,lu.last_name].filter(Boolean).join(' '),
+    username:lu.username||'',tgId:lu.id,photo:lu.photo_url||'',premium:lu.is_premium});
 }
 
 /* ============================ BOOT ============================ */

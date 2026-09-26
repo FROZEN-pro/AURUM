@@ -267,7 +267,10 @@ function handleAuth_(d) {
     sheet_('Users').appendRow([uid, u.username || '', name, role, '', 1, Date.now(), 'active', Date.now()]);
   }
   var likes = rows_('Likes').filter(function (l) { return l.userId === uid; }).map(function (l) { return String(l.videoId); });
-  return json_({ ok: true, user: { id: uid, name: name, username: u.username || '', role: role, photo: '' }, likes: likes });
+  return json_({ ok: true, user: {
+    id: uid, tgId: u.id, name: name, username: u.username || '',
+    role: role, photo: u.photo_url || '', premium: !!u.is_premium
+  }, likes: likes });
 }
 function parseInitUser_(initData) {
   var p = parseQS_(initData);
