@@ -288,8 +288,9 @@ function verifyInitData_(initData, botToken) {
   if (!hash) return false;
   var dataCheckString = Object.keys(params).sort()
     .map(function (k) { return k + '=' + params[k]; }).join('\n');
-  var secret = Utilities.computeHmacSha256Signature(botToken, 'WebAppData');
-  var calc = Utilities.computeHmacSha256Signature(dataCheckString, secret)
+  // Apps Script quyi imzosi: computeHmacSha256Signature(x, y) => key=y, x-xabar.
+  var secret = Utilities.computeHmacSha256Signature(Utilities.newBlob('WebAppData').getBytes(), Utilities.newBlob(botToken).getBytes());
+  var calc = Utilities.computeHmacSha256Signature(Utilities.newBlob(dataCheckString).getBytes(), secret)
     .map(function (b) { return ('0' + (b & 0xff).toString(16)).slice(-2); }).join('');
   if (calc !== hash) return false;
   var age = Date.now() / 1000 - (+params.auth_date || 0);
