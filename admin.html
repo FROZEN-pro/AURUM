@@ -2,11 +2,12 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>AURUM · Command Center</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link crossorigin href="https://fonts.gstatic.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 /* ============================================================
    AURUM COMMAND CENTER v2 — faqat REAL rejim (Google Sheets backend)
@@ -360,8 +361,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
 const CFG = {
   API_URL: localStorage.getItem('aurum.admin.api') ||
     'https://script.google.com/macros/s/AKfycbysfIFbYeJIE5eaINhc2BElTQd96zMvFRAR6wUvTFSHQMjod-6PGNg4m4m5UZgQ7Socaw/exec',
-  TOKEN: localStorage.getItem('aurum.admin.tok') || ''
+  TOKEN: localStorage.getItem('aurum.admin.tok') || '',
+  /* Telegram ichida ochilganda: initData egasining ID’si code.gs OWNERS ro‘yxatida bo‘lsa,
+     token so‘ralmadan admin dashboard ochiladi. */
+  INIT: (window.Telegram?.WebApp?.initData) || (()=>{ try{ return sessionStorage.getItem('aurum.tgInit')||'' }catch(e){ return '' } })()
 };
+try{ window.Telegram?.WebApp?.ready(); window.Telegram?.WebApp?.expand(); }catch(e){}
 let DB = {videos:[],news:[],users:[],events:[],announcements:[],likes:[],comments:[]};
 let ST = null;                    // server stats (adminStats_)
 let AUTO = null;
@@ -369,8 +374,11 @@ let AUTO = null;
 /* ============================ API ============================ */
 async function api(op,payload={}){
   try{
+    const body={action:'admin',op,...payload};
+    if(CFG.TOKEN) body.token=CFG.TOKEN;
+    if(CFG.INIT) body.initData=CFG.INIT;
     const r=await fetch(CFG.API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify({action:'admin',token:CFG.TOKEN,op,...payload})});
+      body:JSON.stringify(body)});
     const j=await r.json();
     if(!j.ok && j.error==='unauthorized'){ exitGate('Token noto\u2018g\u2018ri. Qaytadan kiriting.'); }
     return j;
@@ -769,11 +777,11 @@ $('#loginBtn').onclick=async()=>{
   $('#loginBtn').disabled=true; $('#loginBtn').textContent='Tekshirilmoqda…';
   try{
     const r=await fetch(CFG.API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify({action:'admin',token:CFG.TOKEN,op:'ping'})});
+      body:JSON.stringify({action:'admin',token:CFG.TOKEN,initData:CFG.INIT||'',op:'ping'})});
     let j=null; try{ j=await r.json() }catch(e){}
     if(!j){ gateErr('Apps Script javob bermadi. URL noto\u2018g\u2018ri yoki deploy eski bo\u2018lishi mumkin.'); return }
     if(!j.ok){ gateErr('Token noto\u2018g\u2018ri ('+esc(j.error||'unauthorized')+')'); return }
-    if(j.version!=='v2.1') gateErr('Diqqat: backend eski versiyada ishlayapti. code.gs v2.1 ni qayta deploy qiling — layk/izoh ishlamaydi.');
+    if(j.version!=='v2.2') gateErr('Diqqat: backend eski versiyada ishlayapti. code.gs v2.2 ni qayta deploy qiling — Telegram ID orqali admin kirish ishlamaydi.');
     localStorage.setItem('aurum.admin.api',CFG.API_URL); localStorage.setItem('aurum.admin.tok',CFG.TOKEN);
     $('#stApi2').value=CFG.API_URL; $('#stTok').value=CFG.TOKEN;
     await enter(); toast('Xush kelibsiz, Administrator','🛡️');
@@ -788,6 +796,14 @@ $('#loginBtn').onclick=async()=>{
     $('#tok').value=CFG.TOKEN; history.replaceState(null,'',location.pathname);
     $('#loginBtn').click(); return; }
   $('#tok').value=CFG.TOKEN;
+  if(CFG.INIT){                       // Telegram ichida: eganing ID’si orqali tokendan oldin kirish
+    try{
+      const r=await fetch(CFG.API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},
+        body:JSON.stringify({action:'admin',op:'ping',initData:CFG.INIT,token:CFG.TOKEN})});
+      const j=await r.json();
+      if(j&&j.ok){ await enter(); toast('Telegram orqali kirdingiz','🛡️'); return; }
+    }catch(e){}
+  }
   if(CFG.TOKEN&&sessionStorage.getItem('aurum.admin.in')) enter();
 })();
 </script>

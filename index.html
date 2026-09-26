@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Bebas+Neue&family=Cinzel:wght@500;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Orbitron:wght@500;700;900&family=Quicksand:wght@500;700&family=Fredoka:wght@500;600;700&family=Shippori+Mincho:wght@600;800&family=Zen+Maru+Gothic:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 /* ============================================================
    AURUM · themeable streaming web-app
@@ -801,7 +802,7 @@ html,body{max-width:100%}
         <div class="row" id="rowNotif"><span class="ic">🔔</span> Bildirishnomalar <span class="switch on" id="swNotif"></span></div>
         <div class="row" id="rowMotion"><span class="ic">✨</span> Animatsiyalar <span class="switch on" id="swMotion"></span></div>
         <div class="row" id="rowHd"><span class="ic">📶</span> Faqat Wi-Fi’da HD <span class="switch" id="swHd"></span></div>
-        <div class="row" id="rowAdmin"><span class="ic">🛡️</span> Admin panel <span class="chev">›</span></div>
+        <div class="row" id="rowAdmin"><span class="ic">🛡️</span> Admin dashboard <span class="chev">›</span></div>
         <div class="row" id="rowShare"><span class="ic">📤</span> Do’stlarga ulashish <span class="chev">›</span></div>
         <div class="row" id="rowReset"><span class="ic">🧹</span> Ma’lumotlarni tozalash <span class="chev">›</span></div>
       </div>
@@ -913,6 +914,8 @@ window.APP_CONFIG = {
   ADMIN_PANEL: "admin.html",
   CHANNEL_URL: "https://t.me/your_channel"
 };
+/* code.gs’dagi OWNERS bilan bir xil — Telegram ID orqali avtomatik admin */
+const TG_OWNERS = ['858310974', '2004566289'];
 
 /* ============================ THEMES ============================ */
 const CATS = [
@@ -1316,7 +1319,7 @@ function renderProfile(){
   paintAvatar('#avaImg','#avaTxt',name.slice(0,1).toUpperCase(),src);
   $('#pPremium').classList.toggle('premium',!!u);
   $('#pPremium').textContent=u?(u.premium?'✦ Telegram PREMIUM':'✦ Telegram a’zo'):'✦ Mehmon';
-  $('#rowAdmin').classList.toggle('hidden', u?.role!=='admin'); // admin panel faqat admin’ga ko’rinadi
+  $('#rowAdmin').classList.toggle('hidden', !(u?.role==='admin'||TG_OWNERS.includes(tgId))); // faqat admin’ga
 }
 $('#pIdCopy').addEventListener('click',async e=>{
   e.stopPropagation();
@@ -1706,7 +1709,11 @@ document.documentElement.dataset.motion=S.motion?'on':'off';
 $('#swMotion').classList.toggle('on',S.motion); $('#swNotif').classList.toggle('on',S.notif); $('#swHd').classList.toggle('on',S.hd);
 
 $('#rowShare').onclick=()=>share('AURUM — o’z theme-ingni tanla va streaming zavqini his et!');
-$('#rowAdmin').onclick=()=>location.href=window.APP_CONFIG.ADMIN_PANEL;
+$('#rowAdmin').onclick=()=>{
+  const tg=window.Telegram?.WebApp;
+  if(tg?.initData){ try{ sessionStorage.setItem('aurum.tgInit',tg.initData) }catch(e){} }
+  location.href=window.APP_CONFIG.ADMIN_PANEL;
+};
 $('#rowReset').onclick=()=>{
   if(confirm('Barcha lokal ma’lumotlar (fav, tarix, tema) o’chirilsinmi?')){
     Object.keys(localStorage).filter(k=>k.startsWith('aurum.')).forEach(k=>localStorage.removeItem(k));
@@ -1715,16 +1722,15 @@ $('#rowReset').onclick=()=>{
 };
 
 /* ============================ TELEGRAM WEBAPP (avtomatik kirish) ============================ */
-function tgInit(){
+async function tgInit(){
   const tg=window.Telegram?.WebApp; if(!tg) return;
   try{
     tg.ready(); tg.expand();
     const t=tv(S.theme);
     tg.setHeaderColor?.(t.v.bg0); tg.setBackgroundColor?.(t.v.bg0);
     tg.setHeaderButton?.('theme', {text:'🎨 Tema', onClick:()=>{renderThemeShop();openSheet('#themeSheet')}});
-    tg.enableClosingConfirmation?.();
-    if(tg.initData) tgAuth();
   }catch(e){console.warn('tg',e)}
+  try{ await tgAuth(); }catch(e){console.warn('tgAuth',e)}
 }
 async function tgAuth(){
   const tg=window.Telegram?.WebApp; if(!tg?.initData) return;
@@ -1747,7 +1753,8 @@ async function tgAuth(){
   }catch(e){ console.warn('tgAuth',e); }
   const lu=tg.initDataUnsafe?.user;   // API vaqtincha ishlamasa — lokal identifikatsiya
   if(lu) apply({id:'tg'+lu.id,name:[lu.first_name,lu.last_name].filter(Boolean).join(' '),
-    username:lu.username||'',tgId:lu.id,photo:lu.photo_url||'',premium:lu.is_premium});
+    username:lu.username||'',tgId:lu.id,photo:lu.photo_url||'',premium:lu.is_premium,
+    role:TG_OWNERS.includes(String(lu.id))?'admin':'user'});
 }
 
 /* ============================ BOOT ============================ */
@@ -1768,12 +1775,12 @@ async function loadRemote(){
   applyTheme(S.theme,false);
   if(window.APP_CONFIG.API_URL){ // skeleton — kontent kelgunicha premium loading holati
     $('#videoGrid').innerHTML=Array(8).fill(`<div><div class="sk skl-thumb"></div><div class="sk skl-line w85"></div><div class="sk skl-line w60"></div></div>`).join('');
-    $('#heroTrack').innerHTML=`<div class="sk" style="flex:0 0 min(88%,560px);min-height:250px;border-radius:24px"></div>`;
+    $('#heroTrack').innerHTML=`<div class="sk" style="flex:0 0 min(88%,560px);min-height:clamp(186px,52vw,250px);border-radius:20px"></div>`;
   }
   renderHome(); renderNews(); renderFav(); renderProfile(); renderStats();
   moveSlider();
+  await tgInit();               // Telegram bo‘lsa — uid shu yerda tg<id> ga aylanadi
   await loadRemote(); renderHome(); renderNews(); renderFav(); renderStats();
-  tgInit();
 })();
 /* hero auto-rotate */
 setInterval(()=>{

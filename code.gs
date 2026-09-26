@@ -1,4 +1,4 @@
-// AURUM · Google Apps Script Backend v2.1
+// AURUM · Google Apps Script Backend v2.2
 // index.html va admin.html shu fayl bilan ishlaydi.
 // Script Properties: ADMIN_TOKEN, BOT_TOKEN, BROADCAST_CHAT,
 //                  OWNER_CHAT, APP_URL, SHEET_ID
@@ -7,6 +7,12 @@
 //                     Announcements, Likes, Comments, CommentLikes
 
 var PROPS = PropertiesService.getScriptProperties();
+
+// Telegram ID orqali avtomatik admin: bu ID'larning initData imzosi
+// ADMIN_TOKEN o'rnini bosadi. ID'lar maxfiy emas, lekin ularga kirish
+// faqat Telegram bot imzolagan initData bilan ochiladi.
+var OWNERS = ['858310974', '2004566289'];
+function isOwner_(tgId) { return OWNERS.indexOf(String(tgId)) >= 0; }
 
 // ---------- Sheet yordamchilari ----------
 function getSS_() {
@@ -101,7 +107,7 @@ function doGet(e) {
   var me = (e && e.parameter && e.parameter.uid) || '';
   try {
     if (a === 'bootstrap') return json_(bootstrap_(me));
-    if (a === 'ping') return json_({ ok: true, name: 'AURUM backend v2.1', sheets: getSS_().getName(), t: Date.now() });
+    if (a === 'ping') return json_({ ok: true, name: 'AURUM backend v2.2', sheets: getSS_().getName(), t: Date.now() });
     return json_({ ok: false, error: 'nodoma action' });
   } catch (err) { return json_({ ok: false, error: String(err) }); }
 }
@@ -257,10 +263,11 @@ function handleAuth_(d) {
   var uid = 'tg' + u.id;
   var name = [u.first_name, u.last_name].filter(Boolean).join(' ');
   var r = findRow_('Users', 'id', uid);
-  var role = 'user';
+  var role = isOwner_(u.id) ? 'admin' : 'user';
   if (r) {
     var sh = sheet_('Users');
-    role = sh.getRange(r, SCHEMA.Users.indexOf('role') + 1).getValue() || 'user';
+    if (role !== 'admin') role = sh.getRange(r, SCHEMA.Users.indexOf('role') + 1).getValue() || 'user';
+    sh.getRange(r, SCHEMA.Users.indexOf('role') + 1).setValue(role);
     sh.getRange(r, SCHEMA.Users.indexOf('name') + 1).setValue(name);
     sh.getRange(r, SCHEMA.Users.indexOf('last') + 1).setValue(Date.now());
   } else {
@@ -305,12 +312,19 @@ function withCreated_(item) {
   if (item.createdAt) o.createdAt = item.createdAt;
   return o;
 }
-function handleAdmin_(d) {
+function adminAuth_(d) {
   var tok = PROPS.getProperty('ADMIN_TOKEN');
-  if (!tok) return json_({ ok: false, error: 'ADMIN_TOKEN sozlanmagan' });
-  if (String(d.token == null ? '' : d.token).trim() !== String(tok).trim()) return json_({ ok: false, error: 'unauthorized' });
+  if (tok && String(d.token == null ? '' : d.token).trim() === String(tok).trim()) return true;
+  var bt = PROPS.getProperty('BOT_TOKEN');
+  if (!bt || !d.initData) return false;
+  if (!verifyInitData_(d.initData, bt)) return false;
+  var u = parseInitUser_(d.initData);
+  return !!(u && isOwner_(u.id));
+}
+function handleAdmin_(d) {
+  if (!adminAuth_(d)) return json_({ ok: false, error: 'unauthorized' });
   switch (d.op) {
-    case 'ping':  return json_({ ok: true, t: Date.now(), version: 'v2.1' });
+    case 'ping':  return json_({ ok: true, t: Date.now(), version: 'v2.2' });
     case 'pull':  return json_({ ok: true, data: { videos: rows_('Videos'), news: rows_('News'),
                           users: rows_('Users'), events: rows_('Events').slice(-3000),
                           announcements: rows_('Announcements'), likes: rows_('Likes'), comments: rows_('Comments') } });
