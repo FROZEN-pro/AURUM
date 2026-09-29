@@ -124,6 +124,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
  background:var(--card2);border:1px solid var(--line2);color:var(--text);font-size:13px;font-weight:600;
  padding:11px 20px;border-radius:99px;box-shadow:var(--sh);transition:.35s cubic-bezier(.22,1,.36,1);opacity:0}
 #toast.on{transform:translateX(-50%);opacity:1}
+.verwarn{position:relative;display:flex;gap:9px;align-items:flex-start;margin-bottom:14px;padding:11px 34px 11px 13px;
+ background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.35);border-radius:12px;
+ font-size:12.5px;line-height:1.55;color:var(--text)}
+.verwarn[hidden]{display:none}
+.verwarn b{flex:none}
+.verwarn button{position:absolute;top:7px;right:8px;background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px;padding:3px}
 .evt{display:flex;gap:10px;align-items:center;padding:9px 4px;border-bottom:1px dashed var(--line);font-size:12.5px}
 .evt b{margin-left:auto;font-weight:600;color:var(--muted);font-size:11px}
 .evt .dot{width:8px;height:8px;border-radius:99px;flex:none}
@@ -140,6 +146,32 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .btn,.nv,.act button,.kpi{transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .25s,border-color .25s,background .25s,color .25s}
 .kpi:hover{box-shadow:0 14px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06)}
 .panel{box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+
+/* ---------- USER CELL / AVATAR ---------- */
+.ucell{display:flex;align-items:center;gap:10px;min-width:0}
+.av{width:38px;height:38px;border-radius:50%;object-fit:cover;flex:none;border:1px solid var(--line2);background:var(--card2)}
+.av-ph{width:38px;height:38px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:800;
+ font-family:'Space Grotesk';font-size:16px;color:#fff;text-transform:uppercase}
+.ucell .meta{min-width:0}
+.ucell .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ucell .sub2{font-size:11px;color:var(--muted)}
+
+/* ---------- LIVE / FEATURED BADGES ---------- */
+.b-live{background:rgba(239,68,68,.16);color:#f87171}
+.b-live::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#ef4444;margin-right:5px;
+ vertical-align:middle;animation:pbl 1.4s infinite}
+
+/* ---------- TOP BAR REFRESH ---------- */
+.topbtn{margin-left:8px;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;
+ padding:7px 13px;border-radius:99px;border:1px solid var(--line2);color:var(--muted);background:var(--card2);transition:.2s}
+.topbtn:hover{color:var(--text);border-color:var(--a1)}
+.topbtn:active{transform:scale(.96)}
+
+/* ---------- DOCTOR / DIAGNOSTIKA ---------- */
+.doc-warn{margin-top:10px;font-size:12px;color:var(--warn);background:rgba(251,191,36,.08);
+ border:1px solid rgba(251,191,36,.28);border-radius:10px;padding:9px 12px;line-height:1.6}
+.doc-ok{color:var(--ok);font-weight:700} .doc-bad{color:var(--bad);font-weight:700}
+.hint{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.6}
 @media (max-width:980px){
   .app{grid-template-columns:1fr}
   aside{position:fixed;bottom:0;top:auto;left:0;right:0;height:auto;z-index:100;flex-direction:row;overflow-x:auto;padding:8px;gap:6px;border-right:0;border-top:1px solid var(--line)}
@@ -157,7 +189,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <div id="gate">
   <div class="gate-card">
     <div class="logo">AUR<em>UM</em> · Command Center</div>
-    <p>Faqat real ma'lumot bilan ishlaydi. Admin token — Apps Script'dagi <b>ADMIN_TOKEN</b> property.</p>
+    <p>Faqat real ma’lumot bilan ishlaydi. Admin token — Apps Script’dagi <b>ADMIN_TOKEN</b> property.</p>
     <input id="stApi" class="mono" placeholder="Apps Script /exec URL" style="margin-bottom:10px">
     <input id="tok" type="password" placeholder="ADMIN_TOKEN" style="text-align:center;letter-spacing:.2em">
     <button class="btn" id="loginBtn">🔐 Backendga ulanish →</button>
@@ -174,14 +206,16 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <button class="nv" data-p="news">📰<span class="t">Yangiliklar</span></button>
     <button class="nv" data-p="mod">💬<span class="t">Moderatsiya</span><span class="pill" id="navCmtN">0</span></button>
     <button class="nv" data-p="users">👥<span class="t">Foydalanuvchilar</span></button>
-    <button class="nv" data-p="announce">📣<span class="t">E'lonlar</span></button>
+    <button class="nv" data-p="announce">📣<span class="t">E‘lonlar</span></button>
     <button class="nv" data-p="settings">⚙️<span class="t">Sozlamalar</span></button>
     <div class="as-side">AURUM admin v2.0<br><a href="index.html">← Ilovaga qaytish</a><br><a href="#" id="logoutL">Chiqish</a></div>
   </aside>
   <main>
+    <div class="verwarn" id="verWarn" hidden><b>⚠️</b><span id="verWarnT"></span><button id="verWarnX" title="Yopish">✕</button></div>
     <div class="top">
-      <div><h1 id="pgTitle">Dashboard</h1><div class="crumb" id="pgCrumb">Real vaqt ko'rsatkichlari</div></div>
+      <div><h1 id="pgTitle">Dashboard</h1><div class="crumb" id="pgCrumb">Real vaqt ko‘rsatkichlari</div></div>
       <span class="mode-pill" id="modePill"><i></i><span>ULANMOQDA…</span></span>
+      <button class="topbtn" id="refreshBtn" title="Ma’lumotni hozir yangilash">⟳ Yangilash</button>
     </div>
 
     <!-- ============ DASHBOARD ============ -->
@@ -201,15 +235,28 @@ tr:hover td{background:rgba(255,255,255,.02)}
       </div>
       <div class="cols" style="grid-template-columns:1.4fr 1fr">
         <div class="panel">
-          <h3>🔥 Videolar bo'yicha jalb (top 30)</h3>
-          <div class="sub">plays · ❤️ layklar · 💬 izohlar — real vaqt</div>
+          <h3>🔥 Videolar bo‘yicha faollik (top 30)</h3>
+          <div class="sub">👁 ko‘rishlar · 👤 unikal · ▶ plays · ❤️ layklar · 💬 izohlar — real vaqt</div>
           <div class="tblwrap" style="max-height:340px;overflow:auto"><table>
-            <thead><tr><th>#</th><th>Video</th><th>▶</th><th>❤️</th><th>💬</th></tr></thead>
+            <thead><tr><th>#</th><th>Video</th><th>Kategoriya</th><th>👁</th><th>👤</th><th>▶</th><th>❤️</th><th>💬</th></tr></thead>
             <tbody id="bvRows"></tbody></table></div>
         </div>
         <div class="panel">
-          <h3>🎨 Tema tanlovlar</h3><div class="sub">Qaysi olamda ko'p vaqt</div>
+          <h3>🎨 Tema tanlovlari</h3><div class="sub">Qaysi olamda ko‘proq vaqt</div>
           <div class="hbars" id="themeBars"></div>
+        </div>
+      </div>
+      <div class="cols" style="grid-template-columns:1.4fr 1fr">
+        <div class="panel">
+          <h3>👥 Eng faol foydalanuvchilar</h3>
+          <div class="sub">Amallar soni bo‘yicha · top 20</div>
+          <div class="tblwrap" style="max-height:340px;overflow:auto"><table>
+            <thead><tr><th>#</th><th>Foydalanuvchi</th><th>Role</th><th>Amal</th><th>Sessiya</th><th>Oxirgi</th></tr></thead>
+            <tbody id="tuRows"></tbody></table></div>
+        </div>
+        <div class="panel">
+          <h3>🗂 Kategoriyalar kesimi</h3><div class="sub">Har kategoriyadagi video soni</div>
+          <div class="hbars" id="catBars"></div>
         </div>
       </div>
       <div class="panel">
@@ -225,22 +272,22 @@ tr:hover td{background:rgba(255,255,255,.02)}
           <input placeholder="🔎 Video qidir…" id="vSearch">
           <select id="vCatFlt"><option value="">Barcha kategoriyalar</option></select>
           <button class="btn sm" id="vAdd">＋ Yangi video</button>
-          <button class="btn sm ghost" id="biToggle">📥 Toploader</button>
+          <button class="btn sm ghost" id="biToggle">📥 Ommaviy yuklash</button>
           <button class="btn sm ghost" id="vSync">⟳ Sinxron</button>
         </div>
         <div id="biPanel" style="display:none;margin-bottom:14px;padding:14px;border:1px dashed var(--line2);border-radius:12px">
-          <div class="sub" style="margin-bottom:8px">Har qatorga bitta YouTube link (yoki ID). Sarlavha avtomatik olinadi —
+          <div class="sub" style="margin-bottom:8px">Har qatorga bitta YouTube havola (yoki ID). Sarlavha avtomatik olinadi —
             qatorni <b class="mono">tavsif: …</b> bilan tugatsangiz tavsif ham yoziladi.</div>
           <textarea id="biText" rows="5" class="mono" placeholder="https://youtu.be/VIDEO_ID_1&#10;https://youtu.be/VIDEO_ID_2 tavsif: Qiziqarli epizod"></textarea>
           <div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap">
             <select id="biCat" style="width:auto;min-width:170px"></select>
-            <label style="display:flex;gap:6px;align-items:center;font-size:12.5px;color:var(--muted)"><input type="checkbox" id="biFeat" style="width:auto"> ⭐ Featured</label>
+            <label style="display:flex;gap:6px;align-items:center;font-size:12.5px;color:var(--muted)"><input type="checkbox" id="biFeat" style="width:auto"> ⭐ Tavsiya etilgan</label>
             <button class="btn sm" id="biGo">⬇️ Import qilish</button>
             <span class="sub" id="biStat"></span>
           </div>
         </div>
         <div class="tblwrap"><table>
-          <thead><tr><th></th><th>Sarlavha</th><th>Kategoriya</th><th>YT ID</th><th>Davomiylik</th><th>▶</th><th>❤️</th><th>💬</th><th>Featured</th><th>Holat</th><th></th></tr></thead>
+          <thead><tr><th></th><th>Sarlavha</th><th>Kategoriya</th><th>YT ID</th><th>Davomiylik</th><th>👁</th><th>▶</th><th>❤️</th><th>💬</th><th>⭐</th><th>🔴 LIVE</th><th>Holat</th><th></th></tr></thead>
           <tbody id="vRows"></tbody>
         </table></div>
       </div>
@@ -255,7 +302,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
           <button class="btn sm" id="nAdd">＋ Yangi yangilik</button>
         </div>
         <div class="tblwrap"><table>
-          <thead><tr><th></th><th>Sarlavha</th><th>Kategoriya</th><th>Manba</th><th>O'qish</th><th>HOT</th><th>Holat</th><th></th></tr></thead>
+          <thead><tr><th></th><th>Sarlavha</th><th>Kategoriya</th><th>Manba</th><th>⏱ Daqiqa</th><th>👁 O‘qilgan</th><th>HOT</th><th>Holat</th><th></th></tr></thead>
           <tbody id="nRows"></tbody>
         </table></div>
       </div>
@@ -288,9 +335,11 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div class="kpis" id="uKpis" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))"></div>
       <div class="panel">
         <div class="tbar">
-          <input placeholder="🔎 @username, ism yoki ID…" id="uSearch">
-          <select id="uRoleFlt"><option value="">Barcha rollar</option><option>user</option><option>vip</option><option>admin</option></select>
+          <input placeholder="🔎 @username, ism yoki ID bo‘yicha qidir…" id="uSearch">
+          <select id="uRoleFlt"><option value="">Barcha rollar</option><option value="user">user</option><option value="vip">vip</option><option value="admin">admin</option></select>
+          <span class="sub" style="margin-left:auto" id="uStat"></span>
         </div>
+        <div class="sub" style="margin-bottom:10px">👤 Telegram orqali kirgan profillar. Agar ma’lumot ko‘rinmasa — <b>Sozlamalar → Diagnostika</b> bo‘limidan jadval sarlavhalarini tekshiring.</div>
         <div class="tblwrap"><table>
           <thead><tr><th>Foydalanuvchi</th><th>Telegram</th><th>Role</th><th>Sessiya</th><th>Oxirgi faollik</th><th>Holat</th><th></th></tr></thead>
           <tbody id="uRows"></tbody>
@@ -302,16 +351,16 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <section class="page" id="pg-announce">
       <div class="cols" style="grid-template-columns:1.2fr 1fr">
         <div class="panel">
-          <h3>📣 Telegram orqali umumiy e'lon</h3>
-          <div class="sub">Apps Script → Bot API → BROADCAST_CHAT kanali. Test tugmasi faqat OWNER_CHAT'ga yuboradi.</div>
-          <div class="f"><label>Sarlavha</label><input id="anTitle" placeholder="Masalan: Yangi tema qo'shildi!"></div>
+          <h3>📣 Telegram orqali ommaviy e‘lon</h3>
+          <div class="sub">Apps Script → Bot API → BROADCAST_CHAT kanali. Test tugmasi faqat OWNER_CHAT’ga yuboradi.</div>
+          <div class="f"><label>Sarlavha</label><input id="anTitle" placeholder="Masalan: Yangi tema qo‘shildi!"></div>
           <div class="f"><label>Matn</label><textarea id="anBody" rows="4" placeholder="Matn…"></textarea></div>
           <div class="f"><label>Tugma matni (ixtiyoriy)</label><input id="anBtnTxt" placeholder="Ilovani ochish"></div>
-          <button class="btn" id="anSend">🚀 Kanalgaga yuborish</button>
+          <button class="btn" id="anSend">🚀 Kanalga yuborish</button>
           <button class="btn ghost" id="anTest">🧪 Faqat menga (test)</button>
         </div>
         <div class="panel">
-          <h3>Yuborilgan e'lonlar</h3><div class="sub">Sheets'dagi Announcements jadvali</div>
+          <h3>Yuborilgan e‘lonlar</h3><div class="sub">Sheets’dagi Announcements jadvali</div>
           <div id="anList"></div>
         </div>
       </div>
@@ -322,24 +371,43 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div class="cols" style="grid-template-columns:1fr 1fr">
         <div class="panel">
           <h3>⚙️ Backend ulanish</h3>
-          <div class="sub">index.html'dagi APP_CONFIG.API_URL bilan bir xil bo'lsin. Token faqat shu brauzerda saqlanadi.</div>
+          <div class="sub">index.html’dagi APP_CONFIG.API_URL bilan bir xil bo‘lsin. Token faqat shu brauzerda saqlanadi.</div>
           <div class="f"><label>Apps Script URL</label><input id="stApi2" class="mono"></div>
-          <div class="f"><label>Admin token</label><input id="stTok" type="password" class="mono"></div>
+          <div class="f"><label>Admin token</label><input id="stTok" type="password" class="mono" placeholder="ADMIN_TOKEN"></div>
           <button class="btn sm" id="stSave" style="width:auto">💾 Saqlash</button>
           <button class="btn sm ghost" id="stPing" style="width:auto">📡 Ping (versiya tekshirish)</button>
           <div class="sub" id="pingOut" style="margin-top:10px"></div>
         </div>
         <div class="panel">
-          <h3>🗃️ Ma'lumot bazasi</h3>
-          <div class="sub">Jadvalar: Videos · News · Users · Events · Settings · Announcements · Likes · Comments</div>
-          <button class="btn sm ghost" id="stExport" style="width:auto">⬇️ JSON export (backup)</button>
-          <button class="btn sm ghost" id="evClear" style="width:auto;margin-top:8px">🧹 Event tarixini tozalash</button>
+          <h3>🗃️ Ma’lumot bazasi</h3>
+          <div class="sub">Jadvalar: Videos · News · Users · Events · Settings · Announcements · Likes · Comments · Views</div>
+          <button class="btn sm ghost" id="stExport" style="width:auto">⬇️ JSON nusxa (zaxira)</button>
+          <button class="btn sm ghost" id="evClear" style="width:auto;margin-top:8px">🧹 Hodisalar tarixini tozalash</button>
           <div class="sub" style="margin-top:14px;line-height:1.7">
-            💡 <b>Ikkala ilova ham bitta backendni bo'lishadi:</b><br>
+            💡 <b>Ikkala ilova ham bitta backendni bo‘lishadi:</b><br>
             · Foydalanuvchi: <span class="mono">t.me/…web_app</span> → index.html<br>
-            · Admin: BotFather → Menu button → <span class="mono">admin.html</span> URL (bot ichidan ochiladi, token so'ramaydi — <span class="mono">#tok=</span> orqali)<br>
-            · Admin panelga oddiy user'larda <b>hech qanday</b> havola ko'rinmaydi.
+            · Admin: BotFather → Menu button → <span class="mono">admin.html</span> URL (bot ichidan ochiladi, token so‘ramaydi — <span class="mono">#tok=</span> orqali)<br>
+            · Admin panelga oddiy user’larda <b>hech qanday</b> havola ko‘rinmaydi.
           </div>
+        </div>
+      </div>
+      <div class="cols" style="grid-template-columns:1fr 1fr">
+        <div class="panel">
+          <h3>📝 Ilova sozlamalari</h3>
+          <div class="sub">Bu qiymatlar Settings jadvalida saqlanadi va foydalanuvchi ilovasiga darhol ta’sir qiladi.</div>
+          <div class="f"><label>Ilova nomi</label><input id="stApp" placeholder="AURUM"></div>
+          <div class="f"><label>Bosh sahifa e‘loni (notice)</label>
+            <textarea id="stNotice" rows="3" placeholder="Masalan: Bugun soat 20:00 da yangi serial qo‘shiladi!"></textarea>
+            <div class="hint">Ilova bosh sahifasining yuqorisida banner sifatida chiqadi. Bo‘sh qoldirsangiz — banner yashiriladi.</div>
+          </div>
+          <button class="btn sm" id="stContentSave" style="width:auto">💾 Saqlash</button>
+          <span class="sub" id="stContentStat" style="margin-left:8px"></span>
+        </div>
+        <div class="panel">
+          <h3>🩺 Diagnostika</h3>
+          <div class="sub">Backend va Sheets holati: jadval sarlavhalari, qatorlar soni va yetishmayotgan Script Properties. Biror bo‘lim (ayniqsa Foydalanuvchilar) ma’lumot ko‘rsatmasa — sababini shu yerdan bilib olasiz.</div>
+          <button class="btn sm ghost" id="docBtn" style="width:auto">⟳ Yangilash</button>
+          <div id="docOut" style="margin-top:12px"></div>
         </div>
       </div>
     </section>
@@ -367,9 +435,13 @@ const CFG = {
   INIT: (window.Telegram?.WebApp?.initData) || (()=>{ try{ return sessionStorage.getItem('aurum.tgInit')||'' }catch(e){ return '' } })()
 };
 try{ window.Telegram?.WebApp?.ready(); window.Telegram?.WebApp?.expand(); }catch(e){}
-let DB = {videos:[],news:[],users:[],events:[],announcements:[],likes:[],comments:[]};
+let DB = {videos:[],news:[],users:[],events:[],announcements:[],likes:[],comments:[],settings:[]};
 let ST = null;                    // server stats (adminStats_)
-let AUTO = null;
+let AUTO = null, LAST_REFRESH = 0;
+/* Backend eski versiyada bo'lsa yoki biror jadval null qaytsa, butun panel
+   oq bo'lib qolmasligi uchun har bir ro'yxatni majburan massivga aylantiramiz. */
+const DB_LISTS=['videos','news','users','events','announcements','likes','comments','settings'];
+function normDB(d){ const o={}; DB_LISTS.forEach(k=>{ o[k]=Array.isArray(d&&d[k])?d[k]:[]; }); return o }
 
 /* ============================ API ============================ */
 async function api(op,payload={}){
@@ -386,11 +458,13 @@ async function api(op,payload={}){
 }
 async function pullAll(quiet){
   const j=await api('pull'); if(!j.ok) return false;
-  DB = Object.assign({videos:[],news:[],users:[],events:[],announcements:[],likes:[],comments:[]}, j.data);
+  DB = Object.assign({}, j.data, normDB(j.data));
   const s=await api('stats'); if(s.ok) ST=s.stats;
+  LAST_REFRESH=Date.now();
   renderAll();
   $('#modePill').classList.add('live');
-  $('#modePill').querySelector('span').textContent='LIVE · '+new Date().toLocaleTimeString();
+  $('#modePill').querySelector('span').textContent='LIVE · '+new Date(LAST_REFRESH).toLocaleTimeString();
+  const rb=$('#refreshBtn'); if(rb) rb.title='Oxirgi yangilanish: '+new Date(LAST_REFRESH).toLocaleTimeString();
   return true;
 }
 
@@ -399,7 +473,7 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':String(n??0);
 const ago=ts=>{const d=(Date.now()-ts)/1e3;return d<60?'hozir':d<3600?Math.floor(d/60)+' daq':d<86400?Math.floor(d/3600)+' soat':Math.floor(d/86400)+' kun avval'};
-function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('on'),2600)}
+function toast(m,emoji){const t=$('#toast');t.textContent=(emoji?emoji+' ':'')+m;t.classList.add('on');clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('on'),2600)}
 function hue(i){const h=(i*47+13)%360;return `linear-gradient(${120+i*17}deg,hsl(${h} 70% 34%),hsl(${(h+55)%360} 74% 24%))`}
 function ytId(s){
   s=String(s||'').trim(); if(!s) return null;
@@ -422,8 +496,8 @@ async function oembed(u){
   }catch(e){ return {title:u.slice(0,46),author:''} }
 }
 const vidOf=id=>DB.videos.find(v=>v.id===id)||{};
-const CATS_V=["Texnologiya","Sayohat","Kino","Musika","Tabiat","Ta'lim","Ilm-fan","O'yinlar","Sport","Anime"];
-const CATS_N=["Tech","Iqtisod","Madaniyat","Kino","Ilm-fan","Sport","Jamiyat"];
+const CATS_V=["Kino","Seriallar","Multfilm","Hujjatli","Komediya","Drama","Fantastika","Qo‘rqinchli","Triller","Tarix","Avtomobil","Oshxona","Salomatlik","Biznes","Podkast","Dasturlash","Dizayn","Fotografiya","Bolalar","Trendlar","Sayohat","Tabiat","Ta‘lim","Ilm-fan","O‘yinlar","Sport","Anime","Texnologiya","Musiqa"];
+const CATS_N=["Texnologiya","Iqtisod","Madaniyat","Kino","Ilm-fan","Sport","Jamiyat","Siyosat","Dunyo","O‘zbekiston","Shou-biznes","Salomatlik","Ta‘lim","Avtomobil","Trend"];
 const THEMES_META={
  naruto:['Naruto','🍥'], 'solo-leveling':['Solo Leveling','⚔️'], 'spirited-away':['Ruhlar olami','🏮'],
  frozen:['Frozen','❄️'], elements:['Elemental','🔥'], zootopia:['Zootopia','🐰'],
@@ -433,16 +507,20 @@ const THEMES_META={
 /* ============================ DASHBOARD ============================ */
 function kpis(){
   if(!ST) return;
-  const k=[["👁 Jami hodisa",fmt(ST.total),'','⚡'],
-   ["▶ Ko'rishlar (play)",fmt(ST.byEvent.play||0),ST.active7+" faol · 7 kun",'🎬','linear-gradient(120deg,#22d3ee,#7c5cff)'],
-   ["👥 Foydalanuvchi",ST.users,ST.active30+" faol · 30 kun",'✈️','linear-gradient(120deg,#8b5cf6,#f472b6)'],
-   ["❤️ Layklar",fmt(ST.likes),'real-vaqt','💖','linear-gradient(120deg,#f472b6,#ef4444)'],
-   ["💬 Izohlar",fmt(ST.comments),'moderatsiya bilan','🗨','linear-gradient(120deg,#34d399,#22d3ee)'],
-   ["🎬 Videolar",ST.videos,'','🗂','linear-gradient(120deg,#fbbf24,#f87171)'],
-   ["📰 Yangiliklar",ST.newsCount,'','🧩','']];
+  const k=[["👁 Jami hodisa",fmt(ST.total||0),'','⚡'],
+   ["▶ Ko‘rishlar (play)",fmt((ST.byEvent||{}).play||0),(ST.active7||0)+" faol · 7 kun",'🎬','linear-gradient(120deg,#22d3ee,#7c5cff)'],
+   ["👥 Foydalanuvchi",ST.users||0,(ST.active30||0)+" faol · 30 kun",'✈️','linear-gradient(120deg,#8b5cf6,#f472b6)'],
+   ["❤️ Layklar",fmt(ST.likes||0),'real vaqt','💖','linear-gradient(120deg,#f472b6,#ef4444)'],
+   ["💬 Izohlar",fmt(ST.comments||0),'moderatsiya bilan','🗨','linear-gradient(120deg,#34d399,#22d3ee)'],
+   ["🎬 Videolar",ST.videos||0,'','🗂','linear-gradient(120deg,#fbbf24,#f87171)'],
+   ["📰 Yangiliklar",ST.newsCount||0,'','🧩',''],
+   ["📺 Video ko‘rishlari",fmt(ST.views||0),'jami hisoblagich','👁','linear-gradient(120deg,#22d3ee,#34d399)'],
+   ["👤 Unikal ko‘rishlar",fmt(ST.uniqueViews||0),'Views jadvali','🔎','linear-gradient(120deg,#7c5cff,#22d3ee)'],
+   ["📖 Yangilik o‘qishlari",fmt(ST.newsReads||0),'','🗞','linear-gradient(120deg,#f472b6,#fbbf24)'],
+   ["🚫 Bloklangan",fmt(ST.banned||0),'','🛡','linear-gradient(120deg,#f87171,#b91c1c)']];
   $('#kpis').innerHTML=k.map(x=>`<div class="kpi" style="--kg:${x[3+1]||'var(--grad)'}"><span class="ic">${x[3]}</span>
     <div class="lbl">${x[0]}</div><div class="val">${x[1]}</div><div class="dlt">${x[2]||''}</div></div>`).join('');
-  $('#navCmtN').textContent=ST.comments;
+  $('#navCmtN').textContent=fmt(ST.comments||0);
 }
 function lineChart(){
   if(!ST) return;
@@ -481,20 +559,46 @@ function themeBars(){
   const mx=arr[0]?.[1]||1;
   $('#themeBars').innerHTML=arr.map(([id,n])=>{const m=THEMES_META[id]||[id,'🎨'];
     return `<div class="hb"><div class="lb"><span>${m[1]} ${esc(m[0])}</span><b>${n}</b></div>
-    <i><s style="width:${n/mx*100}%"></s></i></div>`}).join('')||'<div class="sub">Hali ma\'lumot yo\'q</div>';
+    <i><s style="width:${n/mx*100}%"></s></i></div>`}).join('')||'<div class="sub">Hali ma’lumot yo‘q</div>';
+}
+function catBars(){
+  const el=$('#catBars'); if(!el) return;
+  if(!ST) { el.innerHTML='<div class="sub">Hali ma’lumot yo‘q</div>'; return; }
+  const arr=Object.entries(ST.byCat||{}).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const mx=arr[0]?.[1]||1;
+  el.innerHTML=arr.map(([c,n])=>`<div class="hb"><div class="lb"><span>${esc(c||'—')}</span><b>${n}</b></div>
+    <i><s style="width:${n/mx*100}%"></s></i></div>`).join('')||'<div class="sub">Hali kategoriyalar yo‘q</div>';
+}
+function roleBadge(r){
+  const s=String(r||'user').toLowerCase();
+  const cls=s==='admin'?'b-p':s==='vip'?'b-w':'b-i';
+  return `<span class="badge ${cls}">${esc(s)}</span>`;
+}
+function topUsersPanel(){
+  const el=$('#tuRows'); if(!el) return;
+  const list=(ST&&ST.topUsers)||[];
+  el.innerHTML=list.map((u,i)=>`<tr>
+    <td class="mono" style="color:var(--muted)">${i+1}</td>
+    <td><b>${esc(u.name||'—')}</b>${u.tg?` <span style="color:var(--muted);font-size:11px">@${esc(u.tg)}</span>`:''}</td>
+    <td>${roleBadge(u.role)}</td>
+    <td>${fmt(+u.actions||0)}</td><td>${fmt(+u.sessions||0)}</td>
+    <td style="color:var(--muted);font-size:11.5px">${+u.last?ago(+u.last):'—'}</td></tr>`).join('')
+    ||'<tr><td colspan="6" class="sub" style="padding:16px">Hali faollik yo‘q</td></tr>';
 }
 function byVideoTable(){
   if(!ST) return;
   $('#bvRows').innerHTML=(ST.byVideo||[]).map((v,i)=>`<tr>
     <td class="mono" style="color:var(--muted)">${i+1}</td>
-    <td><b>${esc(v.title)}</b></td><td>${fmt(v.plays)}</td><td>${fmt(v.likes)}</td><td>${fmt(v.comments)}</td></tr>`).join('')
-    ||'<tr><td colspan="5" class="sub">Ma\'lumot yo\'q</td></tr>';
+    <td><b>${esc(v.title||'—')}</b></td>
+    <td><span class="badge b-i">${esc(v.cat||'—')}</span></td>
+    <td>${fmt(v.views||0)}</td><td>${fmt(v.unique||0)}</td><td>${fmt(v.plays||0)}</td><td>${fmt(v.likes||0)}</td><td>${fmt(v.comments||0)}</td></tr>`).join('')
+    ||'<tr><td colspan="8" class="sub">Ma’lumot yo‘q</td></tr>';
 }
 function feed(){
   const ev=(ST&&ST.recentEvents)||[];
   const ic={play:['▶','#7c5cff'],login:['✈️','#8b5cf6'],like:['❤️','#f472b6'],unlike:['🤍','#666'],comment:['💬','#22d3ee'],
     theme:['🎨','#fbbf24'],tab:['🧭','#34d399'],fav:['⭐','#f472b6'],news:['📰','#22d3ee'],search:['🔎','#9aa0b4'],setting:['⚙','#888']};
-  $('#evtFeed').innerHTML=ev.map(e=>{const i=ic[e.event]||['⚪','#666'];const u=DB.users.find(x=>x.id===e.userId)||{};
+  $('#evtFeed').innerHTML=ev.map(e=>{const i=ic[e.event]||['⚪','#666'];const u=uList().find(x=>x.id===String(e.userId))||{};
     return `<div class="evt"><span class="dot" style="background:${i[1]}"></span>${i[0]} <b style="color:var(--text);font-weight:600">${esc(e.event)}</b>
       <span style="color:var(--muted)">${esc(u.tg? '@'+u.tg : (u.name||e.userId||''))}</span>
       <span style="color:var(--muted);font-size:11px">${esc((vidOf(e.itemId).title||e.itemId||'').slice(0,26))}</span><b>${ago(e.ts)}</b></div>`}).join('')
@@ -514,11 +618,13 @@ function renderVideos(){
    <td><b>${esc(v.title)}</b><div style="font-size:11px;color:var(--muted)">${esc(String(v.desc||'').slice(0,40))}</div></td>
    <td><span class="badge b-i">${esc(v.cat)}</span></td>
    <td class="mono" style="font-size:11px">${esc(ytId(v.yt)||v.yt||'—')}</td><td>${esc(v.dur||'—')}</td>
+   <td>${fmt(+v.views||0)}</td>
    <td>${fmt(playN[v.id]||0)}</td><td>${fmt(likeN[v.id]||0)}</td><td>${fmt(cmtN[v.id]||0)}</td>
-   <td>${v.featured?'⭐':'—'}</td>
+   <td>${+v.featured?'⭐':'—'}</td>
+   <td>${+v.live?'<span class="badge b-live">LIVE</span>':'—'}</td>
    <td><span class="badge ${v.status==='draft'?'b-w':'b-ok'}">${esc(v.status||'active')}</span></td>
    <td><div class="act"><button data-e="v" data-id="${esc(v.id)}">✏️</button><button data-d="v" data-id="${esc(v.id)}">🗑️</button></div></td></tr>`).join('')
-   ||'<tr><td colspan="11" class="sub" style="padding:20px">Hali video yo\'q — «＋ Yangi video» yoki «📥 Toploader» orqali qo\'shing.</td></tr>';
+   ||'<tr><td colspan="13" class="sub" style="padding:20px">Hali video yo‘q — «＋ Yangi video» yoki «📥 Ommaviy yuklash» orqali qo‘shing.</td></tr>';
   bindActs();
   const cats=[...new Set(DB.videos.map(v=>v.cat).filter(Boolean))];
   $('#vCatFlt').innerHTML='<option value="">Barcha kategoriyalar</option>'+cats.map(c=>`<option>${esc(c)}</option>`).join('');
@@ -556,37 +662,54 @@ function renderNews(){
    <td><span class="tthumb" style="background:${hue(String(n.id).charCodeAt(1)||0)};display:grid;place-items:center;font-size:20px">${esc(n.emoji||'📰')}</span></td>
    <td><b>${esc(n.title)}</b><div style="font-size:11px;color:var(--muted)">${esc(String(n.body||'').slice(0,44))}…</div></td>
    <td><span class="badge b-i">${esc(n.cat)}</span></td>
-   <td style="color:var(--muted)">${esc(n.src||'')}</td><td>${esc(n.read||'')} daq</td>
-   <td>${n.hot?'<span class="badge b-x">🔥 HOT</span>':'—'}</td>
+   <td style="color:var(--muted)">${esc(n.src||'—')}</td><td>${+n.read||3} daq</td>
+   <td>${fmt(+n.reads||0)}</td>
+   <td>${+n.hot?'<span class="badge b-x">🔥 HOT</span>':'—'}</td>
    <td><span class="badge ${n.status==='draft'?'b-w':'b-ok'}">${esc(n.status||'active')}</span></td>
    <td><div class="act"><button data-e="n" data-id="${esc(n.id)}">✏️</button><button data-d="n" data-id="${esc(n.id)}">🗑️</button></div></td></tr>`).join('')
-   ||'<tr><td colspan="8" class="sub" style="padding:20px">Yangiliklar yo\u2018q.</td></tr>';
+   ||'<tr><td colspan="9" class="sub" style="padding:20px">Yangiliklar yo‘q.</td></tr>';
   bindActs();
   $('#nCatFlt').innerHTML='<option value="">Barcha kategoriyalar</option>'+[...new Set(DB.news.map(n=>n.cat).filter(Boolean))].map(c=>`<option>${esc(c)}</option>`).join('');
 }
 $('#nAdd').onclick=()=>editNews(null);
 
 /* ============================ MODERATION ============================ */
+/* Izohlar ham videoga, ham yangilikka tegishli bo‘lishi mumkin (kalit: "news:<id>") */
+function cmtOwner(key){
+  const k=String(key||'');
+  if(k.indexOf('news:')===0){
+    const n=DB.news.find(x=>String(x.id)===k.slice(5));
+    return {label:n?String(n.title).slice(0,26):k.slice(5), kind:'📰 Yangilik'};
+  }
+  const v=DB.videos.find(x=>String(x.id)===k);
+  return {label:v?String(v.title).slice(0,26):k, kind:'🎬 Video'};
+}
 function renderCmts(){
-  const q=($('#cSearch').value||'').toLowerCase(), vf=$('#cVidFlt').value;
-  let list=[...DB.comments].sort((a,b)=>b.ts-a.ts);
-  if(vf) list=list.filter(c=>c.videoId===vf);
-  if(q) list=list.filter(c=>(c.text+c.name).toLowerCase().includes(q));
+  const q=uz($('#cSearch').value), vf=$('#cVidFlt').value;
+  let list=[...DB.comments].sort((a,b)=>(+b.ts||0)-(+a.ts||0));
+  if(vf) list=list.filter(c=>String(c.videoId)===vf);
+  if(q) list=list.filter(c=>uz(String(c.text||'')+' '+String(c.name||'')).indexOf(q)>=0);
   $('#cStat').textContent=list.length+' izoh';
-  $('#cRows').innerHTML=list.slice(0,200).map(c=>`<tr>
+  $('#cRows').innerHTML=list.slice(0,200).map(c=>{
+    const o=cmtOwner(c.videoId);
+    return `<tr>
    <td><b>${esc(c.name||'—')}</b><div style="font-size:10.5px;color:var(--muted)" class="mono">${esc(c.userId)}</div></td>
    <td class="cmtcell">${esc(c.text)}</td>
-   <td style="font-size:12px">${esc(String(vidOf(c.videoId).title||c.videoId).slice(0,26))}</td>
-   <td>❤️ ${c.likes||0}</td><td style="color:var(--muted);font-size:11.5px">${ago(c.ts)}</td>
-   <td><div class="act"><button data-cd="${esc(c.id)}">🗑️</button></div></td></tr>`).join('')
-   ||'<tr><td colspan="6" class="sub" style="padding:20px">Izohlar yo\u2018q.</td></tr>';
+   <td style="font-size:12px"><span style="color:var(--muted);font-size:10.5px">${o.kind}</span><br>${esc(o.label)}</td>
+   <td>❤️ ${+c.likes||0}</td><td style="color:var(--muted);font-size:11.5px">${ago(+c.ts||Date.now())}</td>
+   <td><div class="act"><button data-cd="${esc(c.id)}" title="O‘chirish">🗑️</button></div></td></tr>`}).join('')
+   ||'<tr><td colspan="6" class="sub" style="padding:20px">Izohlar yo‘q.</td></tr>';
   $$('[data-cd]').forEach(b=>b.onclick=async()=>{
-    if(!confirm('Izoh o\u2018chirilsinmi?'))return;
+    if(!confirm('Izoh o‘chirilsinmi?'))return;
     const j=await api('comments.delete',{id:b.dataset.cd});
-    if(j.ok){ DB.comments=DB.comments.filter(c=>c.id!==b.dataset.cd); renderCmts(); renderVideos(); toast('Izoh o\u2018chirildi','🗑️'); }
+    if(j.ok){ DB.comments=DB.comments.filter(c=>c.id!==b.dataset.cd); renderCmts(); renderVideos(); toast('Izoh o‘chirildi','🗑️'); }
+    else toast('Xato: '+(j.error||''),'⚠️');
   });
-  const vids=[...new Set(DB.comments.map(c=>c.videoId))];
-  $('#cVidFlt').innerHTML='<option value="">Barcha videolar</option>'+vids.map(v=>`<option value="${esc(v)}" ${$('#cVidFlt').value===v?'selected':''}>${esc(String(vidOf(v).title||v).slice(0,32))}</option>`).join('');
+  const cur=$('#cVidFlt').value;
+  const vids=[...new Set(DB.comments.map(c=>String(c.videoId)))];
+  $('#cVidFlt').innerHTML='<option value="">Barcha kontent</option>'+vids.map(v=>{
+    const o=cmtOwner(v);
+    return `<option value="${esc(v)}" ${cur===v?'selected':''}>${o.kind} ${esc(o.label)}</option>`}).join('');
 }
 function renderLikes(){
   $('#lRows').innerHTML=[...DB.likes].sort((a,b)=>b.ts-a.ts).slice(0,300).map(l=>`<tr>
@@ -602,34 +725,74 @@ function renderLikes(){
 }
 
 /* ============================ USERS ============================ */
+/* Backend eski versiyada bo‘lsa yoki jadval sarlavhalari siljigan bo‘lsa,
+   maydonlarni o‘xshash nomlar orasidan topib olamiz — bo‘lim bo‘sh qolmasin. */
+const oneOf=(o,keys)=>{ for(const k of keys){ if(o&&o[k]!=null&&String(o[k])!=='') return String(o[k]); } return ''; };
+function normUser(u){
+  u=u||{};
+  return {
+    id:   oneOf(u,['id','userId','uid']),
+    tg:   oneOf(u,['tg','username','user','tgUsername']),
+    name: oneOf(u,['name','fullName','full_name']),
+    role: oneOf(u,['role'])||'user',
+    sessions: +oneOf(u,['sessions'])||0,
+    last: +oneOf(u,['last','lastSeen'])||0,
+    status: oneOf(u,['status'])||'active'
+  };
+}
+const uList=()=>(DB.users||[]).map(normUser).filter(u=>u.id);
+const uz=s=>String(s==null?'':s).toLowerCase().replace(/[\u2018\u2019]/g,"'").replace(/\s+/g,' ').trim();
 function renderUsers(){
-  const q=($('#uSearch').value||'').toLowerCase(), f=$('#uRoleFlt').value;
-  const now=Date.now();
-  $('#uKpis').innerHTML=[['Jami',DB.users.length,''],['7 kunda faol',DB.users.filter(u=>+u.last>now-7*864e5).length,''],
-    ['Telegram orqali',DB.users.filter(u=>String(u.id).startsWith('tg')).length,''],['Admin/VIP',DB.users.filter(u=>u.role==='admin'||u.role==='vip').length,'']]
+  const q=uz($('#uSearch').value), f=$('#uRoleFlt').value;
+  const now=Date.now(), all=uList();
+  $('#uKpis').innerHTML=[['Jami',all.length],['7 kunda faol',all.filter(u=>u.last>now-7*864e5).length],
+    ['Username bor',all.filter(u=>u.tg).length],
+    ['Admin/VIP',all.filter(u=>u.role==='admin'||u.role==='vip').length],
+    ['Bloklangan',all.filter(u=>u.status==='banned').length]]
     .map(x=>`<div class="kpi"><div class="lbl">${x[0]}</div><div class="val">${x[1]}</div></div>`).join('');
-  const list=DB.users.filter(u=>(!f||u.role===f)&&(u.name+(u.tg||'')+u.id).toLowerCase().includes(q))
-    .sort((a,b)=>(+b.last||0)-(+a.last||0));
-  $('#uRows').innerHTML=list.map(u=>`<tr>
-   <td><b>${esc(u.name||'—')}</b><div style="font-size:11px;color:var(--muted)" class="mono">${esc(u.id)}</div></td>
+  const list=all.filter(u=>(!f||u.role===f) && (!q || uz(u.name+' '+u.tg+' '+u.id).indexOf(q)>=0))
+    .sort((a,b)=>b.last-a.last);
+  const st=$('#uStat'); if(st) st.textContent=list.length+' / '+all.length+' profil';
+  $('#uRows').innerHTML=list.map((u,i)=>{
+    const ini=(u.name||u.tg||u.id).trim().slice(0,1).toUpperCase();
+    return `<tr>
+   <td><div class="ucell">
+     ${u.tg?`<img class="av" data-av="${esc(u.tg)}" alt="" loading="lazy">`:''}
+     <span class="av-ph" style="background:${hue(i)}">${esc(ini)}</span>
+     <div class="meta"><div class="nm">${esc(u.name||'—')}</div>
+       <div class="sub2 mono">${esc(u.id)}</div></div></div></td>
    <td class="mono" style="font-size:12px">${u.tg?'@'+esc(u.tg):'—'}</td>
    <td><select data-role="${esc(u.id)}" style="width:auto;padding:5px 8px;font-size:12px">${['user','vip','admin'].map(r=>`<option ${u.role===r?'selected':''}>${r}</option>`).join('')}</select></td>
-   <td>${u.sessions||0}</td><td style="color:var(--muted)">${u.last?ago(+u.last):'—'}</td>
-   <td><span class="badge ${u.status==='banned'?'b-x':'b-ok'}">${esc(u.status||'active')}</span></td>
-   <td><div class="act"><button data-tog="${esc(u.id)}">${u.status==='banned'?'🔓':'🚫'}</button><button data-del="${esc(u.id)}">🗑️</button></div></td></tr>`).join('')
-   ||'<tr><td colspan="7" class="sub" style="padding:20px">Foydalanuvchilar hali yo\u2018q — ular Telegram orqali kirganda avtomatik paydo bo\u2018ladi.</td></tr>';
+   <td>${u.sessions}</td><td style="color:var(--muted)">${u.last?ago(u.last):'—'}</td>
+   <td><span class="badge ${u.status==='banned'?'b-x':'b-ok'}">${esc(u.status)}</span></td>
+   <td><div class="act"><button data-tog="${esc(u.id)}" title="${u.status==='banned'?'Blokdan chiqarish':'Bloklash'}">${u.status==='banned'?'🔓':'🚫'}</button><button data-del="${esc(u.id)}" title="O‘chirish">🗑️</button></div></td></tr>`}).join('')
+   ||`<tr><td colspan="7" class="sub" style="padding:20px">${all.length
+        ?'Bu filterga mos foydalanuvchi topilmadi.'
+        :'Foydalanuvchilar hali yo‘q — ular Telegram orqali kirganda avtomatik paydo bo‘ladi. Odamlar kirgan bo‘lsa-yu ro‘yxat bo‘sh bo‘lsa, <b>Sozlamalar → Diagnostika</b> bo‘limida Users jadvali sarlavhalarini tekshiring.'}</td></tr>`;
+  $$('#uRows [data-av]').forEach(img=>{
+    img.onerror=()=>img.remove();
+    img.onload=()=>{ const ph=img.nextElementSibling; if(ph&&ph.classList.contains('av-ph')) ph.style.display='none'; };
+    img.src=`https://t.me/i/userpic/320/${encodeURIComponent(img.dataset.av)}.jpg`;
+  });
   $$('[data-role]').forEach(s=>s.onchange=async()=>{
-    const u=DB.users.find(x=>x.id===s.dataset.role); u.role=s.value;
-    await api('users.save',{item:u}); toast(u.name+' roli: '+s.value,'👤'); renderUsers();
+    const u=DB.users.find(x=>normUser(x).id===s.dataset.role); if(!u) return;
+    u.role=s.value;
+    const j=await api('users.save',{item:u});
+    toast(j.ok?('Rol o‘zgartirildi: '+s.value):('Xato: '+(j.error||'')),j.ok?'👤':'⚠️');
+    renderUsers();
   });
   $$('[data-tog]').forEach(b=>b.onclick=async()=>{
-    const u=DB.users.find(x=>x.id===b.dataset.tog);
-    u.status=u.status==='banned'?'active':'banned';
-    await api('users.save',{item:u}); renderUsers(); toast(u.name+(u.status==='banned'?' bloklandi':' blokdan chiqdi'),'🛡️');
+    const u=DB.users.find(x=>normUser(x).id===b.dataset.tog); if(!u) return;
+    u.status=(normUser(u).status==='banned')?'active':'banned';
+    const j=await api('users.save',{item:u}); renderUsers();
+    toast(j.ok?(u.status==='banned'?'Foydalanuvchi bloklandi':'Blokdan chiqarildi'):('Xato: '+(j.error||'')),j.ok?'🛡️':'⚠️');
   });
   $$('[data-del]').forEach(b=>b.onclick=async()=>{
-    if(!confirm('Foydalanuvchi butun o\u2018chirilsinmi?'))return;
-    await api('users.delete',{id:b.dataset.del}); DB.users=DB.users.filter(x=>x.id!==b.dataset.del); renderUsers(); toast('O\u2018chirildi','🗑️');
+    if(!confirm('Foydalanuvchi butunlay o‘chirilsinmi?'))return;
+    const j=await api('users.delete',{id:b.dataset.del});
+    if(j.ok){ DB.users=DB.users.filter(x=>normUser(x).id!==b.dataset.del); toast('O‘chirildi','🗑️'); }
+    else toast('Xato: '+(j.error||''),'⚠️');
+    renderUsers();
   });
 }
 
@@ -673,10 +836,13 @@ function editVideo(id){
   openModal(id?`Video tahrir · ${id}`:'Yangi video',[
    {k:'title',label:'Sarlavha'},{k:'yt',label:'YouTube link yoki ID',mono:1,ph:'https://youtu.be/… yoki M7lc1UVf-VE'},
    {k:'dur',label:'Davomiylik',ph:'12:04'},{k:'cat',label:'Kategoriya',type:'select',opts:CATS_V},
-   {k:'views',label:'Boshlang\u2019ich ko\u2019rishlar (counter)'},{k:'featured',label:'Featured (hero slider)',type:'check',on:'⭐ Featured'},
+   {k:'views',label:'Boshlang‘ich ko‘rishlar (hisoblagich)'},{k:'featured',label:'Bosh sahifa slideri',type:'check',on:'⭐ Tavsiya etilgan'},
+   {k:'live',label:'Jonli efir',type:'check',on:'🔴 LIVE belgisi'},
    {k:'status',label:'Holat',type:'select',opts:['active','draft']},
+   {k:'tags',label:'Teglar (vergul bilan)',ph:'anime, 2024, o‘zbekcha'},
    {k:'desc',label:'Tavsif',type:'textarea'}],v,o=>{
-    o.featured=+o.featured; o.yt=(ytId(o.yt)||o.yt).trim(); o.id=id||o.id;
+    o.featured=+o.featured; o.live=+o.live; o.views=+o.views||0;
+    o.yt=(ytId(o.yt)||o.yt).trim(); o.id=id||o.id;
     editing.kind='v';
     const i=DB.videos.findIndex(x=>x.id===o.id);
     if(i>-1)DB.videos[i]=o; else DB.videos.unshift(o);
@@ -687,10 +853,11 @@ function editNews(id){
   openModal(id?`Yangilik tahrir · ${id}`:'Yangi yangilik',[
    {k:'title',label:'Sarlavha'},{k:'cat',label:'Kategoriya',type:'select',opts:CATS_N},
    {k:'src',label:'Manba'},{k:'time',label:'Vaqt belgisi',ph:'2 soat'},
-   {k:'read',label:'O\u2018qish daqiqa'},{k:'emoji',label:'Emoji ikonka'},
-   {k:'hot',label:'HOT',type:'check',on:'🔥 HOT ko\u2018rsatish'},{k:'status',label:'Holat',type:'select',opts:['active','draft']},
-   {k:'body',label:'Matn (bo\u2019sh qator = paragraf)',type:'textarea'}],n,o=>{
-    o.hot=+o.hot; o.id=id||o.id; editing.kind='n';
+   {k:'read',label:'O‘qish daqiqasi'},{k:'emoji',label:'Emoji ikonka'},
+   {k:'hot',label:'HOT',type:'check',on:'🔥 HOT belgisi'},{k:'status',label:'Holat',type:'select',opts:['active','draft']},
+   {k:'tags',label:'Teglar (vergul bilan)',ph:'iqtisod, dollar, bozor'},
+   {k:'body',label:'Matn (bo‘sh qator = paragraf)',type:'textarea'}],n,o=>{
+    o.hot=+o.hot; o.read=+o.read||3; o.id=id||o.id; editing.kind='n';
     const i=DB.news.findIndex(x=>x.id===o.id);
     if(i>-1)DB.news[i]=o; else DB.news.unshift(o);
   });
@@ -715,8 +882,8 @@ $('#anSend').onclick=()=>sendAnnounce(false);
 $('#anTest').onclick=()=>sendAnnounce(true);
 
 /* ============================ RENDER ALL / NAV ============================ */
-function renderAll(){ kpis(); lineChart(); donut(); themeBars(); byVideoTable(); feed();
-  renderVideos(); renderNews(); renderCmts(); renderLikes(); renderUsers(); renderAnnounce(); }
+function renderAll(){ kpis(); lineChart(); donut(); themeBars(); catBars(); topUsersPanel(); byVideoTable(); feed();
+  renderVideos(); renderNews(); renderCmts(); renderLikes(); renderUsers(); renderAnnounce(); renderContentSettings(); }
 $$('.nv').forEach(b=>b.onclick=()=>{
   $$('.nv').forEach(x=>x.classList.remove('on')); b.classList.add('on');
   $$('.page').forEach(p=>p.classList.remove('on')); $('#pg-'+b.dataset.p).classList.add('on');
@@ -726,8 +893,9 @@ $$('.nv').forEach(b=>b.onclick=()=>{
    mod:['Moderatsiya','Izohlar va layklar — real vaqt'],
    users:['Foydalanuvchilar','Telegram auth orqali kelgan profillar'],
    announce:['E\u2018lonlar','Telegram broadcast markazi'],
-   settings:['Sozlamalar','Backend ulanish va bazaviy amallar']};
+   settings:['Sozlamalar','Backend ulanish · ilova sozlamalari · diagnostika']};
   $('#pgTitle').textContent=T[b.dataset.p][0]; $('#pgCrumb').textContent=T[b.dataset.p][1];
+  if(b.dataset.p==='settings') runDoctor();
 });
 ['#vSearch','#vCatFlt','#nSearch','#nCatFlt','#uSearch','#uRoleFlt','#cSearch','#cVidFlt'].forEach(s=>
   $(s).addEventListener('input',()=>{ renderVideos(); renderNews(); renderUsers(); renderCmts(); }));
@@ -752,9 +920,72 @@ $('#evClear').onclick=async()=>{
   const j=await api('events.clear'); toast(j.ok?'Tarix tozalandi ✓':'Xato: '+(j.error||''),j.ok?'🧹':'⚠️');
   if(j.ok){ DB.events=[]; await pullAll(true); }
 };
+$('#refreshBtn').onclick=async()=>{
+  const b=$('#refreshBtn'); b.disabled=true; b.textContent='⟳ Sinxron…';
+  const ok=await pullAll(true);
+  b.disabled=false; b.textContent='⟳ Yangilash';
+  toast(ok?'Ma’lumot yangilandi':'Backend javob bermadi',ok?'✅':'⚠️');
+};
+
+/* ---------- Ilova sozlamalari (Settings jadvali) ---------- */
+const settingOf=k=>{ const r=(DB.settings||[]).find(s=>String(s.key)===k); return r?String(r.value??''):''; };
+function renderContentSettings(){
+  const a=$('#stApp'), n=$('#stNotice'); if(!a||!n) return;
+  if(document.activeElement!==a) a.value=settingOf('app')||'AURUM';
+  if(document.activeElement!==n) n.value=settingOf('notice');
+}
+async function saveSetting(key,value,stat){
+  const j=await api('settings.save',{key,value});
+  if(stat) stat.textContent=j.ok?'Saqlandi ✓':'Xato: '+(j.error||'');
+  if(j.ok){ const r=(DB.settings||[]).find(s=>String(s.key)===key);
+    if(r) r.value=value; else DB.settings.push({key,value}); }
+  return !!j.ok;
+}
+$('#stContentSave').onclick=async()=>{
+  const stat=$('#stContentStat'); stat.textContent='Yozilmoqda…';
+  const a=await saveSetting('app',$('#stApp').value.trim()||'AURUM',null);
+  const b=await saveSetting('notice',$('#stNotice').value.trim(),null);
+  stat.textContent=(a&&b)?'Saqlandi ✓':'Xato: backend javob bermadi';
+  toast((a&&b)?'Sozlamalar saqlandi':'Saqlanmadi',(a&&b)?'✅':'⚠️');
+};
+
+/* ---------- Diagnostika (op:doctor) ---------- */
+async function runDoctor(){
+  const out=$('#docOut'); out.innerHTML='<div class="sub">Backend tekshirilmoqda…</div>';
+  const j=await api('doctor');
+  if(!j||!j.ok||!j.doctor){
+    out.innerHTML=`<div class="doc-warn">Diagnostika ishlamadi: ${esc(j&&j.error||'backend javob bermadi')}.
+      Backend hali <b>v2.2</b> yoki eskiroq versiyada — code.gs v2.3 ni yangi versiya sifatida deploy qiling.</div>`;
+    return;
+  }
+  const d=j.doctor;
+  const miss=(d.missingProps||[]);
+  out.innerHTML=`
+    <div class="sub" style="line-height:1.8">
+      Backend: <b class="doc-ok">${esc(d.version)}</b><br>
+      Jadval: <a href="${esc(d.ssUrl)}" target="_blank" rel="noopener" class="mono">${esc(d.ssName)}</a>
+    </div>
+    ${miss.length?`<div class="doc-warn">⚠️ Script Properties’da yetishmayapti: <b>${miss.map(esc).join(', ')}</b>.
+      Apps Script → Sozlamalar → Script Properties orqali qo‘shing.</div>`
+      :`<div class="hint doc-ok">✓ Barcha Script Properties joyida.</div>`}
+    <div class="tblwrap" style="margin-top:10px"><table>
+      <thead><tr><th>Jadval</th><th>Qator</th><th>Sarlavhalar</th><th>Holat</th></tr></thead>
+      <tbody>${d.sheets.map(s=>{
+        const have=s.header||[], need=(s.expected||[]).filter(k=>have.indexOf(k)<0);
+        return `<tr><td class="mono">${esc(s.sheet)}</td><td>${fmt(s.rows)}</td>
+          <td style="font-size:11px;color:var(--muted)" class="mono">${have.map(esc).join(' · ')||'—'}</td>
+          <td>${s.ok?'<span class="badge b-ok">to‘g‘ri</span>'
+            :`<span class="badge b-x">yetishmaydi: ${need.map(esc).join(', ')}</span>`}</td></tr>`}).join('')}
+      </tbody></table></div>
+    <div class="hint">Sarlavhalar noto‘g‘ri bo‘lsa, v2.3 backend ustunlarni o‘zi qo‘shadi — «Yangilash» tugmasini bosing.</div>`;
+}
+$('#docBtn').onclick=runDoctor;
 
 /* ============================ GATE ============================ */
 function gateErr(msg){ const g=$('#gateErr'); g.style.display='block'; g.innerHTML=msg }
+/* Backend versiyasi eskirgan bo'lsa, ogohlantirish gate yopilgandan keyin ko'rinadi. */
+function verWarn(msg){ $('#verWarnT').innerHTML=msg; $('#verWarn').hidden=false }
+$('#verWarnX').onclick=()=>{ $('#verWarn').hidden=true };
 function exitGate(msg){
   clearInterval(AUTO); AUTO=null;
   $('#app').style.display='none'; $('#gate').style.display='grid';
@@ -773,7 +1004,7 @@ async function enter(){
 }
 $('#loginBtn').onclick=async()=>{
   CFG.TOKEN=$('#tok').value.trim(); CFG.API_URL=$('#stApi').value.trim()||CFG.API_URL;
-  if(!CFG.TOKEN) return gateErr('ADMIN_TOKEN kiritilg.');
+  if(!CFG.TOKEN) return gateErr('ADMIN_TOKEN kiritilmadi.');
   $('#loginBtn').disabled=true; $('#loginBtn').textContent='Tekshirilmoqda…';
   try{
     const r=await fetch(CFG.API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},
@@ -781,10 +1012,10 @@ $('#loginBtn').onclick=async()=>{
     let j=null; try{ j=await r.json() }catch(e){}
     if(!j){ gateErr('Apps Script javob bermadi. URL noto\u2018g\u2018ri yoki deploy eski bo\u2018lishi mumkin.'); return }
     if(!j.ok){ gateErr('Token noto\u2018g\u2018ri ('+esc(j.error||'unauthorized')+')'); return }
-    if(j.version!=='v2.2') gateErr('Diqqat: backend eski versiyada ishlayapti. code.gs v2.2 ni qayta deploy qiling — Telegram ID orqali admin kirish ishlamaydi.');
     localStorage.setItem('aurum.admin.api',CFG.API_URL); localStorage.setItem('aurum.admin.tok',CFG.TOKEN);
     $('#stApi2').value=CFG.API_URL; $('#stTok').value=CFG.TOKEN;
     await enter(); toast('Xush kelibsiz, Administrator','🛡️');
+    if(j.version!=='v2.3') verWarn('Backend <b>'+esc(j.version||'eski')+'</b> versiyada ishlayapti, kutilayotgani <b>v2.3</b>. Apps Script → Deploy → Manage deployments → «New version» qilib qayta deploy qiling — aks holda unikal ko‘rishlar, diagnostika va foydalanuvchilar bo‘limi ishlamaydi.');
   }catch(e){ gateErr('Tarmoq xatosi: '+esc(e.message||e)); }
   finally{ $('#loginBtn').disabled=false; $('#loginBtn').textContent='🔐 Backendga ulanish →'; }
 };

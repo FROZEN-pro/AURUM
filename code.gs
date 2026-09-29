@@ -1,10 +1,10 @@
-// AURUM · Google Apps Script Backend v2.2
+// AURUM · Google Apps Script Backend v2.3
 // index.html va admin.html shu fayl bilan ishlaydi.
 // Script Properties: ADMIN_TOKEN, BOT_TOKEN, BROADCAST_CHAT,
 //                  OWNER_CHAT, APP_URL, SHEET_ID
 // Kod o`zgarsa: Deploy > Manage deployments > Edit > New version > Deploy
 // Sheets DB avtomatik: Videos, News, Users, Events, Settings,
-//                     Announcements, Likes, Comments, CommentLikes
+//                     Announcements, Likes, Comments, CommentLikes, Views
 
 var PROPS = PropertiesService.getScriptProperties();
 
@@ -25,16 +25,20 @@ function getSS_() {
   return ss;
 }
 var SCHEMA = {
-  Videos:        ['id','yt','title','cat','dur','views','featured','desc','status','createdAt'],
-  News:          ['id','title','cat','src','time','read','hot','emoji','body','status','createdAt'],
+  Videos:        ['id','yt','title','cat','dur','views','featured','desc','status','createdAt','tags','live'],
+  News:          ['id','title','cat','src','time','read','hot','emoji','body','status','createdAt','tags','reads'],
   Users:         ['id','tg','name','role','theme','sessions','last','status','createdAt'],
   Events:        ['ts','userId','event','itemId','theme','meta'],
   Settings:      ['key','value'],
   Announcements: ['ts','title','body','button','sent'],
   Likes:         ['id','videoId','userId','ts'],
   Comments:      ['id','videoId','userId','name','text','ts','likes'],
-  CommentLikes:  ['id','commentId','userId','ts']
+  CommentLikes:  ['id','commentId','userId','ts'],
+  Views:         ['id','itemId','userId','ts']
 };
+// Jadval sarlavhasi SCHEMA'dan farq qilsa (eski versiya yaratgan bo'lsa),
+// yetishmayotgan ustunlar oxiriga qo'shiladi — mavjud ma'lumot buzilmaydi.
+var ENSURED_ = {}, HDR_ = {};
 function sheet_(name) {
   var ss = getSS_(), sh = ss.getSheetByName(name);
   if (!sh) {
@@ -42,8 +46,32 @@ function sheet_(name) {
     sh.appendRow(SCHEMA[name]);
     sh.getRange(1, 1, 1, SCHEMA[name].length).setFontWeight('bold');
     sh.setFrozenRows(1);
+    ENSURED_[name] = true; HDR_[name] = SCHEMA[name].slice();
+    return sh;
+  }
+  if (!ENSURED_[name]) {
+    ENSURED_[name] = true;
+    var want = SCHEMA[name] || [];
+    var have = headerOf_(sh);
+    var missing = want.filter(function (k) { return have.indexOf(k) < 0; });
+    if (missing.length) {
+      sh.getRange(1, have.length + 1, 1, missing.length).setValues([missing]).setFontWeight('bold');
+      have = have.concat(missing);
+    }
+    HDR_[name] = have;
   }
   return sh;
+}
+function headerOf_(sh) {
+  var n = Math.max(sh.getLastColumn(), 1);
+  return sh.getRange(1, 1, 1, n).getValues()[0].map(function (h) { return String(h == null ? '' : h).trim(); });
+}
+function head_(name) { sheet_(name); return HDR_[name]; }
+// Ustunni HAQIQIY sarlavha bo'yicha topamiz: jadval tartibi o'zgargan bo'lsa ham
+// ma'lumot noto'g'ri ustunga yozilmaydi.
+function col_(name, key) {
+  var h = head_(name), i = h.indexOf(key);
+  return i >= 0 ? i + 1 : 0;
 }
 function rows_(name) {
   var sh = sheet_(name), v = sh.getDataRange().getValues();
@@ -52,23 +80,31 @@ function rows_(name) {
   for (var i = 1; i < v.length; i++) {
     var o = {};
     for (var j = 0; j < head.length; j++) o[head[j]] = v[i][j];
-    ['ts','createdAt'].forEach(function (k) { if (o[k] && typeof o[k] === 'object') o[k] = +new Date(o[k]); });
+    ['ts','createdAt','last'].forEach(function (k) { if (o[k] && typeof o[k] === 'object') o[k] = +new Date(o[k]); });
     out.push(o);
   }
   return out;
 }
 function findRow_(name, key, val) {
-  var sh = sheet_(name), head = SCHEMA[name], col = head.indexOf(key) + 1;
-  if (col < 1) return null;
+  var sh = sheet_(name), col = col_(name, key);
+  if (!col) return null;
   var last = sh.getLastRow();
   if (last < 2) return null;
   var vals = sh.getRange(2, col, last - 1, 1).getValues();
   for (var i = 0; i < vals.length; i++) if (String(vals[i][0]) === String(val)) return i + 2;
   return null;
 }
+function cellVal_(name, row, key) {
+  var c = col_(name, key);
+  return c ? sheet_(name).getRange(row, c).getValue() : '';
+}
+function cellSet_(name, row, key, val) {
+  var c = col_(name, key);
+  if (c) sheet_(name).getRange(row, c).setValue(val);
+}
 function upsert_(name, obj) {
-  var sh = sheet_(name), head = SCHEMA[name];
-  var key = head[0];
+  var sh = sheet_(name), head = head_(name);
+  var key = SCHEMA[name][0];
   var kv = obj[key] != null ? obj[key] : (key === 'ts' ? Date.now() : 'x' + Date.now());
   var r = findRow_(name, key, kv);
   var line = head.map(function (h) { return obj[h] != null ? obj[h] : ''; });
@@ -94,6 +130,40 @@ function getSetting_(k, dflt) {
 }
 function uid_() { return 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 function trim_(s, n) { return String(s == null ? '' : s).slice(0, n); }
+function dayKey_(ts) {
+  var d = ts ? new Date(+ts) : new Date();
+  return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+}
+// Unikal ko'rish/o'qish: bitta foydalanuvchi bitta elementni kuniga bir marta hisoblaydi.
+function countOnce_(itemId, userId, prefix) {
+  var id = prefix + '|' + itemId + '|' + userId + '|' + dayKey_();
+  if (findRow_('Views', 'id', id)) return false;
+  sheet_('Views').appendRow([id, itemId, userId, Date.now()]);
+  return true;
+}
+function bumpCol_(name, rowId, key, delta) {
+  var r = findRow_(name, 'id', rowId);
+  if (!r) return 0;
+  var cur = +cellVal_(name, r, key) || 0;
+  var next = Math.max(0, cur + delta);
+  cellSet_(name, r, key, next);
+  return next;
+}
+function canonUser_(u) {
+  u = u || {};
+  return {
+    id: String(u.id || u.userId || u.uid || ''),
+    tg: String(u.tg || u.username || u.user || u.tgUsername || ''),
+    name: String(u.name || u.fullName || u.full_name || ''),
+    role: String(u.role || 'user'),
+    theme: String(u.theme || ''),
+    sessions: +u.sessions || 0,
+    last: +u.last || +u.lastSeen || 0,
+    status: String(u.status || 'active'),
+    createdAt: +u.createdAt || 0
+  };
+}
+function users_() { return rows_('Users').map(canonUser_).filter(function (u) { return u.id; }); }
 
 // ---------- JSON javob ----------
 function json_(obj) {
@@ -107,8 +177,8 @@ function doGet(e) {
   var me = (e && e.parameter && e.parameter.uid) || '';
   try {
     if (a === 'bootstrap') return json_(bootstrap_(me));
-    if (a === 'ping') return json_({ ok: true, name: 'AURUM backend v2.2', sheets: getSS_().getName(), t: Date.now() });
-    return json_({ ok: false, error: 'nodoma action' });
+    if (a === 'ping') return json_({ ok: true, name: 'AURUM backend v2.3', sheets: getSS_().getName(), t: Date.now() });
+    return json_({ ok: false, error: 'noma\u2019lum action: ' + a });
   } catch (err) { return json_({ ok: false, error: String(err) }); }
 }
 function bootstrap_(me) {
@@ -116,14 +186,17 @@ function bootstrap_(me) {
   var likeCounts = {}, commentCounts = {}, myLikes = [];
   likes.forEach(function (l) {
     likeCounts[l.videoId] = (likeCounts[l.videoId] || 0) + 1;
-    if (me && l.userId === me) myLikes.push(l.videoId);
+    if (me && String(l.userId) === String(me)) myLikes.push(String(l.videoId));
   });
-  comments.forEach(function (c) { commentCounts[c.videoId] = (commentCounts[c.videoId] || 0) + 1; });
+  comments.forEach(function (c) {
+    var k = String(c.videoId);
+    commentCounts[k] = (commentCounts[k] || 0) + 1;
+  });
   return {
     ok: true,
     videos: active_(rows_('Videos')),
     news: active_(rows_('News')),
-    settings: { notice: getSetting_('notice', ''), app: 'AURUM' },
+    settings: { notice: getSetting_('notice', ''), app: getSetting_('app', 'AURUM') },
     meta: { likeCounts: likeCounts, commentCounts: commentCounts, myLikes: myLikes }
   };
 }
@@ -132,6 +205,9 @@ function active_(arr) {
     .map(function (x) {
       if (x.featured != null) x.featured = (x.featured === 1 || x.featured === '1' || x.featured === true) ? 1 : 0;
       if (x.hot != null) x.hot = (x.hot === 1 || x.hot === '1' || x.hot === true) ? 1 : 0;
+      if (x.live != null) x.live = (x.live === 1 || x.live === '1' || x.live === true) ? 1 : 0;
+      x.views = +x.views || 0;
+      x.reads = +x.reads || 0;
       return x;
     });
 }
@@ -153,16 +229,18 @@ function doPost(e) {
 
 // ---------- Hodisalarni yozish ----------
 function handleTrack_(d) {
-  sheet_('Events').appendRow([d.ts || Date.now(), trim_(d.userId, 40), trim_(d.event, 40), trim_(d.itemId, 60), trim_(d.theme, 30), trim_(d.meta, 300)]);
-  if (d.userId && d.userId !== 'guest') {
-    var r = findRow_('Users', 'id', d.userId);
+  var userId = trim_(d.userId, 40);
+  sheet_('Events').appendRow([d.ts || Date.now(), userId, trim_(d.event, 40), trim_(d.itemId, 60), trim_(d.theme, 30), trim_(d.meta, 300)]);
+  if (userId && userId !== 'guest') {
+    var r = findRow_('Users', 'id', userId);
     if (r) {
-      var sh = sheet_('Users');
-      sh.getRange(r, SCHEMA.Users.indexOf('last') + 1).setValue(Date.now());
-      if (d.event === 'login') {
-        var s = +sh.getRange(r, SCHEMA.Users.indexOf('sessions') + 1).getValue() || 0;
-        sh.getRange(r, SCHEMA.Users.indexOf('sessions') + 1).setValue(s + 1);
-      }
+      cellSet_('Users', r, 'last', Date.now());
+      if (d.event === 'login') cellSet_('Users', r, 'sessions', (+cellVal_('Users', r, 'sessions') || 0) + 1);
+      if (d.theme) cellSet_('Users', r, 'theme', trim_(d.theme, 30));
+    }
+    // Yangilik o'qilishi: kuniga bir marta hisoblanadi
+    if (d.event === 'read' && d.itemId && countOnce_(trim_(d.itemId, 60), userId, 'read')) {
+      bumpCol_('News', trim_(d.itemId, 60), 'reads', 1);
     }
   }
   return json_({ ok: true });
@@ -189,16 +267,16 @@ function handleSocial_(d) {
     return json_({ ok: true, liked: !liked, count: count });
   }
 
-  // --- IZOH QO'SHISH ---
+  // --- IZOH QO'SHISH (video yoki yangilik ostiga) ---
   if (d.op === 'comment.add') {
-    var vid2 = trim_(d.videoId, 60);
+    var vid2 = trim_(d.videoId || d.itemId, 60);
     var text = trim_(d.text, 900).replace(/\s+$/, '');
     if (!vid2 || !text) return json_({ ok: false, error: 'videoId va matn kerak' });
     var cid = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     sheet_('Comments').appendRow([cid, vid2, uid, trim_(d.name, 60) || 'Mehmon', text, Date.now(), 0]);
     sheet_('Events').appendRow([Date.now(), uid, 'comment', vid2, '', '']);
     var me = findRow_('Users', 'id', uid);
-    if (me) sheet_('Users').getRange(me, SCHEMA.Users.indexOf('last') + 1).setValue(Date.now());
+    if (me) cellSet_('Users', me, 'last', Date.now());
     return json_({ ok: true, comment: { id: cid, videoId: vid2, userId: uid, name: trim_(d.name, 60) || 'Mehmon', text: text, ts: Date.now(), likes: 0 } });
   }
 
@@ -209,13 +287,13 @@ function handleSocial_(d) {
     var crow = findRow_('Comments', 'id', commentId);
     if (!crow) return json_({ ok: false, error: 'izoh topilmadi' });
     var voted = !!findRow_('CommentLikes', 'id', clid);
-    var cur = +sheet_('Comments').getRange(crow, SCHEMA.Comments.indexOf('likes') + 1).getValue() || 0;
+    var cur = +cellVal_('Comments', crow, 'likes') || 0;
     if (voted) {
       delRow_('CommentLikes', 'id', clid);
-      sheet_('Comments').getRange(crow, SCHEMA.Comments.indexOf('likes') + 1).setValue(Math.max(0, cur - 1));
+      cellSet_('Comments', crow, 'likes', Math.max(0, cur - 1));
     } else {
       sheet_('CommentLikes').appendRow([clid, commentId, uid, Date.now()]);
-      sheet_('Comments').getRange(crow, SCHEMA.Comments.indexOf('likes') + 1).setValue(cur + 1);
+      cellSet_('Comments', crow, 'likes', cur + 1);
     }
     return json_({ ok: true, voted: !voted, likes: cur + (voted ? -1 : 1) });
   }
@@ -225,23 +303,49 @@ function handleSocial_(d) {
     var cid2 = trim_(d.commentId, 40);
     var row = findRow_('Comments', 'id', cid2);
     if (!row) return json_({ ok: false, error: 'izoh topilmadi' });
-    var owner = String(sheet_('Comments').getRange(row, SCHEMA.Comments.indexOf('userId') + 1).getValue());
+    var owner = String(cellVal_('Comments', row, 'userId'));
     var isAdmin = d.admin === true;
-    if (owner !== uid && !isAdmin) return json_({ ok: false, error: 'faqat o\'zingizniki' });
+    if (owner !== uid && !isAdmin) return json_({ ok: false, error: 'faqat o\u2019zingizniki' });
     sheet_('Comments').deleteRow(row);
     return json_({ ok: true });
   }
 
-  // --- IZOHLAR RO'YXATI (video bo'yicha) + yangilanib turish uchun ---
+  // --- IZOHLAR RO'YXATI (video yoki yangilik bo'yicha) ---
   if (d.op === 'comment.list') {
-    var vid3 = trim_(d.videoId, 60);
+    var vid3 = trim_(d.videoId || d.itemId, 60);
     var mine = {};
-    rows_('CommentLikes').forEach(function (cl) { if (cl.userId === uid) mine[cl.commentId] = true; });
+    rows_('CommentLikes').forEach(function (cl) { if (String(cl.userId) === uid) mine[cl.commentId] = true; });
     var list = rows_('Comments')
       .filter(function (c) { return String(c.videoId) === vid3; })
       .sort(function (a, b) { return (+b.ts) - (+a.ts); })
-      .map(function (c) { c.canEdit = (c.userId === uid); return c; });
+      .map(function (c) {
+        c.canEdit = (String(c.userId) === uid);
+        c.likes = +c.likes || 0;
+        return c;
+      });
     return json_({ ok: true, comments: list.slice(0, 200), votes: mine, mine: uid });
+  }
+
+  // --- KO'RISH: bitta foydalanuvchi kuniga bir marta hisoblanadi ---
+  if (d.op === 'view') {
+    var vid4 = trim_(d.videoId || d.itemId, 60);
+    if (!vid4) return json_({ ok: false, error: 'videoId kerak' });
+    var fresh = countOnce_(vid4, uid, 'view');
+    var r4 = findRow_('Videos', 'id', vid4);
+    var total = fresh ? bumpCol_('Videos', vid4, 'views', 1) : (r4 ? (+cellVal_('Videos', r4, 'views') || 0) : 0);
+    if (fresh) sheet_('Events').appendRow([Date.now(), uid, 'view', vid4, trim_(d.theme, 30), '']);
+    return json_({ ok: true, counted: fresh, views: total });
+  }
+
+  // --- JONLI HISOBLAGICHLAR (ko'rish · layk · izoh) ---
+  if (d.op === 'counters') {
+    var vid5 = trim_(d.videoId || d.itemId, 60);
+    var likes5 = 0, cmts5 = 0;
+    rows_('Likes').forEach(function (l) { if (String(l.videoId) === vid5) likes5++; });
+    rows_('Comments').forEach(function (c) { if (String(c.videoId) === vid5) cmts5++; });
+    var r5 = findRow_('Videos', 'id', vid5);
+    var views5 = r5 ? (+cellVal_('Videos', r5, 'views') || 0) : 0;
+    return json_({ ok: true, views: views5, likes: likes5, comments: cmts5 });
   }
 
   // --- Mening layklangan videolarim (fav sinxroni) ---
@@ -265,15 +369,19 @@ function handleAuth_(d) {
   var r = findRow_('Users', 'id', uid);
   var role = isOwner_(u.id) ? 'admin' : 'user';
   if (r) {
-    var sh = sheet_('Users');
-    if (role !== 'admin') role = sh.getRange(r, SCHEMA.Users.indexOf('role') + 1).getValue() || 'user';
-    sh.getRange(r, SCHEMA.Users.indexOf('role') + 1).setValue(role);
-    sh.getRange(r, SCHEMA.Users.indexOf('name') + 1).setValue(name);
-    sh.getRange(r, SCHEMA.Users.indexOf('last') + 1).setValue(Date.now());
+    if (role !== 'admin') role = String(cellVal_('Users', r, 'role') || 'user');
+    if (role !== 'admin' && String(cellVal_('Users', r, 'status') || 'active') === 'banned') {
+      return json_({ ok: false, error: 'blocked' });
+    }
+    cellSet_('Users', r, 'role', role);
+    cellSet_('Users', r, 'name', name);
+    if (u.username) cellSet_('Users', r, 'tg', u.username);
+    cellSet_('Users', r, 'last', Date.now());
   } else {
-    sheet_('Users').appendRow([uid, u.username || '', name, role, '', 1, Date.now(), 'active', Date.now()]);
+    upsert_('Users', { id: uid, tg: u.username || '', name: name, role: role, theme: '',
+                       sessions: 1, last: Date.now(), status: 'active', createdAt: Date.now() });
   }
-  var likes = rows_('Likes').filter(function (l) { return l.userId === uid; }).map(function (l) { return String(l.videoId); });
+  var likes = rows_('Likes').filter(function (l) { return String(l.userId) === uid; }).map(function (l) { return String(l.videoId); });
   return json_({ ok: true, user: { id: uid, name: name, tgId: u.id, username: u.username || '', role: role, photo: u.photo_url || '', premium: !!u.is_premium }, likes: likes });
 }
 function parseInitUser_(initData) {
@@ -324,18 +432,21 @@ function adminAuth_(d) {
 function handleAdmin_(d) {
   if (!adminAuth_(d)) return json_({ ok: false, error: 'unauthorized' });
   switch (d.op) {
-    case 'ping':  return json_({ ok: true, t: Date.now(), version: 'v2.2' });
+    case 'ping':  return json_({ ok: true, t: Date.now(), version: 'v2.3' });
     case 'pull':  return json_({ ok: true, data: { videos: rows_('Videos'), news: rows_('News'),
-                          users: rows_('Users'), events: rows_('Events').slice(-3000),
-                          announcements: rows_('Announcements'), likes: rows_('Likes'), comments: rows_('Comments') } });
+                          users: users_(), events: rows_('Events').slice(-3000),
+                          announcements: rows_('Announcements'), likes: rows_('Likes'),
+                          comments: rows_('Comments'), settings: settings_() } });
     case 'push':  return handlePush_(d);
     case 'videos.save':   upsert_('Videos', withCreated_(d.item)); return json_({ ok: true });
     case 'videos.delete': delRow_('Videos', 'id', d.id); return json_({ ok: true });
     case 'news.save':     upsert_('News', withCreated_(d.item)); return json_({ ok: true });
     case 'news.delete':   delRow_('News', 'id', d.id); return json_({ ok: true });
-    case 'users.save':    upsert_('Users', d.item || {}); return json_({ ok: true });
+    case 'users.save':    upsert_('Users', canonUser_(d.item)); return json_({ ok: true });
     case 'users.delete':  delRow_('Users', 'id', d.id); return json_({ ok: true });
     case 'settings.save': setSetting_(d.key, d.value); return json_({ ok: true });
+    case 'settings.pull': return json_({ ok: true, settings: settings_() });
+    case 'doctor':        return json_({ ok: true, doctor: doctor_() });
     case 'comments.delete': {
       var row = findRow_('Comments', 'id', d.id);
       if (row) sheet_('Comments').deleteRow(row);
@@ -350,28 +461,73 @@ function handleAdmin_(d) {
     case 'stats':
       return json_({ ok: true, stats: adminStats_() });
     case 'announce':      return handleAnnounce_(d);
-    default: return json_({ ok: false, error: 'op topilmadi' });
+    default: return json_({ ok: false, error: 'op topilmadi: ' + d.op });
   }
 }
+function settings_() {
+  return rows_('Settings').map(function (s) { return { key: String(s.key), value: String(s.value == null ? '' : s.value) }; });
+}
+// Backend holati: jadval sarlavhalari, qatorlar soni, yetishmayotgan property'lar.
+// Admin paneldagi "Diagnostika" bo'limi shu ma'lumot bilan ishlaydi.
+function doctor_() {
+  var out = [];
+  Object.keys(SCHEMA).forEach(function (n) {
+    var sh = sheet_(n);
+    var have = head_(n).slice();
+    out.push({
+      sheet: n,
+      rows: Math.max(0, sh.getLastRow() - 1),
+      header: have,
+      expected: SCHEMA[n],
+      ok: SCHEMA[n].every(function (k) { return have.indexOf(k) >= 0; })
+    });
+  });
+  var props = ['ADMIN_TOKEN','BOT_TOKEN','SHEET_ID','BROADCAST_CHAT','OWNER_CHAT','APP_URL'];
+  return {
+    version: 'v2.3',
+    ssId: getSS_().getId(),
+    ssName: getSS_().getName(),
+    ssUrl: getSS_().getUrl(),
+    sheets: out,
+    missingProps: props.filter(function (p) { return !PROPS.getProperty(p); })
+  };
+}
 function adminStats_() {
-  var ev = rows_('Events'), users = rows_('Users'), likes = rows_('Likes'),
-      comments = rows_('Comments'), videos = rows_('Videos'), news = rows_('News');
+  var ev = rows_('Events'), users = users_(), likes = rows_('Likes'),
+      comments = rows_('Comments'), videos = rows_('Videos'), news = rows_('News'),
+      views = rows_('Views');
   var now = Date.now();
   var active7 = users.filter(function (u) { return (+u.last || 0) > now - 7 * 864e5; }).length;
   var active30 = users.filter(function (u) { return (+u.last || 0) > now - 30 * 864e5; }).length;
-  var playBy = {}, likeBy = {}, cmtBy = {};
+  var playBy = {}, likeBy = {}, cmtBy = {}, viewBy = {}, actBy = {};
   likes.forEach(function (l) { likeBy[l.videoId] = (likeBy[l.videoId] || 0) + 1; });
   comments.forEach(function (c) { cmtBy[c.videoId] = (cmtBy[c.videoId] || 0) + 1; });
-  ev.forEach(function (r) { if (r.event === 'play' && r.itemId) playBy[r.itemId] = (playBy[r.itemId] || 0) + 1; });
+  views.forEach(function (v) { viewBy[v.itemId] = (viewBy[v.itemId] || 0) + 1; });
+  ev.forEach(function (r) {
+    if (r.event === 'play' && r.itemId) playBy[r.itemId] = (playBy[r.itemId] || 0) + 1;
+    if (r.userId) actBy[r.userId] = (actBy[r.userId] || 0) + 1;
+  });
   var byVideo = videos.map(function (v) {
-    return { id: v.id, title: v.title, yt: v.yt, plays: playBy[v.id] || 0, likes: likeBy[v.id] || 0, comments: cmtBy[v.id] || 0 };
-  }).sort(function (a, b) { return (b.plays + b.likes * 2 + b.comments * 3) - (a.plays + a.likes * 2 + a.comments * 3); }).slice(0, 30);
+    return { id: v.id, title: v.title, yt: v.yt, cat: v.cat,
+             views: +v.views || 0, unique: viewBy[v.id] || 0,
+             plays: playBy[v.id] || 0, likes: likeBy[v.id] || 0, comments: cmtBy[v.id] || 0 };
+  }).sort(function (a, b) {
+    return (b.views + b.plays + b.likes * 2 + b.comments * 3) - (a.views + a.plays + a.likes * 2 + a.comments * 3);
+  }).slice(0, 30);
+  var byCat = countBy_(videos, 'cat');
+  var topUsers = users.map(function (u) {
+    return { id: u.id, name: u.name, tg: u.tg, role: u.role, last: u.last,
+             sessions: u.sessions, actions: actBy[u.id] || 0 };
+  }).sort(function (a, b) { return (b.actions - a.actions) || (+b.last - +a.last); }).slice(0, 20);
   return {
     total: ev.length, byEvent: countBy_(ev, 'event'), byTheme: countBy_(ev, 'theme'),
-    users: users.length, active7: active7, active30: active30,
+    users: users.length, active7: active7, active30: active30, banned: users.filter(function (u) { return u.status === 'banned'; }).length,
     videos: videos.length, newsCount: news.length,
     likes: likes.length, comments: comments.length,
-    byVideo: byVideo,
+    views: videos.reduce(function (s, v) { return s + (+v.views || 0); }, 0),
+    uniqueViews: views.length,
+    newsReads: news.reduce(function (s, n) { return s + (+n.reads || 0); }, 0),
+    byVideo: byVideo, byCat: byCat, topUsers: topUsers,
     daily: dailyCounts_(ev, 14),
     recentEvents: ev.slice(-80).reverse()
   };
@@ -399,10 +555,13 @@ function handlePush_(d) {
   [['videos','Videos'], ['news','News']].forEach(function (pair) {
     var k = pair[0], name = pair[1];
     if (!data[k]) return;
-    var sh = sheet_(name); sh.clear();
-    sh.appendRow(SCHEMA[name]);
+    var sh = sheet_(name), head = SCHEMA[name];
+    sh.clear();
+    sh.appendRow(head);
+    sh.getRange(1, 1, 1, head.length).setFontWeight('bold');
+    HDR_[name] = head.slice(); ENSURED_[name] = true;
     data[k].forEach(function (item) {
-      sh.appendRow(SCHEMA[name].map(function (h) { return item[h] != null ? item[h] : ''; }));
+      sh.appendRow(head.map(function (h) { return item[h] != null ? item[h] : ''; }));
     });
   });
   return json_({ ok: true });
@@ -418,14 +577,17 @@ function handleAnnounce_(d) {
   var text = '👑 <b>' + escHtml_(d.title || '') + '</b>\n\n' + escHtml_(d.text || d.body || '');
   var payload = { chat_id: chatId, text: text, parse_mode: 'HTML', disable_web_page_preview: false };
   if (d.button) payload.reply_markup = JSON.stringify({
-    inline_keyboard: [[{ text: d.button, url: PROPS.getProperty('APP_URL') || 'https://t.me' }]]
+    inline_keyboard: [[{ text: d.button, url: trim_(d.url, 300) || PROPS.getProperty('APP_URL') || 'https://t.me' }]]
   });
   try {
-    UrlFetchApp.fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+    var res = UrlFetchApp.fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
       method: 'post', contentType: 'application/json', payload: JSON.stringify(payload), muteHttpExceptions: true
     });
+    var body = {};
+    try { body = JSON.parse(res.getContentText()); } catch (e) {}
+    if (!body.ok) return json_({ ok: false, error: trim_(body.description || res.getContentText(), 200) });
     sheet_('Announcements').appendRow([Date.now(), d.title || '', d.text || d.body || '', d.button || '', chatId]);
-    return json_({ ok: true });
+    return json_({ ok: true, chat: chatId });
   } catch (e) { return json_({ ok: false, error: String(e) }); }
 }
 function escHtml_(s) {
@@ -433,4 +595,8 @@ function escHtml_(s) {
 }
 
 // ---------- Bir martalik init (opsional) ----------
-function setup() { var ss = getSS_(); ['Likes','Comments','CommentLikes'].forEach(sheet_); Logger.log('AURUM backend v2 tayyor. Sheet: ' + ss.getUrl()); }
+function setup() {
+  var ss = getSS_();
+  Object.keys(SCHEMA).forEach(sheet_);
+  Logger.log('AURUM backend v2.3 tayyor. Sheet: ' + ss.getUrl());
+}
