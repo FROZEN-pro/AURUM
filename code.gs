@@ -361,7 +361,8 @@ function handleSocial_(d) {
 function handleAuth_(d) {
   var token = PROPS.getProperty('BOT_TOKEN');
   if (!token) return json_({ ok: false, error: 'BOT_TOKEN sozlanmagan' });
-  if (!verifyInitData_(d.initData || '', token)) return json_({ ok: false, error: 'initData imzosi tasdiqlanmadi' });
+  var chk = checkInitData_(d.initData || '', token);
+  if (!chk.ok) { logAuthFail_(d.initData || '', chk); return json_({ ok: false, error: 'initData imzosi tasdiqlanmadi' }); }
   var u = parseInitUser_(d.initData || '');
   if (!u || !u.id) return json_({ ok: false, error: 'foydalanuvchi topilmadi' });
   var uid = 'tg' + u.id;
@@ -396,20 +397,60 @@ function parseQS_(s) {
   });
   return o;
 }
-function verifyInitData_(initData, botToken) {
-  if (!initData) return false;
+/* initData tekshiruvi. Nima uchun yiqilayotganini bir marta-yu aniqlash uchun
+   javob faqat boolean emas: sabab kodi + hash prefikslari qaytariladi.
+   Ikkala ma'lum dataCheckString varianti (dekodlangan va xom) sinab ko'riladi. */
+function checkInitData_(initData, botToken) {
+  var r = { ok: false, reason: '', age: -1, dcsLen: 0, hash8: '', calc8: '' };
+  if (!initData) { r.reason = 'no_initdata'; return r; }
   var params = parseQS_(initData);
   var hash = params.hash; delete params.hash;
-  if (!hash) return false;
-  var dataCheckString = Object.keys(params).sort()
-    .map(function (k) { return k + '=' + params[k]; }).join('\n');
+  if (!hash) { r.reason = 'no_hash'; return r; }
+  r.hash8 = String(hash).slice(0, 8);
   // Apps Script quyi imzosi: computeHmacSha256Signature(x, y) => key=y, x-xabar.
   var secret = Utilities.computeHmacSha256Signature(Utilities.newBlob('WebAppData').getBytes(), Utilities.newBlob(botToken).getBytes());
-  var calc = Utilities.computeHmacSha256Signature(Utilities.newBlob(dataCheckString).getBytes(), secret)
-    .map(function (b) { return ('0' + (b & 0xff).toString(16)).slice(-2); }).join('');
-  if (calc !== hash) return false;
-  var age = Date.now() / 1000 - (+params.auth_date || 0);
-  return age < 16 * 3600;
+  var sign = function (dcs) {
+    return hex_(Utilities.computeHmacSha256Signature(Utilities.newBlob(dcs).getBytes(), secret));
+  };
+  var dcs = Object.keys(params).sort()
+    .map(function (k) { return k + '=' + params[k]; }).join('\n');
+  r.dcsLen = dcs.length;
+  r.calc8 = sign(dcs).slice(0, 8);
+  var matched = sign(dcs) === hash;
+  if (!matched) {
+    var raw = rawPairs_(initData).sort(function (a, b) { return a.k < b.k ? -1 : (a.k > b.k ? 1 : 0); })
+      .map(function (p) { return p.k + '=' + p.v; }).join('\n');
+    if (sign(raw) === hash) { matched = true; r.reason = 'ok_raw'; r.dcsLen = raw.length; r.calc8 = r.hash8; }
+  }
+  if (!matched) { r.reason = 'bad_hash'; return r; }
+  r.age = Date.now() / 1000 - (+params.auth_date || 0);
+  if (!(r.age < 16 * 3600)) { r.reason = 'stale'; return r; }
+  r.ok = true;
+  if (!r.reason) r.reason = 'ok';
+  return r;
+}
+function hex_(bytes) {
+  return bytes.map(function (b) { return ('0' + (b & 0xff).toString(16)).slice(-2); }).join('');
+}
+// Xom (URL-dekodlanmagan) key=value juftliklari.
+function rawPairs_(s) {
+  var out = [];
+  String(s).split('&').forEach(function (kv) {
+    var i = kv.indexOf('=');
+    if (i > 0) out.push({ k: kv.slice(0, i), v: kv.slice(i + 1) });
+  });
+  return out;
+}
+function verifyInitData_(initData, botToken) { return checkInitData_(initData, botToken).ok; }
+/* Xato sababi Events'ga yoziladi. Maxfiy hech narsa tushmaydi: token, to'liq
+   hash va user JSON'i emas, faqat 8 belgili prefikslar va kalit nomlari. */
+function logAuthFail_(initData, chk) {
+  var uid = '', keys = '';
+  try { var u = parseInitUser_(initData); if (u && u.id) uid = 'tg' + u.id; } catch (e) {}
+  try { keys = Object.keys(parseQS_(initData)).sort().join(','); } catch (e) {}
+  sheet_('Events').appendRow([Date.now(), uid || 'anon', 'auth_fail', '', '',
+    trim_('reason=' + chk.reason + ' age=' + Math.round(chk.age) + ' dcsLen=' + chk.dcsLen +
+      ' hash8=' + chk.hash8 + ' calc8=' + chk.calc8 + ' keys=' + keys, 300)]);
 }
 
 // ---------- Admin API ----------
