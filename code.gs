@@ -362,7 +362,7 @@ function handleAuth_(d) {
   var token = PROPS.getProperty('BOT_TOKEN');
   if (!token) return json_({ ok: false, error: 'BOT_TOKEN sozlanmagan' });
   var chk = checkInitData_(d.initData || '', token);
-  if (!chk.ok) { logAuthFail_(d.initData || '', chk); return json_({ ok: false, error: 'initData imzosi tasdiqlanmadi' }); }
+  if (!chk.ok) { logAuthFail_(d.initData || '', chk, token); return json_({ ok: false, error: 'initData imzosi tasdiqlanmadi' }); }
   var u = parseInitUser_(d.initData || '');
   if (!u || !u.id) return json_({ ok: false, error: 'foydalanuvchi topilmadi' });
   var uid = 'tg' + u.id;
@@ -397,14 +397,15 @@ function parseQS_(s) {
   });
   return o;
 }
-/* initData tekshiruvi. Nima uchun yiqilayotganini bir marta-yu aniqlash uchun
-   javob faqat boolean emas: sabab kodi + hash prefikslari qaytariladi.
-   Ikkala ma'lum dataCheckString varianti (dekodlangan va xom) sinab ko'riladi. */
+/* initData tekshiruvi. Sababni bir marta-yu aniq ko'rsatish uchun dataCheckString'ning
+   to'rt xil tuzilishi sinab ko'riladi: qiymatlar dekodlangan/xom va
+   `signature` ishtirok etgan/tushirilgan. Mos kelgan variant reason'da qoladi. */
 function checkInitData_(initData, botToken) {
-  var r = { ok: false, reason: '', age: -1, dcsLen: 0, hash8: '', calc8: '' };
+  var r = { ok: false, reason: '', age: -1, vars: '', hash8: '', bot: '' };
   if (!initData) { r.reason = 'no_initdata'; return r; }
-  var params = parseQS_(initData);
-  var hash = params.hash; delete params.hash;
+  var pairs = rawPairs_(initData);
+  var hash = '';
+  pairs.forEach(function (p) { if (p.k === 'hash') hash = p.v; });
   if (!hash) { r.reason = 'no_hash'; return r; }
   r.hash8 = String(hash).slice(0, 8);
   // Apps Script quyi imzosi: computeHmacSha256Signature(x, y) => key=y, x-xabar.
@@ -412,21 +413,31 @@ function checkInitData_(initData, botToken) {
   var sign = function (dcs) {
     return hex_(Utilities.computeHmacSha256Signature(Utilities.newBlob(dcs).getBytes(), secret));
   };
-  var dcs = Object.keys(params).sort()
-    .map(function (k) { return k + '=' + params[k]; }).join('\n');
-  r.dcsLen = dcs.length;
-  r.calc8 = sign(dcs).slice(0, 8);
-  var matched = sign(dcs) === hash;
-  if (!matched) {
-    var raw = rawPairs_(initData).sort(function (a, b) { return a.k < b.k ? -1 : (a.k > b.k ? 1 : 0); })
-      .map(function (p) { return p.k + '=' + p.v; }).join('\n');
-    if (sign(raw) === hash) { matched = true; r.reason = 'ok_raw'; r.dcsLen = raw.length; r.calc8 = r.hash8; }
+  var dcsOf = function (decode, skipSig) {
+    return pairs.filter(function (p) {
+      return p.k !== 'hash' && !(skipSig && p.k === 'signature');
+    }).sort(function (a, b) { return a.k < b.k ? -1 : (a.k > b.k ? 1 : 0); })
+      .map(function (p) {
+        var v = p.v;
+        if (decode) { try { v = decodeURIComponent(v.replace(/\+/g, ' ')); } catch (e) {} }
+        return p.k + '=' + v;
+      }).join('\n');
+  };
+  var tries = [['dec', true, false], ['decNoSig', true, true], ['raw', false, false], ['rawNoSig', false, true]];
+  var calc = [];
+  for (var i = 0; i < tries.length; i++) {
+    var h = sign(dcsOf(tries[i][1], tries[i][2]));
+    if (h === hash) {
+      r.reason = 'ok_' + tries[i][0];
+      r.age = Date.now() / 1000 - (+parseQS_(initData).auth_date || 0);
+      if (!(r.age < 16 * 3600)) { r.reason = 'stale'; return r; }
+      r.ok = true;
+      return r;
+    }
+    calc.push(tries[i][0] + ':' + h.slice(0, 8));
   }
-  if (!matched) { r.reason = 'bad_hash'; return r; }
-  r.age = Date.now() / 1000 - (+params.auth_date || 0);
-  if (!(r.age < 16 * 3600)) { r.reason = 'stale'; return r; }
-  r.ok = true;
-  if (!r.reason) r.reason = 'ok';
+  r.reason = 'bad_hash';
+  r.vars = calc.join(' ');
   return r;
 }
 function hex_(bytes) {
@@ -443,14 +454,23 @@ function rawPairs_(s) {
 }
 function verifyInitData_(initData, botToken) { return checkInitData_(initData, botToken).ok; }
 /* Xato sababi Events'ga yoziladi. Maxfiy hech narsa tushmaydi: token, to'liq
-   hash va user JSON'i emas, faqat 8 belgili prefikslar va kalit nomlari. */
-function logAuthFail_(initData, chk) {
+   hash va user JSON'i emas, faqat 8 belgili prefikslar va kalit nomlari.
+   bad_hash bo'lsa, BOT_TOKEN haqatan shu botniki ekanini tekshirish uchun
+   getMe javobidagi ochiq username ham yoziladi. */
+function logAuthFail_(initData, chk, botToken) {
   var uid = '', keys = '';
   try { var u = parseInitUser_(initData); if (u && u.id) uid = 'tg' + u.id; } catch (e) {}
   try { keys = Object.keys(parseQS_(initData)).sort().join(','); } catch (e) {}
+  if (chk.reason === 'bad_hash' && botToken) {
+    try {
+      var g = JSON.parse(UrlFetchApp.fetch(
+        'https://api.telegram.org/bot' + botToken + '/getMe', { muteHttpExceptions: true }).getContentText());
+      chk.bot = g.ok && g.result ? '@' + g.result.username : trim_(g.description || 'err', 24).replace(/ /g, '_');
+    } catch (e) { chk.bot = 'fetch_err'; }
+  }
   sheet_('Events').appendRow([Date.now(), uid || 'anon', 'auth_fail', '', '',
-    trim_('reason=' + chk.reason + ' age=' + Math.round(chk.age) + ' dcsLen=' + chk.dcsLen +
-      ' hash8=' + chk.hash8 + ' calc8=' + chk.calc8 + ' keys=' + keys, 300)]);
+    trim_('reason=' + chk.reason + ' age=' + Math.round(chk.age) + ' hash8=' + chk.hash8 +
+      ' v=' + chk.vars + ' bot=' + chk.bot + ' keys=' + keys, 300)]);
 }
 
 // ---------- Admin API ----------
