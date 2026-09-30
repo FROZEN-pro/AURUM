@@ -1,4 +1,4 @@
-// AURUM · Google Apps Script Backend v2.3
+// AURUM · Google Apps Script Backend v2.4
 // index.html va admin.html shu fayl bilan ishlaydi.
 // Script Properties: ADMIN_TOKEN, BOT_TOKEN, BROADCAST_CHAT,
 //                  OWNER_CHAT, APP_URL, SHEET_ID
@@ -177,7 +177,7 @@ function doGet(e) {
   var me = (e && e.parameter && e.parameter.uid) || '';
   try {
     if (a === 'bootstrap') return json_(bootstrap_(me));
-    if (a === 'ping') return json_({ ok: true, name: 'AURUM backend v2.3', sheets: getSS_().getName(), t: Date.now() });
+    if (a === 'ping') return json_({ ok: true, name: 'AURUM backend v2.4', sheets: getSS_().getName(), t: Date.now() });
     return json_({ ok: false, error: 'noma\u2019lum action: ' + a });
   } catch (err) { return json_({ ok: false, error: String(err) }); }
 }
@@ -362,7 +362,7 @@ function handleAuth_(d) {
   var token = PROPS.getProperty('BOT_TOKEN');
   if (!token) return json_({ ok: false, error: 'BOT_TOKEN sozlanmagan' });
   var chk = checkInitData_(d.initData || '', token);
-  if (!chk.ok) { logAuthFail_(d.initData || '', chk, token); return json_({ ok: false, error: 'initData imzosi tasdiqlanmadi' }); }
+  if (!chk.ok) { logAuthFail_(d.initData || '', chk); return json_({ ok: false, error: 'initData imzosi tasdiqlanmadi' }); }
   var u = parseInitUser_(d.initData || '');
   if (!u || !u.id) return json_({ ok: false, error: 'foydalanuvchi topilmadi' });
   var uid = 'tg' + u.id;
@@ -397,47 +397,36 @@ function parseQS_(s) {
   });
   return o;
 }
-/* initData tekshiruvi. Sababni bir marta-yu aniq ko'rsatish uchun dataCheckString'ning
-   to'rt xil tuzilishi sinab ko'riladi: qiymatlar dekodlangan/xom va
-   `signature` ishtirok etgan/tushirilgan. Mos kelgan variant reason'da qoladi. */
+/* initData tekshiruvi. Telegram docs: `signature` maydoni data-check string'dan
+   chiqarib tashlanadi, faqat boshqa parametrlar alifbo tartibida birlashtiriladi. */
 function checkInitData_(initData, botToken) {
-  var r = { ok: false, reason: '', age: -1, vars: '', hash8: '', bot: '' };
+  var r = { ok: false, reason: '', age: -1 };
   if (!initData) { r.reason = 'no_initdata'; return r; }
   var pairs = rawPairs_(initData);
   var hash = '';
   pairs.forEach(function (p) { if (p.k === 'hash') hash = p.v; });
   if (!hash) { r.reason = 'no_hash'; return r; }
-  r.hash8 = String(hash).slice(0, 8);
   // Apps Script quyi imzosi: computeHmacSha256Signature(x, y) => key=y, x-xabar.
   var secret = Utilities.computeHmacSha256Signature(Utilities.newBlob('WebAppData').getBytes(), Utilities.newBlob(botToken).getBytes());
   var sign = function (dcs) {
     return hex_(Utilities.computeHmacSha256Signature(Utilities.newBlob(dcs).getBytes(), secret));
   };
-  var dcsOf = function (decode, skipSig) {
-    return pairs.filter(function (p) {
-      return p.k !== 'hash' && !(skipSig && p.k === 'signature');
-    }).sort(function (a, b) { return a.k < b.k ? -1 : (a.k > b.k ? 1 : 0); })
-      .map(function (p) {
-        var v = p.v;
-        if (decode) { try { v = decodeURIComponent(v.replace(/\+/g, ' ')); } catch (e) {} }
-        return p.k + '=' + v;
-      }).join('\n');
-  };
-  var tries = [['dec', true, false], ['decNoSig', true, true], ['raw', false, false], ['rawNoSig', false, true]];
-  var calc = [];
-  for (var i = 0; i < tries.length; i++) {
-    var h = sign(dcsOf(tries[i][1], tries[i][2]));
-    if (h === hash) {
-      r.reason = 'ok_' + tries[i][0];
-      r.age = Date.now() / 1000 - (+parseQS_(initData).auth_date || 0);
-      if (!(r.age < 16 * 3600)) { r.reason = 'stale'; return r; }
-      r.ok = true;
-      return r;
-    }
-    calc.push(tries[i][0] + ':' + h.slice(0, 8));
-  }
-  r.reason = 'bad_hash';
-  r.vars = calc.join(' ');
+  // To'g'ri variant: hash va signature maydonlarini chiqarib tashlab, qolganlarini
+  // alifbo tartibida birlashtiramiz. Qiymatlar URL-dekodlangan holatda bo'ladi.
+  var dcs = pairs.filter(function (p) {
+    return p.k !== 'hash' && p.k !== 'signature';
+  }).sort(function (a, b) { return a.k < b.k ? -1 : (a.k > b.k ? 1 : 0); })
+    .map(function (p) {
+      var v = p.v;
+      try { v = decodeURIComponent(v.replace(/\+/g, ' ')); } catch (e) {}
+      return p.k + '=' + v;
+    }).join('\n');
+  var calc = sign(dcs);
+  if (calc !== hash) { r.reason = 'bad_hash'; return r; }
+  r.age = Date.now() / 1000 - (+parseQS_(initData).auth_date || 0);
+  if (!(r.age < 16 * 3600)) { r.reason = 'stale'; return r; }
+  r.ok = true;
+  r.reason = 'ok';
   return r;
 }
 function hex_(bytes) {
@@ -454,23 +443,13 @@ function rawPairs_(s) {
 }
 function verifyInitData_(initData, botToken) { return checkInitData_(initData, botToken).ok; }
 /* Xato sababi Events'ga yoziladi. Maxfiy hech narsa tushmaydi: token, to'liq
-   hash va user JSON'i emas, faqat 8 belgili prefikslar va kalit nomlari.
-   bad_hash bo'lsa, BOT_TOKEN haqatan shu botniki ekanini tekshirish uchun
-   getMe javobidagi ochiq username ham yoziladi. */
-function logAuthFail_(initData, chk, botToken) {
+   hash va user JSON'i emas, faqat 8 belgili prefikslar va kalit nomlari. */
+function logAuthFail_(initData, chk) {
   var uid = '', keys = '';
   try { var u = parseInitUser_(initData); if (u && u.id) uid = 'tg' + u.id; } catch (e) {}
   try { keys = Object.keys(parseQS_(initData)).sort().join(','); } catch (e) {}
-  if (chk.reason === 'bad_hash' && botToken) {
-    try {
-      var g = JSON.parse(UrlFetchApp.fetch(
-        'https://api.telegram.org/bot' + botToken + '/getMe', { muteHttpExceptions: true }).getContentText());
-      chk.bot = g.ok && g.result ? '@' + g.result.username : trim_(g.description || 'err', 24).replace(/ /g, '_');
-    } catch (e) { chk.bot = 'fetch_err'; }
-  }
   sheet_('Events').appendRow([Date.now(), uid || 'anon', 'auth_fail', '', '',
-    trim_('reason=' + chk.reason + ' age=' + Math.round(chk.age) + ' hash8=' + chk.hash8 +
-      ' v=' + chk.vars + ' bot=' + chk.bot + ' keys=' + keys, 300)]);
+    trim_('reason=' + chk.reason + ' age=' + Math.round(chk.age) + ' keys=' + keys, 300)]);
 }
 
 // ---------- Admin API ----------
@@ -493,7 +472,7 @@ function adminAuth_(d) {
 function handleAdmin_(d) {
   if (!adminAuth_(d)) return json_({ ok: false, error: 'unauthorized' });
   switch (d.op) {
-    case 'ping':  return json_({ ok: true, t: Date.now(), version: 'v2.3' });
+    case 'ping':  return json_({ ok: true, t: Date.now(), version: 'v2.4' });
     case 'pull':  return json_({ ok: true, data: { videos: rows_('Videos'), news: rows_('News'),
                           users: users_(), events: rows_('Events').slice(-3000),
                           announcements: rows_('Announcements'), likes: rows_('Likes'),
@@ -545,7 +524,7 @@ function doctor_() {
   });
   var props = ['ADMIN_TOKEN','BOT_TOKEN','SHEET_ID','BROADCAST_CHAT','OWNER_CHAT','APP_URL'];
   return {
-    version: 'v2.3',
+    version: 'v2.4',
     ssId: getSS_().getId(),
     ssName: getSS_().getName(),
     ssUrl: getSS_().getUrl(),
@@ -659,5 +638,5 @@ function escHtml_(s) {
 function setup() {
   var ss = getSS_();
   Object.keys(SCHEMA).forEach(sheet_);
-  Logger.log('AURUM backend v2.3 tayyor. Sheet: ' + ss.getUrl());
+  Logger.log('AURUM backend v2.4 tayyor. Sheet: ' + ss.getUrl());
 }
