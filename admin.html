@@ -747,14 +747,32 @@ let usersLoaded = false;
 async function loadUsersFromBackend(){
   if(usersLoaded) return;
   try {
+    console.log('📡 Foydalanuvchilarni yuklash boshlandi...');
     const j = await api('users.list');
+    console.log('📥 Backend javobi:', j);
     if(j.ok && j.users){
       DB.users = j.users;
       usersLoaded = true;
       console.log(`✅ ${j.total} foydalanuvchi yuklandi`);
+    } else {
+      console.warn('⚠️ Backend users qaytarmadi:', j.error || 'noma\'lum xato');
+      // Agar users.list ishlamasa, pull orqali DB.users ni tekshirish
+      if(!DB.users || DB.users.length === 0){
+        console.log('💡 DB.users bo\'sh, pull orqali tekshirilmoqda...');
+        const pull = await api('pull');
+        if(pull.ok && pull.data && pull.data.users){
+          DB.users = pull.data.users;
+          console.log(`✅ Pull orqali ${DB.users.length} foydalanuvchi topildi`);
+        }
+      }
     }
   } catch(e) {
-    console.warn('loadUsersFromBackend xato:', e);
+    console.error('❌ loadUsersFromBackend xato:', e);
+    // Fallback: agar pull oldindan ishlagan bo'lsa, DB.users dan foydalanish
+    if(DB.users && DB.users.length > 0){
+      console.log(`💡 DB.users dan ${DB.users.length} foydalanuvchi mavjud`);
+      usersLoaded = true;
+    }
   }
 }
 
