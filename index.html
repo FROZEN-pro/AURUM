@@ -326,6 +326,8 @@ main{flex:1;min-width:0;padding:0 var(--pad) calc(var(--tab-h) + env(safe-area-i
 .pl-back:hover{background:rgba(0,0,0,.75)}
 .pl-back:active{transform:scale(.9)}
 .p-stage.fs .pl-back{display:grid}
+/* Fullscreen: hide app navigation bar completely */
+.p-stage.fs ~ .p-top, #player:has(.p-stage.fs) .p-top{display:none !important}
 .pl-spin{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;opacity:0;transition:opacity .3s}
 .pl-spin i{width:44px;height:44px;border-radius:99px;border:3px solid rgba(255,255,255,.2);
   border-top-color:var(--accent);animation:spinA .8s linear infinite;display:block}
@@ -505,6 +507,8 @@ main{flex:1;min-width:0;padding:0 var(--pad) calc(var(--tab-h) + env(safe-area-i
 .pl-end .row2{display:flex;gap:9px;flex-wrap:wrap;justify-content:center}
 .p-stage.fs{position:fixed;inset:0;z-index:120;width:100vw;height:100dvh;max-height:none;aspect-ratio:auto;
   background:#000;border-radius:0}
+/* Hide navigation bar in fullscreen */
+.p-stage.fs .p-top{display:none !important}
 .p-stage.fs .pl-ctl{padding-bottom:calc(10px + env(safe-area-inset-bottom))}
 .pl-fsx{display:none}
 .p-stage.fs .pl-fsx{display:inline-grid}
@@ -1025,9 +1029,9 @@ html,body{max-width:100%}
           </div>
         </div>
         <div class="pl-err" id="plErr" hidden>
-          <div class="big">📡</div><h3>Bu video shu yerda o‘ynamaydi</h3>
-          <p>YouTube bu videoni joylashtirishni cheklagan bo‘lishi mumkin.</p>
-          <a class="pbtn main" id="plErrGo" target="_blank" rel="noopener">▶ YouTube’da ochish</a>
+          <div class="big">📡</div><h3>Bu video shu yerda o’ynamaydi</h3>
+          <p>YouTube bu videoni joylashtirishni cheklagan bo’lishi mumkin.</p>
+          <button class="pbtn main" id="plErrRetry" type="button">↺ Qayta urinish</button>
         </div>
         <div class="pl-ctl" id="plCtl">
           <div class="pl-seek" id="plSeek"><i id="plBuf"></i><b id="plProg"></b><u id="plKnob"></u><em id="plTip"></em></div>
@@ -2012,7 +2016,11 @@ async function ytEnsure(vid,startAt){
         onError:e=>{
           if([2,5,101,150].includes(e.data)){
             pl$('plErr').hidden=false; pl$('plSpin').style.opacity=0;
-            pl$('plErrGo').href='https://www.youtube.com/watch?v='+ytId(curVideo.yt||curVideo.id.replace(/^ext-/,''));
+            // Retry logic instead of opening YouTube
+            pl$('plErrRetry').onclick = ()=>{
+              pl$('plErr').hidden=true;
+              ytEnsure(vid, 0);
+            };
           }
         }
       }
