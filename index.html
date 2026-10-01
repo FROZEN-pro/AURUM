@@ -2369,61 +2369,143 @@ function removeDevice(id){
 }
 
 /* Qo’llab-quvvatlash chat */
-function renderSupportChat(){
+let supportPollTimer = null;
+
+async function renderSupportChat(){
   const list=$(‘#supportList’);
-  const messages = JSON.parse(LS.get(‘supportMessages’)||’[]’);
   
-  // Pre-filled info xabar
-  if(!messages.length){
-    messages.push({
-      id: ‘sys_1’,
-      fromId: ‘system’,
-      text: ‘Assalomu alaykum! Qo\’llab-quvvatlash xizmatiga xush kelibsiz. Savolingizni yozing, admin tezda javob beradi.\n\nTezkor aloqa uchun @Hayotiy_davom ga Telegram orqali ham murojat qilishingiz mumkin.’,
-      ts: Date.now(),
-      type: ‘system’
-    });
-    LS.set(‘supportMessages’, JSON.stringify(messages));
+  // Loading holati
+  if(!list.dataset.loaded){
+    list.innerHTML = ‘<div class="cmt-empty">Yuklanmoqda...</div>’;
   }
   
-  list.innerHTML = messages.map(m => {
-    const isMe = m.fromId === S.uid;
-    const isSys = m.fromId === ‘system’;
-    return `
-      <div class="cmt" style="${isSys ? ‘background:color-mix(in srgb,var(--accent) 8%,var(--surface))’ : ‘’}">
-        <div class="cw">
-          <div class="cn">${isSys ? ‘🤖 Tizim’ : (isMe ? ‘Siz’ : ‘Admin’)} <small>${timeAgo(m.ts)}</small></div>
-          <div class="cx">${esc(m.text)}</div>
-        </div>
-      </div>
-    `;
-  }).join(‘’);
-  
-  // Scroll to bottom
-  setTimeout(()=> list.scrollTop = list.scrollHeight, 50);
+  // Backend’dan xabarlarni olish
+  try {
+    const r = await fetch(APP_CONFIG.API_URL, {
+      method: ‘POST’,
+      body: JSON.stringify({ action: ‘social’, op: ‘support.list’, uid: S.uid })
+    });
+    const j = await r.json();
+    
+    if(j.ok && j.messages){
+      renderSupportMessages(j.messages);
+      list.dataset.loaded = ‘1’;
+      
+      // Har 5 soniyada yangi xabarlar uchun polling
+      if(supportPollTimer) clearInterval(supportPollTimer);
+      supportPollTimer = setInterval(fetchNewMessages, 5000);
+    } else {
+      throw new Error(‘No messages’);
+    }
+  } catch(e) {
+    console.warn(‘renderSupportChat’, e);
+    // Fallback: localStorage’dan o’qish
+    const local = JSON.parse(LS.get(‘supportMessages’)||’[]’);
+    if(local.length){
+      renderSupportMessages(local);
+    } else {
+      // Default welcome message
+      renderSupportMessages([{
+        id: ‘sys_1’,
+        fromId: ‘system’,
+        text: ‘Assalomu alaykum! Qo\’llab-quvvatlash xizmatiga xush kelibsiz. Savolingizni yozing, admin tezda javob beradi.\n\nTezkor aloqa uchun @Hayotiy_davom ga Telegram orqali ham murojat qilishingiz mumkin.’,
+        ts: Date.now(),
+        type: ‘system’
+      }]);
+    }
+  }
   
   // Setup send button
   const text=$(‘#supportText’);
   const send=$(‘#supportSend’);
   text.oninput=()=>{ send.disabled=!text.value.trim(); send.classList.toggle(‘ready’,!!text.value.trim()); };
-  send.onclick=()=>{
-    if(!text.value.trim()) return;
-    messages.push({
-      id: ‘msg_’ + Date.now(),
-      fromId: S.uid,
-      text: text.value.trim(),
-      ts: Date.now(),
-      type: ‘text’
-    });
-    LS.set(‘supportMessages’, JSON.stringify(messages));
-    text.value=’’;
-    send.disabled=true;
-    send.classList.remove(‘ready’);
-    renderSupportChat();
-    
-    // Backend’ga yuborish (keyingi bosqichda)
-    toast(‘Xabar yuborildi’,’✓’);
-  };
+  send.onclick=sendSupportMessage;
 }
+
+function renderSupportMessages(messages){
+  const list=$(‘#supportList’);
+  
+  list.innerHTML = messages.map(m => {
+    const isMe = m.fromId === S.uid;
+    const isSys = m.fromId === ‘system’;
+    const isAdmin = !isMe && !isSys;
+    return `
+      <div class="cmt" style="${isSys ? ‘background:color-mix(in srgb,var(--accent) 8%,var(--surface))’ : ‘’}">
+        <div class="cw">
+          <div class="cn">${isSys ? ‘🤖 Tizim’ : (isMe ? ‘Siz’ : ‘Admin’)} <small>${timeAgo(+m.ts)}</small></div>
+          <div class="cx">${esc(m.text)}${m.mediaUrl ? `<br><a href="${esc(m.mediaUrl)}" target="_blank">📎 Fayl</a>` : ‘’}</div>
+        </div>
+      </div>
+    `;
+  }).join(‘’);
+  
+  setTimeout(()=> list.scrollTop = list.scrollHeight, 50);
+}
+
+async function sendSupportMessage(){
+  const text=$(‘#supportText’);
+  const send=$(‘#supportSend’);
+  if(!text.value.trim()) return;
+  
+  send.disabled = true;
+  send.textContent = ‘...’;
+  
+  try {
+    const r = await fetch(APP_CONFIG.API_URL, {
+      method: ‘POST’,
+      body: JSON.stringify({
+        action: ‘social’,
+        op: ‘support.send’,
+        uid: S.uid,
+        text: text.value.trim(),
+        type: ‘text’
+      })
+    });
+    const j = await r.json();
+    
+    if(j.ok){
+      text.value = ‘’;
+      send.disabled = true;
+      send.classList.remove(‘ready’);
+      toast(‘Xabar yuborildi’,’✓’);
+      
+      // Darhol ro’yxatni yangilash
+      setTimeout(renderSupportChat, 500);
+    } else {
+      throw new Error(j.error);
+    }
+  } catch(e) {
+    console.error(‘sendSupportMessage’, e);
+    toast(‘Xabar yuborilmadi’,’❌’);
+    send.disabled = false;
+  } finally {
+    send.textContent = ‘➤’;
+  }
+}
+
+async function fetchNewMessages(){
+  if(document.hidden) return;
+  try {
+    const r = await fetch(APP_CONFIG.API_URL, {
+      method: ‘POST’,
+      body: JSON.stringify({ action: ‘social’, op: ‘support.list’, uid: S.uid })
+    });
+    const j = await r.json();
+    if(j.ok && j.messages.length){
+      renderSupportMessages(j.messages);
+    }
+  } catch(e){ /* silent */ }
+}
+
+// Sheet yopilganda polling’ni to’xtatish
+document.querySelectorAll(‘[data-close]’).forEach(el => {
+  el.addEventListener(‘click’, () => {
+    if(supportPollTimer){
+      clearInterval(supportPollTimer);
+      supportPollTimer = null;
+    }
+  });
+});
 
 /* Tomosha tarixini tozalash */
 function clearWatchHistory(){

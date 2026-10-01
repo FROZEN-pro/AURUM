@@ -356,6 +356,40 @@ function handleSocial_(d) {
     return json_({ ok: true, ids: arr });
   }
 
+  // --- SUPPORT CHAT: xabar yuborish ---
+  if (d.op === 'support.send') {
+    var text = trim_(d.text, 900);
+    if (!text) return json_({ ok: false, error: 'matn kerak' });
+    var mid = 'msg_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    var toId = d.toId || 'admin'; // admin yoki boshqa user
+    sheet_('Messages').appendRow([mid, uid, toId, text, d.type || 'text', d.mediaUrl || '', Date.now(), 0]);
+    return json_({ ok: true, id: mid });
+  }
+
+  // --- SUPPORT CHAT: xabarlarni olish ---
+  if (d.op === 'support.list') {
+    var msgs = rows_('Messages')
+      .filter(function (m) { return String(m.fromId) === uid || String(m.toId) === uid || m.toId === 'admin'; })
+      .sort(function (a, b) { return (+a.ts) - (+b.ts); })
+      .slice(-100); // oxirgi 100 ta
+    return json_({ ok: true, messages: msgs });
+  }
+
+  // --- ADMIN: barcha support xabarlarni ko'rish ---
+  if (d.op === 'support.adminList' && d.isAdmin) {
+    var allMsgs = rows_('Messages')
+      .sort(function (a, b) { return (+b.ts) - (+a.ts); })
+      .slice(0, 200);
+    return json_({ ok: true, messages: allMsgs });
+  }
+
+  // --- ADMIN: javob yuborish ---
+  if (d.op === 'support.reply' && d.isAdmin) {
+    var rid = 'reply_' + Date.now().toString(36);
+    sheet_('Messages').appendRow([rid, 'admin', d.toUserId, trim_(d.text, 900), 'text', '', Date.now(), 0]);
+    return json_({ ok: true, id: rid });
+  }
+
   return json_({ ok: false, error: 'social op topilmadi' });
 }
 
