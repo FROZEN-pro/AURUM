@@ -840,9 +840,38 @@ html,body{max-width:100%}
   .p-ava{width:56px;height:56px;border-radius:17px;font-size:22px}
   .plb{min-width:34px}
 }
+
+/* ========== LOADING SCREEN ========== */
+#loadingScreen{position:fixed;inset:0;z-index:9999;background:var(--bg0);display:grid;place-items:center;
+  flex-direction:column;gap:24px;transition:opacity .5s ease,visibility .5s ease}
+#loadingScreen.hide{opacity:0;visibility:hidden;pointer-events:none}
+.ls-logo{display:flex;align-items:center;gap:16px;animation:lsPulse 1.5s ease-in-out infinite}
+.ls-logo .gem{width:64px;height:64px;border-radius:18px;background:var(--grad);display:grid;place-items:center;
+  box-shadow:var(--glow);animation:lsSpin 2s linear infinite}
+.ls-logo .gem svg{width:36px;height:36px;fill:#fff}
+.ls-logo .txt{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:.12em;color:var(--text)}
+.ls-logo .txt em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ls-bar{width:min(280px,70vw);height:4px;border-radius:99px;background:var(--surface);overflow:hidden}
+.ls-bar i{display:block;height:100%;width:30%;background:var(--grad);border-radius:99px;
+  animation:lsSlide 1.2s ease-in-out infinite}
+.ls-sub{font-size:13px;color:var(--muted);margin-top:8px;animation:lsFade 2s ease-in-out infinite}
+@keyframes lsPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes lsSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes lsSlide{0%{transform:translateX(-100%)}100%{transform:translateX(400%)}}
+@keyframes lsFade{0%,100%{opacity:1}50%{opacity:.5}}
 </style>
 </head>
 <body>
+<!-- LOADING SCREEN -->
+<div id="loadingScreen">
+  <div class="ls-logo">
+    <span class="gem"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+    <span class="txt">AUR<em>UM</em></span>
+  </div>
+  <div class="ls-bar"><i></i></div>
+  <div class="ls-sub">Yuklanmoqda...</div>
+</div>
+
 <canvas id="fx"></canvas>
 <div id="aurora"></div>
 
@@ -2591,15 +2620,21 @@ function handleDeepLink(){
 (async function boot(){
   applyTheme(S.theme,false);
   if(window.APP_CONFIG.API_URL){ // skeleton — kontent kelgunicha premium loading holati
-    $('#videoGrid').innerHTML=Array(8).fill(`<div><div class="sk skl-thumb"></div><div class="sk skl-line w85"></div><div class="sk skl-line w60"></div></div>`).join('');
-    $('#heroTrack').innerHTML=`<div class="sk" style="flex:0 0 min(88%,560px);min-height:clamp(186px,52vw,250px);border-radius:20px"></div>`;
+    $(‘#videoGrid’).innerHTML=Array(8).fill(`<div><div class="sk skl-thumb"></div><div class="sk skl-line w85"></div><div class="sk skl-line w60"></div></div>`).join(‘’);
+    $(‘#heroTrack’).innerHTML=`<div class="sk" style="flex:0 0 min(88%,560px);min-height:clamp(186px,52vw,250px);border-radius:20px"></div>`;
   }
   renderHome(); renderNews(); renderFav(); renderProfile(); renderStats(); renderSearch();
   moveSlider();
-  await tgInit();               // Telegram bo‘lsa — uid shu yerda tg<id> ga aylanadi
+  await tgInit();               // Telegram bo’lsa — uid shu yerda tg<id> ga aylanadi
   await loadRemote();
   renderHome(); renderNews(); renderFav(); renderStats(); renderSearch();
-  if(!handleDeepLink() && location.search) history.replaceState(null,'',location.pathname+location.hash);
+  if(!handleDeepLink() && location.search) history.replaceState(null,’’,location.pathname+location.hash);
+  
+  // Loading screen ni yopish - barcha yuklash tugagandan keyin
+  setTimeout(()=>{
+    const ls = $(‘#loadingScreen’);
+    if(ls) ls.classList.add(‘hide’);
+  }, 800); // 800ms kutib, chiroyli fade-out
 })();
 /* hero auto-rotate */
 setInterval(()=>{
