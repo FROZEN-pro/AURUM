@@ -34,7 +34,9 @@ var SCHEMA = {
   Likes:         ['id','videoId','userId','ts'],
   Comments:      ['id','videoId','userId','name','text','ts','likes'],
   CommentLikes:  ['id','commentId','userId','ts'],
-  Views:         ['id','itemId','userId','ts']
+  Views:         ['id','itemId','userId','ts'],
+  Devices:       ['id','userId','deviceName','platform','lastSeen','active'],
+  Messages:      ['id','fromId','toId','text','type','mediaUrl','ts','read']
 };
 // Jadval sarlavhasi SCHEMA'dan farq qilsa (eski versiya yaratgan bo'lsa),
 // yetishmayotgan ustunlar oxiriga qo'shiladi — mavjud ma'lumot buzilmaydi.

@@ -949,12 +949,15 @@ html,body{max-width:100%}
         <div class="stat"><b id="stTheme">0</b><span>TEMA</span></div>
       </div>
       <div class="rows">
-        <div class="row" id="rowTheme"><span class="ic">🎨</span> Temalar do‘koni <span class="chev">›</span></div>
+        <div class="row" id="rowTheme"><span class="ic">🎨</span> Temalar do’koni <span class="chev">›</span></div>
         <div class="row" id="rowNotif"><span class="ic">🔔</span> Bildirishnomalar <span class="switch on" id="swNotif"></span></div>
         <div class="row" id="rowMotion"><span class="ic">✨</span> Animatsiyalar <span class="switch on" id="swMotion"></span></div>
         <div class="row" id="rowHd"><span class="ic">📶</span> Faqat Wi-Fi’da HD <span class="switch" id="swHd"></span></div>
+        <div class="row" id="rowDevices"><span class="ic">📱</span> Qurilmalarim <span class="chev">›</span></div>
+        <div class="row" id="rowSupport"><span class="ic">💬</span> Qo’llab-quvvatlash <span class="chev">›</span></div>
+        <div class="row" id="rowHistory"><span class="ic">🗑️</span> Tomosha tarixini tozalash <span class="chev">›</span></div>
         <div class="row" id="rowAdmin"><span class="ic">🛡️</span> Admin boshqaruv paneli <span class="chev">›</span></div>
-        <div class="row" id="rowShare"><span class="ic">📤</span> Do‘stlarga ulashish <span class="chev">›</span></div>
+        <div class="row" id="rowShare"><span class="ic">📤</span> Do’stlarga ulashish <span class="chev">›</span></div>
         <div class="row" id="rowReset"><span class="ic">🧹</span> Ma’lumotlarni tozalash <span class="chev">›</span></div>
       </div>
     </section>
@@ -1080,6 +1083,35 @@ html,body{max-width:100%}
     <p class="hint" id="shHint">AURUM</p>
     <div class="sh-list" id="shList"></div>
     <div class="sh-link"><span id="shUrl"></span><button id="shCopy" type="button">Nusxa</button></div>
+    <button class="btn ghost" data-close style="margin-top:14px">Yopish</button>
+  </div>
+</div>
+
+<!-- ============ SUPPORT CHAT SHEET ============ -->
+<div class="sheet" id="supportSheet">
+  <div class="veil" data-close></div>
+  <div class="panel" style="max-height:92dvh">
+    <div class="grab"></div>
+    <h2>💬 Qo'llab-quvvatlash</h2>
+    <p class="hint">Admin bilan bog'laning. Tezkor javob olish uchun @Hayotiy_davom ga Telegram orqali ham murojat qilishingiz mumkin.</p>
+    <div class="cmt-list" id="supportList" style="margin-top:12px;max-height:50dvh;overflow-y:auto"></div>
+    <div class="cmt-add" id="supportAdd">
+      <span class="ava" id="supportAva">A</span>
+      <textarea class="field" id="supportText" placeholder="Xabar yozing…" maxlength="900" rows="1"></textarea>
+      <button class="cmt-send" id="supportSend" type="button" disabled>➤</button>
+    </div>
+    <button class="btn ghost" data-close style="margin-top:12px">Yopish</button>
+  </div>
+</div>
+
+<!-- ============ DEVICES SHEET ============ -->
+<div class="sheet" id="devicesSheet">
+  <div class="veil" data-close></div>
+  <div class="panel">
+    <div class="grab"></div>
+    <h2>📱 Qurilmalarim</h2>
+    <p class="hint">Shu akkauntga kirgan barcha qurilmalar ro'yxati</p>
+    <div id="devicesList" style="margin-top:12px;display:grid;gap:10px"></div>
     <button class="btn ghost" data-close style="margin-top:14px">Yopish</button>
   </div>
 </div>
@@ -2284,12 +2316,124 @@ $('#rowAdmin').onclick=()=>{
   if(tg?.initData){ try{ sessionStorage.setItem('aurum.tgInit',tg.initData) }catch(e){} }
   location.href=window.APP_CONFIG.ADMIN_PANEL;
 };
-$('#rowReset').onclick=()=>{
-  if(confirm('Barcha lokal ma’lumotlar (fav, tarix, tema) o’chirilsinmi?')){
-    Object.keys(localStorage).filter(k=>k.startsWith('aurum.')).forEach(k=>localStorage.removeItem(k));
+$(‘#rowReset’).onclick=()=>{
+  if(confirm(‘Barcha lokal ma’lumotlar (fav, tarix, tema) o’chirilsinmi?’)){
+    Object.keys(localStorage).filter(k=>k.startsWith(‘aurum.’)).forEach(k=>localStorage.removeItem(k));
     location.reload();
   }
 };
+
+/* Yangi profile handlers */
+$(‘#rowDevices’).onclick=()=>{ renderDevices(); openSheet(‘#devicesSheet’); };
+$(‘#rowSupport’).onclick=()=>{ renderSupportChat(); openSheet(‘#supportSheet’); };
+$(‘#rowHistory’).onclick=()=>{ clearWatchHistory(); };
+
+/* Qurilmalar ro’yxati */
+function renderDevices(){
+  const list=$(‘#devicesList’);
+  const devices = JSON.parse(LS.get(‘devices’)||’[]’);
+  const currentDevice = {
+    name: navigator.userAgent.includes(‘Mobile’) ? ‘📱 Mobil qurilma’ : ‘💻 Kompyuter’,
+    platform: /iPhone|iPad|iPod/.test(navigator.userAgent) ? ‘iOS’ : 
+              /Android/.test(navigator.userAgent) ? ‘Android’ : 
+              /Windows/.test(navigator.userAgent) ? ‘Windows’ : 
+              /Mac/.test(navigator.userAgent) ? ‘macOS’ : ‘Boshqa’,
+    lastSeen: new Date().toLocaleString(‘uz-UZ’),
+    active: true
+  };
+  
+  // Agar bo’sh bo’lsa, hozirgi qurilmani qo’shamiz
+  if(!devices.length){
+    devices.push({...currentDevice, id: ‘dev_’ + Date.now()});
+    LS.set(‘devices’, JSON.stringify(devices));
+  }
+  
+  list.innerHTML = devices.map(d => `
+    <div class="row" style="padding:12px">
+      <span class="ic">${d.active ? ‘✅’ : ‘📱’}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:13px">${esc(d.name)}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${esc(d.platform)} · ${esc(d.lastSeen)}</div>
+      </div>
+      ${!d.active ? `<button class="copy-id" onclick="removeDevice(‘${d.id}’)" type="button">O’chirish</button>` : ‘<span class="pill">Hozirgi</span>’}
+    </div>
+  `).join(‘’);
+}
+
+function removeDevice(id){
+  let devices = JSON.parse(LS.get(‘devices’)||’[]’);
+  devices = devices.filter(d => d.id !== id);
+  LS.set(‘devices’, JSON.stringify(devices));
+  renderDevices();
+  toast(‘Qurilma o\’chirildi’,’🗑️’);
+}
+
+/* Qo’llab-quvvatlash chat */
+function renderSupportChat(){
+  const list=$(‘#supportList’);
+  const messages = JSON.parse(LS.get(‘supportMessages’)||’[]’);
+  
+  // Pre-filled info xabar
+  if(!messages.length){
+    messages.push({
+      id: ‘sys_1’,
+      fromId: ‘system’,
+      text: ‘Assalomu alaykum! Qo\’llab-quvvatlash xizmatiga xush kelibsiz. Savolingizni yozing, admin tezda javob beradi.\n\nTezkor aloqa uchun @Hayotiy_davom ga Telegram orqali ham murojat qilishingiz mumkin.’,
+      ts: Date.now(),
+      type: ‘system’
+    });
+    LS.set(‘supportMessages’, JSON.stringify(messages));
+  }
+  
+  list.innerHTML = messages.map(m => {
+    const isMe = m.fromId === S.uid;
+    const isSys = m.fromId === ‘system’;
+    return `
+      <div class="cmt" style="${isSys ? ‘background:color-mix(in srgb,var(--accent) 8%,var(--surface))’ : ‘’}">
+        <div class="cw">
+          <div class="cn">${isSys ? ‘🤖 Tizim’ : (isMe ? ‘Siz’ : ‘Admin’)} <small>${timeAgo(m.ts)}</small></div>
+          <div class="cx">${esc(m.text)}</div>
+        </div>
+      </div>
+    `;
+  }).join(‘’);
+  
+  // Scroll to bottom
+  setTimeout(()=> list.scrollTop = list.scrollHeight, 50);
+  
+  // Setup send button
+  const text=$(‘#supportText’);
+  const send=$(‘#supportSend’);
+  text.oninput=()=>{ send.disabled=!text.value.trim(); send.classList.toggle(‘ready’,!!text.value.trim()); };
+  send.onclick=()=>{
+    if(!text.value.trim()) return;
+    messages.push({
+      id: ‘msg_’ + Date.now(),
+      fromId: S.uid,
+      text: text.value.trim(),
+      ts: Date.now(),
+      type: ‘text’
+    });
+    LS.set(‘supportMessages’, JSON.stringify(messages));
+    text.value=’’;
+    send.disabled=true;
+    send.classList.remove(‘ready’);
+    renderSupportChat();
+    
+    // Backend’ga yuborish (keyingi bosqichda)
+    toast(‘Xabar yuborildi’,’✓’);
+  };
+}
+
+/* Tomosha tarixini tozalash */
+function clearWatchHistory(){
+  if(!confirm(‘Tomosha qilingan videolar tarixi tozalansinmi?’)) return;
+  LS.remove(‘watchHistory’);
+  LS.remove(‘views’);
+  S.views = {};
+  renderStats();
+  toast(‘Tarix tozalandi’,’🧹’);
+}
 
 /* ============================ TELEGRAM WEBAPP (avtomatik kirish) ============================ */
 async function tgInit(){
