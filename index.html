@@ -870,7 +870,7 @@ html,body{max-width:100%}
 <div id="loadingScreen">
   <div class="ls-logo">
     <span class="gem"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
-    <span class="txt">AUR<em>UM</em></span>
+    <span class="txt">IPLUS <em>MEDIA</em></span>
   </div>
   <div class="ls-bar"><i></i></div>
   <div class="ls-sub">Yuklanmoqda...</div>
@@ -885,7 +885,7 @@ html,body{max-width:100%}
     <header class="topbar">
       <div class="logo" id="logo">
         <span class="gem"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
-        AUR<em>UM</em>
+        IPLUS <em>MEDIA</em>
       </div>
       <label class="search" id="searchWrap">
         <span>🔍</span><input id="q" placeholder="Video, yangilik yoki YouTube link…" autocomplete="off"
@@ -2380,7 +2380,7 @@ bindSwitch($('#swHd'),'hd',()=>toast(S.hd?'HD faqat Wi-Fi’da 📶':'HD hamma j
 document.documentElement.dataset.motion=S.motion?'on':'off';
 $('#swMotion').classList.toggle('on',S.motion); $('#swNotif').classList.toggle('on',S.notif); $('#swHd').classList.toggle('on',S.hd);
 
-$(‘#rowShare’).onclick=()=>openShare(null,null,’IPLUS MEDIA — o’z olamingni tanla va streaming zavqini his et!’);
+$('#rowShare').onclick=()=>openShare(null,null,'IPLUS MEDIA — o’z olamingni tanla va streaming zavqini his et!');
 $('#rowAdmin').onclick=()=>{
   const tg=window.Telegram?.WebApp;
   if(tg?.initData){ try{ sessionStorage.setItem('aurum.tgInit',tg.initData) }catch(e){} }
