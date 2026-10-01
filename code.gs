@@ -25,7 +25,7 @@ function getSS_() {
   return ss;
 }
 var SCHEMA = {
-  Videos:        ['id','yt','title','cat','dur','views','featured','desc','status','createdAt','tags','live'],
+  Videos:        ['id','yt','title','cat','dur','views','featured','desc','status','createdAt','tags','live','seriesId','episode','season'],
   News:          ['id','title','cat','src','time','read','hot','emoji','body','status','createdAt','tags','reads'],
   Users:         ['id','tg','name','role','theme','sessions','last','status','createdAt'],
   Events:        ['ts','userId','event','itemId','theme','meta'],
@@ -452,7 +452,79 @@ function handleSocial_(d) {
   return json_({ ok: false, error: 'social op topilmadi' });
 }
 
-// ---------- Telegram WebApp initData tekshiruvi (HMAC-SHA256) ----------
+// ---------- SERIES & AUTO-ADVANCE ----------
+if (d.op === 'series.next') {
+  var currentId = d.currentId;
+  if (!currentId) return json_({ ok: false, error: 'currentId kerak' });
+  
+  // Hozirgi videoni topish
+  var currentVideo = findRow_('Videos', 'id', currentId);
+  if (!currentVideo) return json_({ ok: false, error: 'video topilmadi' });
+  
+  var seriesId = currentVideo.seriesId || '';
+  var season = +(currentVideo.season || 1);
+  var episode = +(currentVideo.episode || 1);
+  
+  if (!seriesId) {
+    return json_({ ok: true, next: null, message: 'Bu serial emas' });
+  }
+  
+  // Keyingi episodni topish
+  var allEpisodes = rows_('Videos').filter(function(v) {
+    return v.seriesId === seriesId && +v.season === season;
+  }).sort(function(a, b) {
+    return (+a.episode || 0) - (+b.episode || 0);
+  });
+  
+  var nextEpisode = null;
+  for (var i = 0; i < allEpisodes.length; i++) {
+    if (allEpisodes[i].id === currentId && i < allEpisodes.length - 1) {
+      nextEpisode = allEpisodes[i + 1];
+      break;
+    }
+  }
+  
+  return json_({ ok: true, next: nextEpisode, hasNext: !!nextEpisode });
+}
+
+// ---------- AD BANNER SETTINGS ----------
+if (d.op === 'ad.get') {
+  var adData = {
+    enabled: PROPS.getProperty('AD_ENABLED') === 'true',
+    imageUrl: PROPS.getProperty('AD_IMAGE_URL') || '',
+    linkUrl: PROPS.getProperty('AD_LINK_URL') || '',
+    title: PROPS.getProperty('AD_TITLE') || ''
+  };
+  return json_({ ok: true, ad: adData });
+}
+
+if (d.op === 'ad.set' && d.isAdmin) {
+  PROPS.setProperty('AD_ENABLED', d.enabled ? 'true' : 'false');
+  if (d.imageUrl) PROPS.setProperty('AD_IMAGE_URL', trim_(d.imageUrl, 500));
+  if (d.linkUrl) PROPS.setProperty('AD_LINK_URL', trim_(d.linkUrl, 500));
+  if (d.title) PROPS.setProperty('AD_TITLE', trim_(d.title, 200));
+  return json_({ ok: true });
+}
+
+// ---------- ADMIN: BOT CHANNEL/GROUP LINKING ----------
+if (d.op === 'bot.channels' && d.isAdmin) {
+  var channels = {
+    broadcastChat: PROPS.getProperty('BROADCAST_CHAT') || '',
+    ownerChat: PROPS.getProperty('OWNER_CHAT') || '',
+    supportGroup: PROPS.getProperty('SUPPORT_GROUP') || ''
+  };
+  return json_({ ok: true, channels: channels });
+}
+
+if (d.op === 'bot.setChannel' && d.isAdmin) {
+  if (d.key === 'broadcast') PROPS.setProperty('BROADCAST_CHAT', String(d.chatId));
+  else if (d.key === 'owner') PROPS.setProperty('OWNER_CHAT', String(d.chatId));
+  else if (d.key === 'support') PROPS.setProperty('SUPPORT_GROUP', String(d.chatId));
+  else return json_({ ok: false, error: 'noto\'g\'ri key' });
+  return json_({ ok: true });
+}
+
+// ---------- Telegram broadcast ----------
 function handleAuth_(d) {
   var token = PROPS.getProperty('BOT_TOKEN');
   if (!token) return json_({ ok: false, error: 'BOT_TOKEN sozlanmagan' });
