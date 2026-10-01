@@ -1961,7 +1961,7 @@ async function ytEnsure(vid,startAt){
       videoId:vid,
       /* YouTube’ning o’z interfeysi butunlay yashiriladi — faqat AURUM boshqaruvi */
       playerVars:{controls:0,disablekb:1,modestbranding:1,rel:0,iv_load_policy:3,playsinline:1,
-        fs:0,hl:’uz’,color:’white’,cc_load_policy:0,annotations:0,showinfo:0,autohide:1,
+        fs:0,hl:'uz',color:'white',cc_load_policy:0,annotations:0,showinfo:0,autohide:1,
         origin:location.origin,widget_referrer:location.origin},
       events:{
         onReady:()=>{ pl$('plSpin').style.opacity=0; yt.setPlaybackRate(SPEEDS[speedIx]); yt.playVideo(); attachCatch(); },
@@ -2345,158 +2345,158 @@ $('#rowAdmin').onclick=()=>{
   if(tg?.initData){ try{ sessionStorage.setItem('aurum.tgInit',tg.initData) }catch(e){} }
   location.href=window.APP_CONFIG.ADMIN_PANEL;
 };
-$(‘#rowReset’).onclick=()=>{
-  if(confirm(‘Barcha lokal ma’lumotlar (fav, tarix, tema) o’chirilsinmi?’)){
-    Object.keys(localStorage).filter(k=>k.startsWith(‘aurum.’)).forEach(k=>localStorage.removeItem(k));
+$('#rowReset').onclick=()=>{
+  if(confirm('Barcha lokal ma\'lumotlar (fav, tarix, tema) o\'chirilsinmi?')){
+    Object.keys(localStorage).filter(k=>k.startsWith('aurum.')).forEach(k=>localStorage.removeItem(k));
     location.reload();
   }
 };
 
 /* Yangi profile handlers */
-$(‘#rowDevices’).onclick=()=>{ renderDevices(); openSheet(‘#devicesSheet’); };
-$(‘#rowSupport’).onclick=()=>{ renderSupportChat(); openSheet(‘#supportSheet’); };
-$(‘#rowHistory’).onclick=()=>{ clearWatchHistory(); };
+$('#rowDevices').onclick=()=>{ renderDevices(); openSheet('#devicesSheet'); };
+$('#rowSupport').onclick=()=>{ renderSupportChat(); openSheet('#supportSheet'); };
+$('#rowHistory').onclick=()=>{ clearWatchHistory(); };
 
 /* Qurilmalar ro’yxati */
 function renderDevices(){
-  const list=$(‘#devicesList’);
-  const devices = JSON.parse(LS.get(‘devices’)||’[]’);
+  const list=$('#devicesList');
+  const devices = JSON.parse(LS.get('devices')||'[]');
   const currentDevice = {
-    name: navigator.userAgent.includes(‘Mobile’) ? ‘📱 Mobil qurilma’ : ‘💻 Kompyuter’,
-    platform: /iPhone|iPad|iPod/.test(navigator.userAgent) ? ‘iOS’ : 
-              /Android/.test(navigator.userAgent) ? ‘Android’ : 
-              /Windows/.test(navigator.userAgent) ? ‘Windows’ : 
-              /Mac/.test(navigator.userAgent) ? ‘macOS’ : ‘Boshqa’,
-    lastSeen: new Date().toLocaleString(‘uz-UZ’),
+    name: navigator.userAgent.includes('Mobile') ? '📱 Mobil qurilma' : '💻 Kompyuter',
+    platform: /iPhone|iPad|iPod/.test(navigator.userAgent) ? 'iOS' : 
+              /Android/.test(navigator.userAgent) ? 'Android' : 
+              /Windows/.test(navigator.userAgent) ? 'Windows' : 
+              /Mac/.test(navigator.userAgent) ? 'macOS' : 'Boshqa',
+    lastSeen: new Date().toLocaleString('uz-UZ'),
     active: true
   };
   
   // Agar bo’sh bo’lsa, hozirgi qurilmani qo’shamiz
   if(!devices.length){
-    devices.push({...currentDevice, id: ‘dev_’ + Date.now()});
-    LS.set(‘devices’, JSON.stringify(devices));
+    devices.push({...currentDevice, id: 'dev_' + Date.now()});
+    LS.set('devices', JSON.stringify(devices));
   }
   
   list.innerHTML = devices.map(d => `
     <div class="row" style="padding:12px">
-      <span class="ic">${d.active ? ‘✅’ : ‘📱’}</span>
+      <span class="ic">${d.active ? '✅' : '📱'}</span>
       <div style="flex:1;min-width:0">
         <div style="font-weight:600;font-size:13px">${esc(d.name)}</div>
         <div style="font-size:11px;color:var(--muted);margin-top:2px">${esc(d.platform)} · ${esc(d.lastSeen)}</div>
       </div>
-      ${!d.active ? `<button class="copy-id" onclick="removeDevice(‘${d.id}’)" type="button">O’chirish</button>` : ‘<span class="pill">Hozirgi</span>’}
+      ${!d.active ? `<button class="copy-id" onclick="removeDevice('${d.id}')" type="button">O’chirish</button>` : '<span class="pill">Hozirgi</span>'}
     </div>
-  `).join(‘’);
+  `).join('');
 }
 
 function removeDevice(id){
-  let devices = JSON.parse(LS.get(‘devices’)||’[]’);
+  let devices = JSON.parse(LS.get('devices')||'[]');
   devices = devices.filter(d => d.id !== id);
-  LS.set(‘devices’, JSON.stringify(devices));
+  LS.set('devices', JSON.stringify(devices));
   renderDevices();
-  toast(‘Qurilma o\’chirildi’,’🗑️’);
+  toast('Qurilma o\’chirildi','🗑️');
 }
 
 /* Qo’llab-quvvatlash chat */
 let supportPollTimer = null;
 
 async function renderSupportChat(){
-  const list=$(‘#supportList’);
+  const list=$('#supportList');
   
   // Loading holati
   if(!list.dataset.loaded){
-    list.innerHTML = ‘<div class="cmt-empty">Yuklanmoqda...</div>’;
+    list.innerHTML = '<div class="cmt-empty">Yuklanmoqda...</div>';
   }
   
   // Backend’dan xabarlarni olish
   try {
     const r = await fetch(APP_CONFIG.API_URL, {
-      method: ‘POST’,
-      body: JSON.stringify({ action: ‘social’, op: ‘support.list’, uid: S.uid })
+      method: 'POST',
+      body: JSON.stringify({ action: 'social', op: 'support.list', uid: S.uid })
     });
     const j = await r.json();
     
     if(j.ok && j.messages){
       renderSupportMessages(j.messages);
-      list.dataset.loaded = ‘1’;
+      list.dataset.loaded = '1';
       
       // Har 5 soniyada yangi xabarlar uchun polling
       if(supportPollTimer) clearInterval(supportPollTimer);
       supportPollTimer = setInterval(fetchNewMessages, 5000);
     } else {
-      throw new Error(‘No messages’);
+      throw new Error('No messages');
     }
   } catch(e) {
-    console.warn(‘renderSupportChat’, e);
+    console.warn('renderSupportChat', e);
     // Fallback: localStorage’dan o’qish
-    const local = JSON.parse(LS.get(‘supportMessages’)||’[]’);
+    const local = JSON.parse(LS.get('supportMessages')||'[]');
     if(local.length){
       renderSupportMessages(local);
     } else {
       // Default welcome message
       renderSupportMessages([{
-        id: ‘sys_1’,
-        fromId: ‘system’,
-        text: ‘Assalomu alaykum! Qo\’llab-quvvatlash xizmatiga xush kelibsiz. Savolingizni yozing, admin tezda javob beradi.\n\nTezkor aloqa uchun @Hayotiy_davom ga Telegram orqali ham murojat qilishingiz mumkin.’,
+        id: 'sys_1',
+        fromId: 'system',
+        text: 'Assalomu alaykum! Qo\’llab-quvvatlash xizmatiga xush kelibsiz. Savolingizni yozing, admin tezda javob beradi.\n\nTezkor aloqa uchun @Hayotiy_davom ga Telegram orqali ham murojat qilishingiz mumkin.',
         ts: Date.now(),
-        type: ‘system’
+        type: 'system'
       }]);
     }
   }
   
   // Setup send button
-  const text=$(‘#supportText’);
-  const send=$(‘#supportSend’);
-  text.oninput=()=>{ send.disabled=!text.value.trim(); send.classList.toggle(‘ready’,!!text.value.trim()); };
+  const text=$('#supportText');
+  const send=$('#supportSend');
+  text.oninput=()=>{ send.disabled=!text.value.trim(); send.classList.toggle('ready',!!text.value.trim()); };
   send.onclick=sendSupportMessage;
 }
 
 function renderSupportMessages(messages){
-  const list=$(‘#supportList’);
+  const list=$('#supportList');
   
   list.innerHTML = messages.map(m => {
     const isMe = m.fromId === S.uid;
-    const isSys = m.fromId === ‘system’;
+    const isSys = m.fromId === 'system';
     const isAdmin = !isMe && !isSys;
     return `
-      <div class="cmt" style="${isSys ? ‘background:color-mix(in srgb,var(--accent) 8%,var(--surface))’ : ‘’}">
+      <div class="cmt" style="${isSys ? 'background:color-mix(in srgb,var(--accent) 8%,var(--surface))' : ''}">
         <div class="cw">
-          <div class="cn">${isSys ? ‘🤖 Tizim’ : (isMe ? ‘Siz’ : ‘Admin’)} <small>${timeAgo(+m.ts)}</small></div>
-          <div class="cx">${esc(m.text)}${m.mediaUrl ? `<br><a href="${esc(m.mediaUrl)}" target="_blank">📎 Fayl</a>` : ‘’}</div>
+          <div class="cn">${isSys ? '🤖 Tizim' : (isMe ? 'Siz' : 'Admin')} <small>${timeAgo(+m.ts)}</small></div>
+          <div class="cx">${esc(m.text)}${m.mediaUrl ? `<br><a href="${esc(m.mediaUrl)}" target="_blank">📎 Fayl</a>` : ''}</div>
         </div>
       </div>
     `;
-  }).join(‘’);
+  }).join('');
   
   setTimeout(()=> list.scrollTop = list.scrollHeight, 50);
 }
 
 async function sendSupportMessage(){
-  const text=$(‘#supportText’);
-  const send=$(‘#supportSend’);
+  const text=$('#supportText');
+  const send=$('#supportSend');
   if(!text.value.trim()) return;
   
   send.disabled = true;
-  send.textContent = ‘...’;
+  send.textContent = '...';
   
   try {
     const r = await fetch(APP_CONFIG.API_URL, {
-      method: ‘POST’,
+      method: 'POST',
       body: JSON.stringify({
-        action: ‘social’,
-        op: ‘support.send’,
+        action: 'social',
+        op: 'support.send',
         uid: S.uid,
         text: text.value.trim(),
-        type: ‘text’
+        type: 'text'
       })
     });
     const j = await r.json();
     
     if(j.ok){
-      text.value = ‘’;
+      text.value = '';
       send.disabled = true;
-      send.classList.remove(‘ready’);
-      toast(‘Xabar yuborildi’,’✓’);
+      send.classList.remove('ready');
+      toast('Xabar yuborildi','✓');
       
       // Darhol ro’yxatni yangilash
       setTimeout(renderSupportChat, 500);
@@ -2504,11 +2504,11 @@ async function sendSupportMessage(){
       throw new Error(j.error);
     }
   } catch(e) {
-    console.error(‘sendSupportMessage’, e);
-    toast(‘Xabar yuborilmadi’,’❌’);
+    console.error('sendSupportMessage', e);
+    toast('Xabar yuborilmadi','❌');
     send.disabled = false;
   } finally {
-    send.textContent = ‘➤’;
+    send.textContent = '➤';
   }
 }
 
@@ -2516,8 +2516,8 @@ async function fetchNewMessages(){
   if(document.hidden) return;
   try {
     const r = await fetch(APP_CONFIG.API_URL, {
-      method: ‘POST’,
-      body: JSON.stringify({ action: ‘social’, op: ‘support.list’, uid: S.uid })
+      method: 'POST',
+      body: JSON.stringify({ action: 'social', op: 'support.list', uid: S.uid })
     });
     const j = await r.json();
     if(j.ok && j.messages.length){
@@ -2527,8 +2527,8 @@ async function fetchNewMessages(){
 }
 
 // Sheet yopilganda polling’ni to’xtatish
-document.querySelectorAll(‘[data-close]’).forEach(el => {
-  el.addEventListener(‘click’, () => {
+document.querySelectorAll('[data-close]').forEach(el => {
+  el.addEventListener('click', () => {
     if(supportPollTimer){
       clearInterval(supportPollTimer);
       supportPollTimer = null;
@@ -2538,12 +2538,12 @@ document.querySelectorAll(‘[data-close]’).forEach(el => {
 
 /* Tomosha tarixini tozalash */
 function clearWatchHistory(){
-  if(!confirm(‘Tomosha qilingan videolar tarixi tozalansinmi?’)) return;
-  LS.remove(‘watchHistory’);
-  LS.remove(‘views’);
+  if(!confirm('Tomosha qilingan videolar tarixi tozalansinmi?')) return;
+  LS.remove('watchHistory');
+  LS.remove('views');
   S.views = {};
   renderStats();
-  toast(‘Tarix tozalandi’,’🧹’);
+  toast('Tarix tozalandi','🧹');
 }
 
 /* ============================ TELEGRAM WEBAPP (avtomatik kirish) ============================ */
@@ -2620,32 +2620,32 @@ function handleDeepLink(){
 (async function boot(){
   applyTheme(S.theme,false);
   if(window.APP_CONFIG.API_URL){ // skeleton — kontent kelgunicha premium loading holati
-    $(‘#videoGrid’).innerHTML=Array(8).fill(`<div><div class="sk skl-thumb"></div><div class="sk skl-line w85"></div><div class="sk skl-line w60"></div></div>`).join(‘’);
-    $(‘#heroTrack’).innerHTML=`<div class="sk" style="flex:0 0 min(88%,560px);min-height:clamp(186px,52vw,250px);border-radius:20px"></div>`;
+    $('#videoGrid').innerHTML=Array(8).fill(`<div><div class="sk skl-thumb"></div><div class="sk skl-line w85"></div><div class="sk skl-line w60"></div></div>`).join('');
+    $('#heroTrack').innerHTML=`<div class="sk" style="flex:0 0 min(88%,560px);min-height:clamp(186px,52vw,250px);border-radius:20px"></div>`;
   }
   renderHome(); renderNews(); renderFav(); renderProfile(); renderStats(); renderSearch();
   moveSlider();
   
   // Loading screen timeout - maksimal 5 soniya
   const loadingTimeout = setTimeout(()=>{
-    console.warn(‘Loading timeout - forcing hide’);
-    const ls = $(‘#loadingScreen’);
-    if(ls) ls.classList.add(‘hide’);
+    console.warn('Loading timeout - forcing hide');
+    const ls = $('#loadingScreen');
+    if(ls) ls.classList.add('hide');
   }, 5000);
   
   try {
     await tgInit();               // Telegram bo’lsa — uid shu yerda tg<id> ga aylanadi
     await loadRemote();
     renderHome(); renderNews(); renderFav(); renderStats(); renderSearch();
-    if(!handleDeepLink() && location.search) history.replaceState(null,’’,location.pathname+location.hash);
+    if(!handleDeepLink() && location.search) history.replaceState(null,'',location.pathname+location.hash);
   } catch(e) {
-    console.error(‘Boot error:’, e);
+    console.error('Boot error:', e);
   } finally {
     clearTimeout(loadingTimeout);
     // Loading screen ni yopish - barcha yuklash tugagandan keyin
     setTimeout(()=>{
-      const ls = $(‘#loadingScreen’);
-      if(ls) ls.classList.add(‘hide’);
+      const ls = $('#loadingScreen');
+      if(ls) ls.classList.add('hide');
     }, 300);
   }
 })();
