@@ -1,4 +1,4 @@
-// AURUM · Google Apps Script Backend v2.4
+// AURUM · Google Apps Script Backend v2.9
 // index.html va admin.html shu fayl bilan ishlaydi.
 // Script Properties: ADMIN_TOKEN, BOT_TOKEN, BROADCAST_CHAT,
 //                  OWNER_CHAT, APP_URL, SHEET_ID
@@ -179,7 +179,7 @@ function doGet(e) {
   var me = (e && e.parameter && e.parameter.uid) || '';
   try {
     if (a === 'bootstrap') return json_(bootstrap_(me));
-    if (a === 'ping') return json_({ ok: true, name: 'AURUM backend v2.4', sheets: getSS_().getName(), t: Date.now() });
+    if (a === 'ping') return json_({ ok: true, name: 'AURUM backend v2.9', sheets: getSS_().getName(), t: Date.now() });
     return json_({ ok: false, error: 'noma\u2019lum action: ' + a });
   } catch (err) { return json_({ ok: false, error: String(err) }); }
 }
@@ -446,82 +446,80 @@ function handleSocial_(d) {
       }
     });
   }
-    return json_({ ok: true, id: rid });
+
+  // ---------- SERIES & AUTO-ADVANCE ----------
+  if (d.op === 'series.next') {
+    var currentId = d.currentId;
+    if (!currentId) return json_({ ok: false, error: 'currentId kerak' });
+  
+    // Hozirgi videoni topish
+    var currentVideo = findRow_('Videos', 'id', currentId);
+    if (!currentVideo) return json_({ ok: false, error: 'video topilmadi' });
+  
+    var seriesId = currentVideo.seriesId || '';
+    var season = +(currentVideo.season || 1);
+    var episode = +(currentVideo.episode || 1);
+  
+    if (!seriesId) {
+      return json_({ ok: true, next: null, message: 'Bu serial emas' });
+    }
+  
+    // Keyingi episodni topish
+    var allEpisodes = rows_('Videos').filter(function(v) {
+      return v.seriesId === seriesId && +v.season === season;
+    }).sort(function(a, b) {
+      return (+a.episode || 0) - (+b.episode || 0);
+    });
+  
+    var nextEpisode = null;
+    for (var i = 0; i < allEpisodes.length; i++) {
+      if (allEpisodes[i].id === currentId && i < allEpisodes.length - 1) {
+        nextEpisode = allEpisodes[i + 1];
+        break;
+      }
+    }
+  
+    return json_({ ok: true, next: nextEpisode, hasNext: !!nextEpisode });
+  }
+
+  // ---------- AD BANNER SETTINGS ----------
+  if (d.op === 'ad.get') {
+    var adData = {
+      enabled: PROPS.getProperty('AD_ENABLED') === 'true',
+      imageUrl: PROPS.getProperty('AD_IMAGE_URL') || '',
+      linkUrl: PROPS.getProperty('AD_LINK_URL') || '',
+      title: PROPS.getProperty('AD_TITLE') || ''
+    };
+    return json_({ ok: true, ad: adData });
+  }
+
+  if (d.op === 'ad.set' && d.isAdmin) {
+    PROPS.setProperty('AD_ENABLED', d.enabled ? 'true' : 'false');
+    if (d.imageUrl) PROPS.setProperty('AD_IMAGE_URL', trim_(d.imageUrl, 500));
+    if (d.linkUrl) PROPS.setProperty('AD_LINK_URL', trim_(d.linkUrl, 500));
+    if (d.title) PROPS.setProperty('AD_TITLE', trim_(d.title, 200));
+    return json_({ ok: true });
+  }
+
+  // ---------- ADMIN: BOT CHANNEL/GROUP LINKING ----------
+  if (d.op === 'bot.channels' && d.isAdmin) {
+    var channels = {
+      broadcastChat: PROPS.getProperty('BROADCAST_CHAT') || '',
+      ownerChat: PROPS.getProperty('OWNER_CHAT') || '',
+      supportGroup: PROPS.getProperty('SUPPORT_GROUP') || ''
+    };
+    return json_({ ok: true, channels: channels });
+  }
+
+  if (d.op === 'bot.setChannel' && d.isAdmin) {
+    if (d.key === 'broadcast') PROPS.setProperty('BROADCAST_CHAT', String(d.chatId));
+    else if (d.key === 'owner') PROPS.setProperty('OWNER_CHAT', String(d.chatId));
+    else if (d.key === 'support') PROPS.setProperty('SUPPORT_GROUP', String(d.chatId));
+    else return json_({ ok: false, error: 'noto\'g\'ri key' });
+    return json_({ ok: true });
   }
 
   return json_({ ok: false, error: 'social op topilmadi' });
-}
-
-// ---------- SERIES & AUTO-ADVANCE ----------
-if (d.op === 'series.next') {
-  var currentId = d.currentId;
-  if (!currentId) return json_({ ok: false, error: 'currentId kerak' });
-  
-  // Hozirgi videoni topish
-  var currentVideo = findRow_('Videos', 'id', currentId);
-  if (!currentVideo) return json_({ ok: false, error: 'video topilmadi' });
-  
-  var seriesId = currentVideo.seriesId || '';
-  var season = +(currentVideo.season || 1);
-  var episode = +(currentVideo.episode || 1);
-  
-  if (!seriesId) {
-    return json_({ ok: true, next: null, message: 'Bu serial emas' });
-  }
-  
-  // Keyingi episodni topish
-  var allEpisodes = rows_('Videos').filter(function(v) {
-    return v.seriesId === seriesId && +v.season === season;
-  }).sort(function(a, b) {
-    return (+a.episode || 0) - (+b.episode || 0);
-  });
-  
-  var nextEpisode = null;
-  for (var i = 0; i < allEpisodes.length; i++) {
-    if (allEpisodes[i].id === currentId && i < allEpisodes.length - 1) {
-      nextEpisode = allEpisodes[i + 1];
-      break;
-    }
-  }
-  
-  return json_({ ok: true, next: nextEpisode, hasNext: !!nextEpisode });
-}
-
-// ---------- AD BANNER SETTINGS ----------
-if (d.op === 'ad.get') {
-  var adData = {
-    enabled: PROPS.getProperty('AD_ENABLED') === 'true',
-    imageUrl: PROPS.getProperty('AD_IMAGE_URL') || '',
-    linkUrl: PROPS.getProperty('AD_LINK_URL') || '',
-    title: PROPS.getProperty('AD_TITLE') || ''
-  };
-  return json_({ ok: true, ad: adData });
-}
-
-if (d.op === 'ad.set' && d.isAdmin) {
-  PROPS.setProperty('AD_ENABLED', d.enabled ? 'true' : 'false');
-  if (d.imageUrl) PROPS.setProperty('AD_IMAGE_URL', trim_(d.imageUrl, 500));
-  if (d.linkUrl) PROPS.setProperty('AD_LINK_URL', trim_(d.linkUrl, 500));
-  if (d.title) PROPS.setProperty('AD_TITLE', trim_(d.title, 200));
-  return json_({ ok: true });
-}
-
-// ---------- ADMIN: BOT CHANNEL/GROUP LINKING ----------
-if (d.op === 'bot.channels' && d.isAdmin) {
-  var channels = {
-    broadcastChat: PROPS.getProperty('BROADCAST_CHAT') || '',
-    ownerChat: PROPS.getProperty('OWNER_CHAT') || '',
-    supportGroup: PROPS.getProperty('SUPPORT_GROUP') || ''
-  };
-  return json_({ ok: true, channels: channels });
-}
-
-if (d.op === 'bot.setChannel' && d.isAdmin) {
-  if (d.key === 'broadcast') PROPS.setProperty('BROADCAST_CHAT', String(d.chatId));
-  else if (d.key === 'owner') PROPS.setProperty('OWNER_CHAT', String(d.chatId));
-  else if (d.key === 'support') PROPS.setProperty('SUPPORT_GROUP', String(d.chatId));
-  else return json_({ ok: false, error: 'noto\'g\'ri key' });
-  return json_({ ok: true });
 }
 
 // ---------- Telegram broadcast ----------
@@ -639,7 +637,7 @@ function adminAuth_(d) {
 function handleAdmin_(d) {
   if (!adminAuth_(d)) return json_({ ok: false, error: 'unauthorized' });
   switch (d.op) {
-    case 'ping':  return json_({ ok: true, t: Date.now(), version: 'v2.4' });
+    case 'ping':  return json_({ ok: true, t: Date.now(), version: 'v2.9' });
     case 'pull':  return json_({ ok: true, data: { videos: rows_('Videos'), news: rows_('News'),
                           users: users_(), events: rows_('Events').slice(-3000),
                           announcements: rows_('Announcements'), likes: rows_('Likes'),
@@ -691,7 +689,7 @@ function doctor_() {
   });
   var props = ['ADMIN_TOKEN','BOT_TOKEN','SHEET_ID','BROADCAST_CHAT','OWNER_CHAT','APP_URL'];
   return {
-    version: 'v2.4',
+    version: 'v2.9',
     ssId: getSS_().getId(),
     ssName: getSS_().getName(),
     ssUrl: getSS_().getUrl(),
@@ -805,5 +803,5 @@ function escHtml_(s) {
 function setup() {
   var ss = getSS_();
   Object.keys(SCHEMA).forEach(sheet_);
-  Logger.log('AURUM backend v2.4 tayyor. Sheet: ' + ss.getUrl());
+  Logger.log('AURUM backend v2.9 tayyor. Sheet: ' + ss.getUrl());
 }
