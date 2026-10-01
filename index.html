@@ -2625,16 +2625,29 @@ function handleDeepLink(){
   }
   renderHome(); renderNews(); renderFav(); renderProfile(); renderStats(); renderSearch();
   moveSlider();
-  await tgInit();               // Telegram bo’lsa — uid shu yerda tg<id> ga aylanadi
-  await loadRemote();
-  renderHome(); renderNews(); renderFav(); renderStats(); renderSearch();
-  if(!handleDeepLink() && location.search) history.replaceState(null,’’,location.pathname+location.hash);
   
-  // Loading screen ni yopish - barcha yuklash tugagandan keyin
-  setTimeout(()=>{
+  // Loading screen timeout - maksimal 5 soniya
+  const loadingTimeout = setTimeout(()=>{
+    console.warn(‘Loading timeout - forcing hide’);
     const ls = $(‘#loadingScreen’);
     if(ls) ls.classList.add(‘hide’);
-  }, 800); // 800ms kutib, chiroyli fade-out
+  }, 5000);
+  
+  try {
+    await tgInit();               // Telegram bo’lsa — uid shu yerda tg<id> ga aylanadi
+    await loadRemote();
+    renderHome(); renderNews(); renderFav(); renderStats(); renderSearch();
+    if(!handleDeepLink() && location.search) history.replaceState(null,’’,location.pathname+location.hash);
+  } catch(e) {
+    console.error(‘Boot error:’, e);
+  } finally {
+    clearTimeout(loadingTimeout);
+    // Loading screen ni yopish - barcha yuklash tugagandan keyin
+    setTimeout(()=>{
+      const ls = $(‘#loadingScreen’);
+      if(ls) ls.classList.add(‘hide’);
+    }, 300);
+  }
 })();
 /* hero auto-rotate */
 setInterval(()=>{
