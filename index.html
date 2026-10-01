@@ -1969,7 +1969,7 @@ $('#noticeX').onclick=()=>{
   $('#noticeBar').hidden=true;
 };
 
-/* ============================ PLAYER — custom AURUM engine ============================ */
+/* ============================ PLAYER — custom IPLUS MEDIA engine ============================ */
 let curVideo=null, yt=null, ytApiP=null, plTick=null, ctlIdle=null, lastVol=100;
 const SPEEDS=[0.5,0.75,1,1.25,1.5,1.75,2]; let speedIx=LS.get('speedIx',2);
 function ytApi(){
@@ -2380,7 +2380,7 @@ bindSwitch($('#swHd'),'hd',()=>toast(S.hd?'HD faqat Wi-Fi’da 📶':'HD hamma j
 document.documentElement.dataset.motion=S.motion?'on':'off';
 $('#swMotion').classList.toggle('on',S.motion); $('#swNotif').classList.toggle('on',S.notif); $('#swHd').classList.toggle('on',S.hd);
 
-$('#rowShare').onclick=()=>openShare(null,null,'AURUM — o‘z olamingni tanla va streaming zavqini his et!');
+$(‘#rowShare’).onclick=()=>openShare(null,null,’IPLUS MEDIA — o’z olamingni tanla va streaming zavqini his et!’);
 $('#rowAdmin').onclick=()=>{
   const tg=window.Telegram?.WebApp;
   if(tg?.initData){ try{ sessionStorage.setItem('aurum.tgInit',tg.initData) }catch(e){} }

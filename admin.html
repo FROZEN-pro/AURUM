@@ -995,7 +995,7 @@ async function runDoctor(){
   const j=await api('doctor');
   if(!j||!j.ok||!j.doctor){
     out.innerHTML=`<div class="doc-warn">Diagnostika ishlamadi: ${esc(j&&j.error||'backend javob bermadi')}.
-      Backend hali <b>v2.2</b> yoki eskiroq versiyada — code.gs v2.3 ni yangi versiya sifatida deploy qiling.</div>`;
+      Backend hali <b>v2.8</b> yoki eskiroq versiyada — code.gs v2.9 ni yangi versiya sifatida deploy qiling.</div>`;
     return;
   }
   const d=j.doctor;
@@ -1015,9 +1015,9 @@ async function runDoctor(){
         return `<tr><td class="mono">${esc(s.sheet)}</td><td>${fmt(s.rows)}</td>
           <td style="font-size:11px;color:var(--muted)" class="mono">${have.map(esc).join(' · ')||'—'}</td>
           <td>${s.ok?'<span class="badge b-ok">to‘g‘ri</span>'
-            :`<span class="badge b-x">yetishmaydi: ${need.map(esc).join(', ')}</span>`}</td></tr>`}).join('')}
+            :`<span class="badge b-x">yetishmaydi: ${need.map(esc).join(‘, ‘)}</span>`}</td></tr>`}).join(‘’)}
       </tbody></table></div>
-    <div class="hint">Sarlavhalar noto‘g‘ri bo‘lsa, v2.3 backend ustunlarni o‘zi qo‘shadi — «Yangilash» tugmasini bosing.</div>`;
+    <div class="hint">Sarlavhalar noto’g’ri bo’lsa, v2.9 backend ustunlarni o’zi qo’shadi — «Yangilash» tugmasini bosing.</div>`;
 }
 $('#docBtn').onclick=runDoctor;
 
@@ -1055,7 +1055,7 @@ $('#loginBtn').onclick=async()=>{
     localStorage.setItem('iplusmedia.admin.api',CFG.API_URL); localStorage.setItem('iplusmedia.admin.tok',CFG.TOKEN);
     $('#stApi2').value=CFG.API_URL; $('#stTok').value=CFG.TOKEN;
     await enter(); toast('Xush kelibsiz, Administrator','🛡️');
-    if(j.version!=='v2.3') verWarn('Backend <b>'+esc(j.version||'eski')+'</b> versiyada ishlayapti, kutilayotgani <b>v2.3</b>. Apps Script → Deploy → Manage deployments → «New version» qilib qayta deploy qiling — aks holda unikal ko‘rishlar, diagnostika va foydalanuvchilar bo‘limi ishlamaydi.');
+    if(j.version!=='v2.9') verWarn('Backend <b>'+esc(j.version||'eski')+'</b> versiyada ishlayapti, kutilayotgani <b>v2.9</b>. Apps Script → Deploy → Manage deployments → «New version» qilib qayta deploy qiling — aks holda unikal ko‘rishlar, diagnostika va foydalanuvchilar bo‘limi ishlamaydi.');
   }catch(e){ gateErr('Tarmoq xatosi: '+esc(e.message||e)); }
   finally{ $('#loginBtn').disabled=false; $('#loginBtn').textContent='🔐 Backendga ulanish →'; }
 };
