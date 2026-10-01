@@ -978,17 +978,14 @@ html,body{max-width:100%}
         <div class="stat"><b id="stTheme">0</b><span>TEMA</span></div>
       </div>
       <div class="rows">
-        <div class="row" id="rowTheme"><span class="ic">🎨</span> Temalar do’koni <span class="chev">›</span></div>
-        <div class="row" id="rowNotif"><span class="ic">🔔</span> Bildirishnomalar <span class="switch on" id="swNotif"></span></div>
-        <div class="row" id="rowMotion"><span class="ic">✨</span> Animatsiyalar <span class="switch on" id="swMotion"></span></div>
-        <div class="row" id="rowHd"><span class="ic">📶</span> Faqat Wi-Fi’da HD <span class="switch" id="swHd"></span></div>
-        <div class="row" id="rowDevices"><span class="ic">📱</span> Qurilmalarim <span class="chev">›</span></div>
-        <div class="row" id="rowSupport"><span class="ic">💬</span> Qo’llab-quvvatlash <span class="chev">›</span></div>
-        <div class="row" id="rowHistory"><span class="ic">🗑️</span> Tomosha tarixini tozalash <span class="chev">›</span></div>
-        <div class="row" id="rowAdmin"><span class="ic">🛡️</span> Admin boshqaruv paneli <span class="chev">›</span></div>
-        <div class="row" id="rowShare"><span class="ic">📤</span> Do’stlarga ulashish <span class="chev">›</span></div>
-        <div class="row" id="rowReset"><span class="ic">🧹</span> Ma’lumotlarni tozalash <span class="chev">›</span></div>
+        <div class="row" id="rowTheme"><span class="ic">🎨</span> Temalar do'koni <span class="chev">›</span></div>
+        <div class="row" id="rowSupport"><span class="ic">💬</span> Qo'llab-quvvatlash <span class="chev">›</span></div>
+        <div class="row" id="rowShare"><span class="ic"></span> Do'stlarga ulashish <span class="chev">›</span></div>
+        <div class="row" id="rowWatchHistory"><span class="ic"></span> Tomosha tarixi <span class="chev">›</span></div>
+        <div class="row" id="rowSettings"><span class="ic">⚙️</span> Sozlanmalar <span class="chev">›</span></div>
+        <div class="row" id="rowAdmin"><span class="ic">️</span> Admin boshqaruv paneli <span class="chev">›</span></div>
       </div>
+    </section>
     </section>
   </main>
 
@@ -1134,6 +1131,40 @@ html,body{max-width:100%}
 </div>
 
 <!-- ============ DEVICES SHEET ============ -->
+
+<!-- ============ SETTINGS SHEET ============ -->
+<div class="sheet" id="settingsSheet">
+  <div class="veil" data-close></div>
+  <div class="panel">
+    <div class="grab"></div>
+    <h2>⚙️ Sozlanmalar</h2>
+    <p class="hint">Ilova xususiyatlari va shaxsiy sozlamalar</p>
+    <div style="margin-top:16px;display:grid;gap:12px">
+      <div class="row"><span class="ic">🔔</span> Bildirishnomalar <span class="switch on" id="swNotif"></span></div>
+      <div class="row"><span class="ic">✨</span> Animatsiyalar <span class="switch on" id="swMotion"></span></div>
+      <div class="row"><span class="ic"></span> Faqat Wi-Fi'da HD <span class="switch" id="swHd"></span></div>
+      <div class="row" id="rowDevicesInSettings"><span class="ic">📱</span> Qurilmalarim <span class="chev">›</span></div>
+      <div class="row" id="rowResetInSettings"><span class="ic"></span> Ma'lumotlarni tozalash <span class="chev">›</span></div>
+    </div>
+    <button class="btn ghost" data-close style="margin-top:18px">Yopish</button>
+  </div>
+</div>
+
+<!-- ============ WATCH HISTORY SHEET ============ -->
+<div class="sheet" id="watchHistorySheet">
+  <div class="veil" data-close></div>
+  <div class="panel">
+    <div class="grab"></div>
+    <h2> Tomosha tarixi</h2>
+    <p class="hint">Ko'rgan videolaringiz ro'yxati</p>
+    <div id="watchHistoryList" style="margin-top:12px;display:grid;gap:8px"></div>
+    <div style="margin-top:14px;display:flex;gap:10px">
+      <button class="btn danger" id="clearAllHistory" type="button">Barchasini tozalash</button>
+      <button class="btn ghost" data-close>Yopish</button>
+    </div>
+  </div>
+</div>
+
 <div class="sheet" id="devicesSheet">
   <div class="veil" data-close></div>
   <div class="panel">
@@ -2345,17 +2376,56 @@ $('#rowAdmin').onclick=()=>{
   if(tg?.initData){ try{ sessionStorage.setItem('aurum.tgInit',tg.initData) }catch(e){} }
   location.href=window.APP_CONFIG.ADMIN_PANEL;
 };
-$('#rowReset').onclick=()=>{
-  if(confirm('Barcha lokal ma\'lumotlar (fav, tarix, tema) o\'chirilsinmi?')){
+
+/* Yangi profile handlers */
+$('#rowSupport').onclick=()=>{ renderSupportChat(); openSheet('#supportSheet'); };
+$('#rowSettings').onclick=()=>{ openSheet('#settingsSheet'); };
+$('#rowWatchHistory').onclick=()=>{ renderWatchHistory(); openSheet('#watchHistorySheet'); };
+
+/* Settings ichidagi handlerlar */
+$('#rowDevicesInSettings').onclick=()=>{ closeSheet('#settingsSheet'); setTimeout(()=>{ renderDevices(); openSheet('#devicesSheet'); }, 350); };
+$('#rowResetInSettings').onclick=()=>{
+  if(confirm('Barcha lokal ma\'lumotlar (sevimlilar, tarix, tema, sozlamalar) o\'chirilsinmi? Bu amalni qaytarib bo\'lmaydi.')){
     Object.keys(localStorage).filter(k=>k.startsWith('aurum.')).forEach(k=>localStorage.removeItem(k));
     location.reload();
   }
 };
 
-/* Yangi profile handlers */
-$('#rowDevices').onclick=()=>{ renderDevices(); openSheet('#devicesSheet'); };
-$('#rowSupport').onclick=()=>{ renderSupportChat(); openSheet('#supportSheet'); };
-$('#rowHistory').onclick=()=>{ clearWatchHistory(); };
+/* Watch History oynasi */
+function renderWatchHistory(){
+  const list=$('#watchHistoryList');
+  const history = JSON.parse(LS.get('watchHistory')||'[]');
+  if(!history.length){
+    list.innerHTML='<div class="empty" style="padding:24px;text-align:center"><div class="big">📭</div><h3>Hali tomosha tarixi yo\'q</h3><p>Ko\'rgan videolaringiz shu yerda paydo bo\'ladi.</p></div>';
+    $('#clearAllHistory').style.display='none';
+    return;
+  }
+  $('#clearAllHistory').style.display='';
+  list.innerHTML = history.map((v,i)=>`
+    <div class="nrow" data-widx="${i}">
+      <div class="thumb" style="--tbg:linear-gradient(135deg,var(--accent),var(--surface))"></div>
+      <div class="ntx"><h4>${esc(v.title||v.id)}</h4><div class="sub">${esc(v.cat||'')} · ${timeAgo(+v.ts||Date.now())}</div></div>
+      <button class="icon-btn wh-del" data-widx="${i}" type="button" aria-label="O'chirish">×</button>
+    </div>`).join('');
+  list.querySelectorAll('.wh-del').forEach(btn=>{
+    btn.onclick=(e)=>{
+      e.stopPropagation();
+      const idx=+btn.dataset.widx;
+      const h=JSON.parse(LS.get('watchHistory')||'[]');
+      h.splice(idx,1);
+      LS.set('watchHistory',h);
+      renderWatchHistory();
+      toast('Tarixdan o\'chirildi','✓');
+    };
+  });
+}
+$('#clearAllHistory').onclick=()=>{
+  if(confirm('Barcha tomosha tarixini o\'chirmoqchimisiz?')){
+    LS.remove('watchHistory');
+    renderWatchHistory();
+    toast('Tarix tozalandi','🧹');
+  }
+};
 
 /* Qurilmalar ro’yxati */
 function renderDevices(){
@@ -2535,16 +2605,6 @@ document.querySelectorAll('[data-close]').forEach(el => {
     }
   });
 });
-
-/* Tomosha tarixini tozalash */
-function clearWatchHistory(){
-  if(!confirm('Tomosha qilingan videolar tarixi tozalansinmi?')) return;
-  LS.remove('watchHistory');
-  LS.remove('views');
-  S.views = {};
-  renderStats();
-  toast('Tarix tozalandi','🧹');
-}
 
 /* ============================ TELEGRAM WEBAPP (avtomatik kirish) ============================ */
 async function tgInit(){
