@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>AURUM · Command Center</title>
+<title>IPLUS MEDIA · Command Center</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link crossorigin href="https://fonts.gstatic.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 /* ============================================================
-   AURUM COMMAND CENTER v2 — faqat REAL rejim (Google Sheets backend)
+   IPLUS MEDIA COMMAND CENTER v2 — faqat REAL rejim (Google Sheets backend)
    · Har qanday demo/seed ma'lumot olib tashlangan
    · code.gs v2 API kontrakty (pull · stats · social moderation)
    · 30 soniyada avtomatik yangilanadi
@@ -200,7 +200,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <!-- ================= APP ================= -->
 <div class="app" style="display:none" id="app">
   <aside>
-    <div class="brand"><i>◈</i>AURUM</div>
+    <div class="brand"><i>◈</i>IPLUS MEDIA</div>
     <button class="nv on" data-p="dash">📊<span class="t">Dashboard</span></button>
     <button class="nv" data-p="videos">🎬<span class="t">Videolar</span></button>
     <button class="nv" data-p="news">📰<span class="t">Yangiliklar</span></button>
@@ -208,7 +208,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <button class="nv" data-p="users">👥<span class="t">Foydalanuvchilar</span></button>
     <button class="nv" data-p="announce">📣<span class="t">E‘lonlar</span></button>
     <button class="nv" data-p="settings">⚙️<span class="t">Sozlamalar</span></button>
-    <div class="as-side">AURUM admin v2.0<br><a href="index.html">← Ilovaga qaytish</a><br><a href="#" id="logoutL">Chiqish</a></div>
+    <div class="as-side">IPLUS MEDIA admin v2.0<br><a href="index.html">← Ilovaga qaytish</a><br><a href="#" id="logoutL">Chiqish</a></div>
   </aside>
   <main>
     <div class="verwarn" id="verWarn" hidden><b>⚠️</b><span id="verWarnT"></span><button id="verWarnX" title="Yopish">✕</button></div>
@@ -395,7 +395,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <div class="panel">
           <h3>📝 Ilova sozlamalari</h3>
           <div class="sub">Bu qiymatlar Settings jadvalida saqlanadi va foydalanuvchi ilovasiga darhol ta’sir qiladi.</div>
-          <div class="f"><label>Ilova nomi</label><input id="stApp" placeholder="AURUM"></div>
+          <div class="f"><label>Ilova nomi</label><input id="stApp" placeholder="IPLUS MEDIA"></div>
           <div class="f"><label>Bosh sahifa e‘loni (notice)</label>
             <textarea id="stNotice" rows="3" placeholder="Masalan: Bugun soat 20:00 da yangi serial qo‘shiladi!"></textarea>
             <div class="hint">Ilova bosh sahifasining yuqorisida banner sifatida chiqadi. Bo‘sh qoldirsangiz — banner yashiriladi.</div>
@@ -427,12 +427,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <script>
 /* ============================ CONFIG ============================ */
 const CFG = {
-  API_URL: localStorage.getItem('aurum.admin.api') ||
+  API_URL: localStorage.getItem('iplusmedia.admin.api') ||
     'https://script.google.com/macros/s/AKfycbysfIFbYeJIE5eaINhc2BElTQd96zMvFRAR6wUvTFSHQMjod-6PGNg4m4m5UZgQ7Socaw/exec',
-  TOKEN: localStorage.getItem('aurum.admin.tok') || '',
+  TOKEN: localStorage.getItem('iplusmedia.admin.tok') || '',
   /* Telegram ichida ochilganda: initData egasining ID’si code.gs OWNERS ro‘yxatida bo‘lsa,
      token so‘ralmadan admin dashboard ochiladi. */
-  INIT: (window.Telegram?.WebApp?.initData) || (()=>{ try{ return sessionStorage.getItem('aurum.tgInit')||'' }catch(e){ return '' } })()
+  INIT: (window.Telegram?.WebApp?.initData) || (()=>{ try{ return sessionStorage.getItem('iplusmedia.tgInit')||'' }catch(e){ return '' } })()
 };
 try{ window.Telegram?.WebApp?.ready(); window.Telegram?.WebApp?.expand(); }catch(e){}
 let DB = {videos:[],news:[],users:[],events:[],announcements:[],likes:[],comments:[],settings:[]};
@@ -926,7 +926,7 @@ $$('.nv').forEach(b=>b.onclick=()=>{
 $('#stApi').value=CFG.API_URL; $('#stApi2').value=CFG.API_URL; $('#stTok').value=CFG.TOKEN;
 $('#stSave').onclick=()=>{
   CFG.API_URL=$('#stApi2').value.trim(); CFG.TOKEN=$('#stTok').value.trim();
-  localStorage.setItem('aurum.admin.api',CFG.API_URL); localStorage.setItem('aurum.admin.tok',CFG.TOKEN);
+  localStorage.setItem('iplusmedia.admin.api',CFG.API_URL); localStorage.setItem('iplusmedia.admin.tok',CFG.TOKEN);
   toast('Saqlandi ✓','⚙️'); ping();
 };
 async function ping(){
@@ -936,7 +936,7 @@ async function ping(){
 }
 $('#stPing').onclick=ping;
 $('#stExport').onclick=()=>{ const blob=new Blob([JSON.stringify(DB,null,1)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='aurum-backup-'+Date.now()+'.json'; a.click(); };
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='iplusmedia-backup-'+Date.now()+'.json'; a.click(); };
 $('#evClear').onclick=async()=>{
   if(!confirm('Events jadvalidagi BARCHA hodisa tarixi o\u2018chiriladi. Tasdiqlaysizmi?'))return;
   const j=await api('events.clear'); toast(j.ok?'Tarix tozalandi ✓':'Xato: '+(j.error||''),j.ok?'🧹':'⚠️');
@@ -953,7 +953,7 @@ $('#refreshBtn').onclick=async()=>{
 const settingOf=k=>{ const r=(DB.settings||[]).find(s=>String(s.key)===k); return r?String(r.value??''):''; };
 function renderContentSettings(){
   const a=$('#stApp'), n=$('#stNotice'); if(!a||!n) return;
-  if(document.activeElement!==a) a.value=settingOf('app')||'AURUM';
+  if(document.activeElement!==a) a.value=settingOf('app')||'IPLUS MEDIA';
   if(document.activeElement!==n) n.value=settingOf('notice');
 }
 async function saveSetting(key,value,stat){
@@ -965,7 +965,7 @@ async function saveSetting(key,value,stat){
 }
 $('#stContentSave').onclick=async()=>{
   const stat=$('#stContentStat'); stat.textContent='Yozilmoqda…';
-  const a=await saveSetting('app',$('#stApp').value.trim()||'AURUM',null);
+  const a=await saveSetting('app',$('#stApp').value.trim()||'IPLUS MEDIA',null);
   const b=await saveSetting('notice',$('#stNotice').value.trim(),null);
   stat.textContent=(a&&b)?'Saqlandi ✓':'Xato: backend javob bermadi';
   toast((a&&b)?'Sozlamalar saqlandi':'Saqlanmadi',(a&&b)?'✅':'⚠️');
@@ -1011,13 +1011,13 @@ $('#verWarnX').onclick=()=>{ $('#verWarn').hidden=true };
 function exitGate(msg){
   clearInterval(AUTO); AUTO=null;
   $('#app').style.display='none'; $('#gate').style.display='grid';
-  sessionStorage.removeItem('aurum.admin.in');
+  sessionStorage.removeItem('iplusmedia.admin.in');
   if(msg) gateErr(esc(msg));
 }
 $('#logoutL').onclick=e=>{ e.preventDefault(); exitGate(); };
 async function enter(){
   $('#gate').style.display='none'; $('#app').style.display='grid';
-  sessionStorage.setItem('aurum.admin.in','1');
+  sessionStorage.setItem('iplusmedia.admin.in','1');
   $('#modePill').classList.remove('live'); $('#modePill').querySelector('span').textContent='SINXRON…';
   const ok=await pullAll();
   if(!ok){ $('#modePill').querySelector('span').textContent='XATO · qayta urinish'; }
@@ -1034,7 +1034,7 @@ $('#loginBtn').onclick=async()=>{
     let j=null; try{ j=await r.json() }catch(e){}
     if(!j){ gateErr('Apps Script javob bermadi. URL noto\u2018g\u2018ri yoki deploy eski bo\u2018lishi mumkin.'); return }
     if(!j.ok){ gateErr('Token noto\u2018g\u2018ri ('+esc(j.error||'unauthorized')+')'); return }
-    localStorage.setItem('aurum.admin.api',CFG.API_URL); localStorage.setItem('aurum.admin.tok',CFG.TOKEN);
+    localStorage.setItem('iplusmedia.admin.api',CFG.API_URL); localStorage.setItem('iplusmedia.admin.tok',CFG.TOKEN);
     $('#stApi2').value=CFG.API_URL; $('#stTok').value=CFG.TOKEN;
     await enter(); toast('Xush kelibsiz, Administrator','🛡️');
     if(j.version!=='v2.3') verWarn('Backend <b>'+esc(j.version||'eski')+'</b> versiyada ishlayapti, kutilayotgani <b>v2.3</b>. Apps Script → Deploy → Manage deployments → «New version» qilib qayta deploy qiling — aks holda unikal ko‘rishlar, diagnostika va foydalanuvchilar bo‘limi ishlamaydi.');
@@ -1045,7 +1045,7 @@ $('#loginBtn').onclick=async()=>{
 /* admin.html#tok=<ADMIN_TOKEN> — Telegram bot Menu button orqali avtomatik kirish */
 (async function boot(){
   const h=location.hash.match(/tok=([^&]+)/);
-  if(h){ CFG.TOKEN=decodeURIComponent(h[1]); localStorage.setItem('aurum.admin.tok',CFG.TOKEN);
+  if(h){ CFG.TOKEN=decodeURIComponent(h[1]); localStorage.setItem('iplusmedia.admin.tok',CFG.TOKEN);
     $('#tok').value=CFG.TOKEN; history.replaceState(null,'',location.pathname);
     $('#loginBtn').click(); return; }
   $('#tok').value=CFG.TOKEN;
@@ -1057,7 +1057,7 @@ $('#loginBtn').onclick=async()=>{
       if(j&&j.ok){ await enter(); toast('Telegram orqali kirdingiz','🛡️'); return; }
     }catch(e){}
   }
-  if(CFG.TOKEN&&sessionStorage.getItem('aurum.admin.in')) enter();
+  if(CFG.TOKEN&&sessionStorage.getItem('iplusmedia.admin.in')) enter();
 })();
 </script>
 </body>

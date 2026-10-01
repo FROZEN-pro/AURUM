@@ -1,4 +1,4 @@
-# 👑 AURUM — theme-able shaxsiy streaming web-app
+# 👑 IPLUS MEDIA — theme-able shaxsiy streaming web-app
 
 Bitta faylli, premium dizaynli streaming ilova: **12 ta olam temasi** (Anime · Disney · Kino · Klassik),
 **custom YouTube pleyer** (seek, tezlik, ±10s, avto-kechiktirish, keyingi video), real-vaqt **layk** va
@@ -19,9 +19,9 @@ code.gs      — Google Apps Script backend v2 (Sheets DB + Telegram auth HMAC +
 
 ## 1. GitHub Pages'ga chiqarish (2 daqiqa)
 
-1. Yangi repository oching (`AURUM`), 3 ta faylni tashlang: `index.html`, `admin.html`, `code.gs`
+1. Yangi repository oching (`IPLUS MEDIA`), 3 ta faylni tashlang: `index.html`, `admin.html`, `code.gs`
 2. **Settings → Pages → Source: Deploy from a branch → main / (root) → Save**
-3. Sayt: `https://USERNAME.github.io/AURUM/` — admin: `.../AURUM/admin.html`
+3. Sayt: `https://USERNAME.github.io/IPLUS MEDIA/` — admin: `.../IPLUS MEDIA/admin.html`
 
 > Ilovada hech qanday demo/test ma'lumot yo'q — kontent faqat backend'dan keladi.
 > Kontent bo'lmasa: «Hali videolar yo'q» holati ko'rsatiladi.
@@ -43,7 +43,7 @@ code.gs      — Google Apps Script backend v2 (Sheets DB + Telegram auth HMAC +
 4. `/exec` URL oling va:
    - `index.html` → `window.APP_CONFIG.API_URL` ga
    - `admin.html` → Sozlamalar bo'limiga yozing
-5. Birinchi `bootstrap` so'rida `AURUM DB` nomli Spreadsheet avtomatik yaratiladi
+5. Birinchi `bootstrap` so'rida `IPLUS MEDIA DB` nomli Spreadsheet avtomatik yaratiladi
    (jadvallar: **Videos · News · Users · Events · Settings · Announcements**).
 
 ### Video qo'shish (Admin panel)
@@ -61,7 +61,7 @@ Shuningdek, ilovadagi **qidiruv paneliga** linkni qo'yib Enter bossangiz — vid
 
 1. **@BotFather** → `/newbot` → token oling (yoki mavjud bot)
 2. Bot sozlamalari: `/setdomain` yoki BotFather → *Bot Settings → Menu Button* →
-   WebApp URL: `https://USERNAME.github.io/AURUM/`
+   WebApp URL: `https://USERNAME.github.io/IPLUS MEDIA/`
 3. Botga havola orqali kirilganda `window.Telegram.WebApp` avtomatik aniqlanadi:
    - **Avtomatik kirish:** ism yozish kerak emas — `initData` Apps Script'ga borib
      HMAC-SHA256 (`WebAppData` kaliti, 16 soatlik `auth_date` oynasi) bilan tekshiriladi,
@@ -70,7 +70,7 @@ Shuningdek, ilovadagi **qidiruv paneliga** linkni qo'yib Enter bossangiz — vid
    - Ilova tashqarisida (oddiy brauzerda) ham ishlaydi — qurilmaviy `u<id>` ishlatiladi,
      keyin Telegram orqali kirsa layk/izohlar shu hisobga o'tadi
 4. **Admin panelni botga ulash:** BotFather → *Bot Settings → Menu Button* → URL:
-   `https://USERNAME.github.io/AURUM/admin.html#tok=ADMIN_TOKENINGIZ`
+   `https://USERNAME.github.io/IPLUS MEDIA/admin.html#tok=ADMIN_TOKENINGIZ`
    — panel token'siz ochiladi (token hash orqali uzatiladi, localStorage'da saqlanadi).
    Oddiy foydalanuvchilarga admin panel **hech qayerda ko'rinmaydi** (Profil'dagi havola
    faqat `role=admin` larda chiqadi).
@@ -105,7 +105,7 @@ Sozlamalar: `Animatsiyalar` switch'i barcha harakatlarni o'chiradi (tejamkorlik/
 ## 6. Lokal ishga tushirish
 
 ```bash
-git clone <repo> && cd AURUM
+git clone <repo> && cd IPLUS MEDIA
 python -m http.server 8080   # yoki faylni shunchaki brauzerda oching
 ```
 
@@ -116,4 +116,4 @@ python -m http.server 8080   # yoki faylni shunchaki brauzerda oching
 - Telegram auth server tomonida tekshiriladi (HMAC + 16 soatlik `auth_date` oynasi)
 
 ---
-© AURUM · HTML + CSS + JS, noldan qurilgan build-free loyiha · GitHub · Google Sheets · Apps Script · Telegram
+© IPLUS MEDIA · HTML + CSS + JS, noldan qurilgan build-free loyiha · GitHub · Google Sheets · Apps Script · Telegram

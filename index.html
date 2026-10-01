@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b0b0e">
-<title>AURUM — sening shaxsiy streaming dunyong</title>
+<title>IPLUS MEDIA — sening shaxsiy streaming dunyong</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Bebas+Neue&family=Cinzel:wght@500;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Orbitron:wght@500;700;900&family=Quicksand:wght@500;700&family=Fredoka:wght@500;600;700&family=Shippori+Mincho:wght@600;800&family=Zen+Maru+Gothic:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 /* ============================================================
-   AURUM · themeable streaming web-app
+   IPLUS MEDIA · themeable streaming web-app
    Barcha vizual tokenlar CSS custom properties orqali —
    tema almashtirganda butun ilova (fon, tugmalar, shrift,
    animatsiya, particles) qayta bo’yaladi.
@@ -1002,7 +1002,7 @@ html,body{max-width:100%}
   </nav>
 </div>
 
-<!-- ============ PLAYER OVERLAY (custom AURUM player) ============ -->
+<!-- ============ PLAYER OVERLAY (custom IPLUS MEDIA player) ============ -->
 <div id="player" role="dialog" aria-modal="true">
   <div class="p-top">
     <button class="icon-btn" id="pClose" aria-label="Yopish">✕</button>
@@ -1109,7 +1109,7 @@ html,body{max-width:100%}
   <div class="panel">
     <div class="grab"></div>
     <h2>📤 Ulashish</h2>
-    <p class="hint" id="shHint">AURUM</p>
+    <p class="hint" id="shHint">IPLUS MEDIA</p>
     <div class="sh-list" id="shList"></div>
     <div class="sh-link"><span id="shUrl"></span><button id="shCopy" type="button">Nusxa</button></div>
     <button class="btn ghost" data-close style="margin-top:14px">Yopish</button>
@@ -1448,12 +1448,12 @@ async function copyText(t){
 /* ---------- Ulashish oynasi ---------- */
 function openShare(kind,id,title){
   const url = (kind&&id)? deepLink(kind,id) : pageBase();
-  const text = title? `${title} — AURUM` : 'AURUM — shaxsiy streaming dunyongiz';
+  const text = title? `${title} — IPLUS MEDIA` : 'IPLUS MEDIA — shaxsiy streaming dunyongiz';
   const tgShare = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
   const bot = botLink(kind,id);
   const opts=[
     {ic:'📲',t:'Boshqa ilovada ulashish',s:'Telefon menzusi orqali',need:!!navigator.share,
-     act:()=>navigator.share({title:'AURUM',text,url}).catch(()=>{})},
+     act:()=>navigator.share({title:'IPLUS MEDIA',text,url}).catch(()=>{})},
     {ic:'✈️',t:'Telegram’ga yuborish',s:'Chat, guruh yoki kanalga',act:()=>tgOpen(tgShare)},
     {ic:'🤖',t:'Bot orqali ochiladigan havola',s:bot||'—',need:!!bot,
      act:()=>{copyText(bot); tgOpen(bot);}},
@@ -1463,7 +1463,7 @@ function openShare(kind,id,title){
      act:()=>extOpen(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`)},
     {ic:'🔗',t:'Havolani nusxalash',s:url,act:()=>copyText(url)}
   ].filter(o=>o.need!==false);
-  $('#shHint').textContent=title||'AURUM ilovasi';
+  $('#shHint').textContent=title||'IPLUS MEDIA ilovasi';
   $('#shUrl').textContent=url;
   $('#shList').innerHTML=opts.map((o,i)=>`
     <button class="sh-opt" type="button" data-sh="${i}">
@@ -1590,7 +1590,7 @@ function nRow(n,i){
   return `<div class="nrow" data-news="${esc(n.id)}" style="animation-delay:${Math.min(i*50,400)}ms">
     <div class="nart" style="--nbg:${artOf(i*2+3)}">${n.emoji||'📰'}</div>
     <div class="ntx"><h4>${esc(n.title)}</h4>
-      <div class="sub"><b>${esc(n.cat)}</b><span>·</span>${esc(n.src||'AURUM')}${+n.hot?' <span class="hot">🔥 HOT</span>':''}<span>·</span>${esc(n.time||'')} · ${+n.read||3} daq<span>·</span><span>👁 ${fmt(+n.reads||0)}</span></div>
+      <div class="sub"><b>${esc(n.cat)}</b><span>·</span>${esc(n.src||'IPLUS MEDIA')}${+n.hot?' <span class="hot">🔥 HOT</span>':''}<span>·</span>${esc(n.time||'')} · ${+n.read||3} daq<span>·</span><span>👁 ${fmt(+n.reads||0)}</span></div>
     </div>
     <button class="share-pin" data-share="n:${esc(n.id)}" type="button" aria-label="Ulashish">↗</button>
   </div>`;
@@ -1611,7 +1611,7 @@ function renderNews(){
   $('#nLead').innerHTML = lead?`<div class="nlead" data-news="${esc(lead.id)}"><div class="art" style="--nbg:${artOf(2)}"></div>
     <div class="meta"><span class="tag" style="border-color:rgba(255,255,255,.4);color:#fff;background:rgba(255,255,255,.14)">${esc(lead.cat)}</span>
     <h3>${esc(lead.title)}</h3><p>${esc(String(lead.body||'').split('\n')[0])}</p>
-    <p style="font-size:11px;opacity:.7;margin-top:8px">${esc(lead.src||'AURUM')} · ${esc(lead.time||'')} · ${+lead.read||3} daqiqa · 👁 ${fmt(+lead.reads||0)}</p></div></div>`:'';
+    <p style="font-size:11px;opacity:.7;margin-top:8px">${esc(lead.src||'IPLUS MEDIA')} · ${esc(lead.time||'')} · ${+lead.read||3} daqiqa · 👁 ${fmt(+lead.reads||0)}</p></div></div>`:'';
   $('#nSide').innerHTML = side.map(nRow).join('');
   $('#nList').innerHTML = rest.map((n,i)=>nRow(n,i)).join('') ||
     `<div class="empty"><div class="big">🗂️</div><h3>Bu bo‘lim bo‘sh</h3><p>«${esc(S.newsCat)}» kategoriyasida hozircha yangilik yo‘q.</p></div>`;
@@ -1637,7 +1637,7 @@ function openReader(id){
       <span>👁 <b id="rcReads">${fmt(+n.reads||0)}</b> o‘qilgan</span>
       <span>⏱ ${+n.read||3} daqiqa</span>
       <span>💬 ${fmt(cmts)} izoh</span>
-      <span>📰 ${esc(n.src||'AURUM')}</span>
+      <span>📰 ${esc(n.src||'IPLUS MEDIA')}</span>
     </div>
     <div class="reader-body"><p class="drop">${esc(n.body||'').split('\n\n').join('</p><p>')}</p></div>
     <div class="reader-acts">
@@ -1883,7 +1883,7 @@ function renderSearch(){
   const nRowS=x=>`<div class="s-res" data-sn="${esc(x.id)}">
       <i class="art txt" style="--tbg:${artOf(S.news.indexOf(x))}">${x.emoji||'📰'}</i>
       <div class="tx"><b>${hl(x.title,tk)}</b>
-        <span>${hl(x.cat||'Yangilik',tk)} · ${esc(x.src||'AURUM')} · ${+x.read||3} daq</span></div>
+        <span>${hl(x.cat||'Yangilik',tk)} · ${esc(x.src||'IPLUS MEDIA')} · ${+x.read||3} daq</span></div>
       <span class="go" aria-hidden="true">›</span></div>`;
   box.innerHTML=
     (r.v.length?`<div class="sec-h"><h2>🎬 <i>Videolar</i></h2><span class="more">${r.v.length}</span></div>
@@ -1959,7 +1959,7 @@ async function ytEnsure(vid,startAt){
   YT.ready(()=>{
     yt=new YT.Player('ytFrame',{
       videoId:vid,
-      /* YouTube’ning o’z interfeysi butunlay yashiriladi — faqat AURUM boshqaruvi */
+      /* YouTube’ning o’z interfeysi butunlay yashiriladi — faqat IPLUS MEDIA boshqaruvi */
       playerVars:{controls:0,disablekb:1,modestbranding:1,rel:0,iv_load_policy:3,playsinline:1,
         fs:0,hl:'uz',color:'white',cc_load_policy:0,annotations:0,showinfo:0,autohide:1,
         origin:location.origin,widget_referrer:location.origin},
