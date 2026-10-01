@@ -1124,8 +1124,10 @@ html,body{max-width:100%}
     <div class="cmt-add" id="supportAdd">
       <span class="ava" id="supportAva">A</span>
       <textarea class="field" id="supportText" placeholder="Xabar yozing…" maxlength="900" rows="1"></textarea>
-      <button class="cmt-send" id="supportSend" type="button" disabled>➤</button>
+      <label class="cmt-img-btn" title="Rasm yuborish" aria-label="Rasm tanlash">&#x1F4F7;<input type="file" id="supportImgInput" accept="image/*" hidden></label>
+      <button class="cmt-send" id="supportSend" type="button" disabled>&#x27A4;</button>
     </div>
+    <div id="supportImgPreview" style="margin-top:8px;display:none"><img id="supportImgThumb" style="max-width:80px;max-height:80px;border-radius:8px"><button id="supportImgRemove" type="button" style="margin-left:8px">&times;</button></div>
     <button class="btn ghost" data-close style="margin-top:12px">Yopish</button>
   </div>
 </div>
@@ -2528,11 +2530,12 @@ function renderSupportMessages(messages){
     const isMe = m.fromId === S.uid;
     const isSys = m.fromId === 'system';
     const isAdmin = !isMe && !isSys;
+    const hasImg = m.type === 'image' || (m.mediaUrl && m.mediaUrl.startsWith('data:image'));
     return `
       <div class="cmt" style="${isSys ? 'background:color-mix(in srgb,var(--accent) 8%,var(--surface))' : ''}">
         <div class="cw">
           <div class="cn">${isSys ? '🤖 Tizim' : (isMe ? 'Siz' : 'Admin')} <small>${timeAgo(+m.ts)}</small></div>
-          <div class="cx">${esc(m.text)}${m.mediaUrl ? `<br><a href="${esc(m.mediaUrl)}" target="_blank">📎 Fayl</a>` : ''}</div>
+          <div class="cx">${esc(m.text||'')}${hasImg ? `<br><img src="${esc(m.mediaUrl)}" style="max-width:200px;border-radius:8px;margin-top:6px" alt="Rasm">` : (m.mediaUrl ? `<br><a href="${esc(m.mediaUrl)}" target="_blank">📎 Fayl</a>` : '')}</div>
         </div>
       </div>
     `;
@@ -2541,34 +2544,61 @@ function renderSupportMessages(messages){
   setTimeout(()=> list.scrollTop = list.scrollHeight, 50);
 }
 
+let pendingSupportImg = null;
+$('#supportImgInput').onchange = (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    pendingSupportImg = reader.result;
+    $('#supportImgPreview').style.display='';
+    $('#supportImgThumb').src = pendingSupportImg;
+    $('#supportSend').disabled = false;
+    $('#supportSend').classList.add('ready');
+  };
+  reader.readAsDataURL(file);
+};
+$('#supportImgRemove').onclick = ()=>{
+  pendingSupportImg = null;
+  $('#supportImgPreview').style.display='none';
+  $('#supportImgInput').value = '';
+  if(!$('#supportText').value.trim()){
+    $('#supportSend').disabled = true;
+    $('#supportSend').classList.remove('ready');
+  }
+};
+
 async function sendSupportMessage(){
   const text=$('#supportText');
   const send=$('#supportSend');
-  if(!text.value.trim()) return;
+  const hasText = text.value.trim();
+  const hasImg = !!pendingSupportImg;
+  if(!hasText && !hasImg) return;
   
   send.disabled = true;
   send.textContent = '...';
   
   try {
-    const r = await fetch(APP_CONFIG.API_URL, {
-      method: 'POST',
-      body: JSON.stringify({
-        action: 'social',
-        op: 'support.send',
-        uid: S.uid,
-        text: text.value.trim(),
-        type: 'text'
-      })
-    });
+    const payload = { action: 'social', op: 'support.send', uid: S.uid };
+    if(hasText) payload.text = text.value.trim();
+    if(hasImg){
+      payload.type = 'image';
+      payload.mediaUrl = pendingSupportImg;
+    } else {
+      payload.type = 'text';
+    }
+    
+    const r = await fetch(APP_CONFIG.API_URL, { method: 'POST', body: JSON.stringify(payload) });
     const j = await r.json();
     
     if(j.ok){
       text.value = '';
+      pendingSupportImg = null;
+      $('#supportImgPreview').style.display='none';
+      $('#supportImgInput').value = '';
       send.disabled = true;
       send.classList.remove('ready');
       toast('Xabar yuborildi','✓');
-      
-      // Darhol ro’yxatni yangilash
       setTimeout(renderSupportChat, 500);
     } else {
       throw new Error(j.error);
@@ -2578,7 +2608,7 @@ async function sendSupportMessage(){
     toast('Xabar yuborilmadi','❌');
     send.disabled = false;
   } finally {
-    send.textContent = '➤';
+    send.textContent = '\u27A4';
   }
 }
 
