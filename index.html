@@ -2686,12 +2686,12 @@ function handleDeepLink(){
   renderHome(); renderNews(); renderFav(); renderProfile(); renderStats(); renderSearch();
   moveSlider();
   
-  // Loading screen timeout - maksimal 5 soniya
+  // Loading screen timeout - maksimal 15 soniya (backend sekin bo'lishi mumkin)
   const loadingTimeout = setTimeout(()=>{
-    console.warn('Loading timeout - forcing hide');
+    console.warn('Loading timeout - forcing hide after 15s');
     const ls = $('#loadingScreen');
     if(ls) ls.classList.add('hide');
-  }, 5000);
+  }, 15000);
   
   try {
     await tgInit();               // Telegram bo’lsa — uid shu yerda tg<id> ga aylanadi
