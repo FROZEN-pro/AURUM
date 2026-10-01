@@ -742,7 +742,29 @@ function normUser(u){
 }
 const uList=()=>(DB.users||[]).map(normUser).filter(u=>u.id);
 const uz=s=>String(s==null?'':s).toLowerCase().replace(/[\u2018\u2019]/g,"'").replace(/\s+/g,' ').trim();
-function renderUsers(){
+
+let usersLoaded = false;
+async function loadUsersFromBackend(){
+  if(usersLoaded) return;
+  try {
+    const j = await api('users.list');
+    if(j.ok && j.users){
+      DB.users = j.users;
+      usersLoaded = true;
+      console.log(`✅ ${j.total} foydalanuvchi yuklandi`);
+    }
+  } catch(e) {
+    console.warn('loadUsersFromBackend xato:', e);
+  }
+}
+
+async function renderUsers(){
+  // Agar hali backenddan yuklanmagan bo'lsa, bir marta yuklash
+  if(!usersLoaded){
+    $('#uRows').innerHTML='<tr><td colspan="7" class="sub" style="padding:20px">Yuklanmoqda...</td></tr>';
+    await loadUsersFromBackend();
+  }
+  
   const q=uz($('#uSearch').value), f=$('#uRoleFlt').value;
   const now=Date.now(), all=uList();
   $('#uKpis').innerHTML=[['Jami',all.length],['7 kunda faol',all.filter(u=>u.last>now-7*864e5).length],

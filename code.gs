@@ -390,6 +390,65 @@ function handleSocial_(d) {
     return json_({ ok: true, id: rid });
   }
 
+  // --- ADMIN: foydalanuvchilar ro'yxati ---
+  if (d.op === 'users.list' && d.isAdmin) {
+    var allUsers = rows_('Users')
+      .sort(function (a, b) { return (+b.last || 0) - (+a.last || 0); })
+      .map(function (u) {
+        return {
+          id: u.id,
+          tg: u.tg || '',
+          name: u.name || '',
+          role: u.role || 'user',
+          status: u.status || 'active',
+          sessions: u.sessions || 0,
+          last: u.last || 0,
+          createdAt: u.createdAt || 0
+        };
+      });
+    return json_({ ok: true, users: allUsers, total: allUsers.length });
+  }
+
+  // --- ADMIN: foydalanuvchi holatini o'zgartirish (ban/unban/role) ---
+  if (d.op === 'users.update' && d.isAdmin) {
+    var userId = d.userId;
+    if (!userId) return json_({ ok: false, error: 'userId kerak' });
+    var r = findRow_('Users', 'id', userId);
+    if (!r) return json_({ ok: false, error: 'foydalanuvchi topilmadi' });
+    
+    if (d.status !== undefined) cellSet_('Users', r, 'status', d.status);
+    if (d.role !== undefined) cellSet_('Users', r, 'role', d.role);
+    
+    return json_({ ok: true, updated: userId });
+  }
+
+  // --- ADMIN: foydalanuvchi tafsilotlari ---
+  if (d.op === 'users.detail' && d.isAdmin) {
+    var uid = d.userId;
+    if (!uid) return json_({ ok: false, error: 'userId kerak' });
+    var user = findRow_('Users', 'id', uid);
+    if (!user) return json_({ ok: false, error: 'foydalanuvchi topilmadi' });
+    
+    // Foydalanuvchi faoliyati statistikasi
+    var userLikes = rows_('Likes').filter(function (l) { return String(l.userId) === uid; }).length;
+    var userComments = rows_('Comments').filter(function (c) { return String(c.userId) === uid; }).length;
+    var userViews = rows_('Views').filter(function (v) { return String(v.userId) === uid; }).length;
+    var userEvents = rows_('Events').filter(function (e) { return String(e.userId) === uid; }).length;
+    
+    return json_({ 
+      ok: true, 
+      user: user,
+      stats: {
+        likes: userLikes,
+        comments: userComments,
+        views: userViews,
+        events: userEvents
+      }
+    });
+  }
+    return json_({ ok: true, id: rid });
+  }
+
   return json_({ ok: false, error: 'social op topilmadi' });
 }
 
