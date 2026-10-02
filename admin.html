@@ -206,7 +206,8 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <button class="nv" data-p="news">📰<span class="t">Yangiliklar</span></button>
     <button class="nv" data-p="mod">💬<span class="t">Moderatsiya</span><span class="pill" id="navCmtN">0</span></button>
     <button class="nv" data-p="users">👥<span class="t">Foydalanuvchilar</span></button>
-    <button class="nv" data-p="announce">📣<span class="t">E‘lonlar</span></button>
+    <button class="nv" data-p="support">🎧<span class="t">Support</span><span class="pill" id="navSupportN">0</span></button>
+    <button class="nv" data-p="announce">📣<span class="t">E’lonlar</span></button>
     <button class="nv" data-p="settings">⚙️<span class="t">Sozlamalar</span></button>
     <div class="as-side">IPLUS MEDIA admin v2.0<br><a href="index.html">← Ilovaga qaytish</a><br><a href="#" id="logoutL">Chiqish</a></div>
   </aside>
@@ -362,6 +363,26 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <div class="panel">
           <h3>Yuborilgan e‘lonlar</h3><div class="sub">Sheets’dagi Announcements jadvali</div>
           <div id="anList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SUPPORT ============ -->
+    <section class="page" id="pg-support">
+      <div class="cols" style="grid-template-columns:1fr 2fr">
+        <div class="panel">
+          <h3>🎧 Foydalanuvchilar ro'yxati</h3>
+          <div class="sub">Xabar yuborgan foydalanuvchilar</div>
+          <div id="supportUserList" style="margin-top:12px"></div>
+        </div>
+        <div class="panel">
+          <h3 id="supportChatTitle">Chatni tanlang</h3>
+          <div class="sub" id="supportChatSub">Chapdan foydalanuvchini tanlang</div>
+          <div id="supportChatMessages" style="height:400px;overflow-y:auto;margin:12px 0;padding:12px;background:var(--bg0);border-radius:12px;border:1px solid var(--line)"></div>
+          <div style="display:flex;gap:8px;align-items:flex-end">
+            <textarea id="supportReplyText" rows="2" placeholder="Javob yozing..." style="flex:1;resize:none;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text)"></textarea>
+            <button class="btn" id="supportReplySend" disabled>Yuborish</button>
+          </div>
         </div>
       </div>
     </section>
@@ -921,9 +942,126 @@ async function sendAnnounce(test){
 $('#anSend').onclick=()=>sendAnnounce(false);
 $('#anTest').onclick=()=>sendAnnounce(true);
 
+/* ============================ SUPPORT CHAT ============================ */
+let selectedSupportUser = null;
+let supportMessagesCache = [];
+
+async function renderSupport(){
+  try{
+    const j = await api('support.adminList', {isAdmin: true});
+    if(!j.ok || !j.messages){
+      $('#supportUserList').innerHTML = '<div class="sub">Xabarlar yuklanmadi</div>';
+      return;
+    }
+    
+    // Xabarlarni user bo'yicha guruhlash
+    const byUser = {};
+    j.messages.forEach(m => {
+      const uid = m.fromId === 'admin' ? m.toId : m.fromId;
+      if(!byUser[uid]) byUser[uid] = [];
+      byUser[uid].push(m);
+    });
+    
+    // Foydalanuvchilar ro'yxatini ko'rsatish
+    const userList = $('#supportUserList');
+    const users = Object.keys(byUser).sort((a,b) => {
+      const lastA = byUser[b][0]?.ts || 0;
+      const lastB = byUser[a][0]?.ts || 0;
+      return lastB - lastA;
+    });
+    
+    userList.innerHTML = users.map(uid => {
+      const msgs = byUser[uid];
+      const lastMsg = msgs[0];
+      const userName = DB.users.find(u => u.id === uid)?.name || uid;
+      const unread = msgs.filter(m => m.toId === 'admin' && !m.read).length;
+      return `
+        <div class="row" style="padding:10px;cursor:pointer;${selectedSupportUser === uid ? 'background:var(--surface)' : ''}" onclick="openSupportChat('${uid}')">
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:600;font-size:13px">${esc(userName)} ${unread ? `<span class="pill">${unread}</span>` : ''}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">${esc((lastMsg.text||'Rasm').slice(0,40))}...</div>
+          </div>
+          <div style="font-size:10px;color:var(--muted)">${ago(+lastMsg.ts)}</div>
+        </div>`;
+    }).join('') || '<div class="sub">Hali xabar yo\'q</div>';
+    
+    // Badge yangilash
+    const totalUnread = j.messages.filter(m => m.toId === 'admin' && !m.read).length;
+    $('#navSupportN').textContent = totalUnread || '';
+    
+  }catch(e){
+    console.error('renderSupport error:', e);
+    $('#supportUserList').innerHTML = '<div class="sub">Xatolik: ' + esc(e.message) + '</div>';
+  }
+}
+
+async function openSupportChat(userId){
+  selectedSupportUser = userId;
+  const userName = DB.users.find(u => u.id === userId)?.name || userId;
+  $('#supportChatTitle').textContent = userName;
+  $('#supportChatSub').textContent = userId;
+  
+  try{
+    const j = await api('support.list', {uid: userId});
+    if(j.ok && j.messages){
+      supportMessagesCache = j.messages;
+      renderSupportMessages(supportMessagesCache);
+    }
+  }catch(e){
+    console.error('openSupportChat error:', e);
+  }
+  
+  // User listni yangilash (selected highlight uchun)
+  renderSupport();
+}
+
+function renderSupportMessages(messages){
+  const container = $('#supportChatMessages');
+  container.innerHTML = messages.map(m => {
+    const isAdmin = m.fromId === 'admin';
+    const hasImg = m.type === 'image' || (m.mediaUrl && m.mediaUrl.startsWith('data:image'));
+    return `
+      <div style="margin-bottom:12px;padding:10px;border-radius:10px;background:${isAdmin ? 'var(--accent)' : 'var(--surface)'};color:${isAdmin ? '#fff' : 'var(--text)'};max-width:85%;margin-left:${isAdmin ? 'auto' : '0'}">
+        <div style="font-size:11px;opacity:.7;margin-bottom:4px">${isAdmin ? 'Admin' : 'User'} · ${ago(+m.ts)}</div>
+        ${m.text ? `<div>${esc(m.text)}</div>` : ''}
+        ${hasImg ? `<img src="${esc(m.mediaUrl)}" style="max-width:100%;border-radius:8px;margin-top:6px" alt="Rasm">` : ''}
+      </div>`;
+  }).join('') || '<div class="sub">Xabarlar yo\'q</div>';
+  
+  setTimeout(() => container.scrollTop = container.scrollHeight, 50);
+}
+
+$('#supportReplySend').onclick = async () => {
+  const text = $('#supportReplyText').value.trim();
+  if(!text || !selectedSupportUser) return;
+  
+  try{
+    const j = await api('support.reply', {
+      isAdmin: true,
+      toUserId: selectedSupportUser,
+      text: text
+    });
+    
+    if(j.ok){
+      $('#supportReplyText').value = '';
+      toast('Javob yuborildi', '✓');
+      openSupportChat(selectedSupportUser); // Refresh chat
+    } else {
+      toast('Yuborilmadi: ' + (j.error || ''), '⚠️');
+    }
+  }catch(e){
+    console.error('support reply error:', e);
+    toast('Xatolik yuz berdi', '❌');
+  }
+};
+
+$('#supportReplyText').oninput = () => {
+  $('#supportReplySend').disabled = !$('#supportReplyText').value.trim();
+};
+
 /* ============================ RENDER ALL / NAV ============================ */
 function renderAll(){ kpis(); lineChart(); donut(); themeBars(); catBars(); topUsersPanel(); byVideoTable(); feed();
-  renderVideos(); renderNews(); renderCmts(); renderLikes(); renderUsers(); renderAnnounce(); renderContentSettings(); }
+  renderVideos(); renderNews(); renderCmts(); renderLikes(); renderUsers(); renderAnnounce(); renderSupport(); renderContentSettings(); }
 $$('.nv').forEach(b=>b.onclick=()=>{
   $$('.nv').forEach(x=>x.classList.remove('on')); b.classList.add('on');
   $$('.page').forEach(p=>p.classList.remove('on')); $('#pg-'+b.dataset.p).classList.add('on');
@@ -932,6 +1070,7 @@ $$('.nv').forEach(b=>b.onclick=()=>{
    news:['Yangiliklar','News feed boshqaruvi'],
    mod:['Moderatsiya','Izohlar va layklar — real vaqt'],
    users:['Foydalanuvchilar','Telegram auth orqali kelgan profillar'],
+   support:['Support','Foydalanuvchilarga yordam · chat xabarlari'],
    announce:['E\u2018lonlar','Telegram broadcast markazi'],
    settings:['Sozlamalar','Backend ulanish · ilova sozlamalari · diagnostika']};
   $('#pgTitle').textContent=T[b.dataset.p][0]; $('#pgCrumb').textContent=T[b.dataset.p][1];
