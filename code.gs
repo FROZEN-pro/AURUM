@@ -25,7 +25,7 @@ function getSS_() {
   return ss;
 }
 var SCHEMA = {
-  Videos:        ['id','yt','title','cat','dur','views','featured','desc','status','createdAt','tags','live','seriesId','episode','season'],
+  Videos:        ['id','yt','title','cat','dur','views','featured','desc','status','createdAt','tags','live','seriesId','episode','season','seriesTitle'],
   News:          ['id','title','cat','src','time','read','hot','emoji','body','status','createdAt','tags','reads'],
   Users:         ['id','tg','name','role','theme','sessions','last','status','createdAt'],
   Events:        ['ts','userId','event','itemId','theme','meta'],
@@ -356,13 +356,15 @@ function handleSocial_(d) {
     return json_({ ok: true, ids: arr });
   }
 
-  // --- SUPPORT CHAT: xabar yuborish ---
+  // --- SUPPORT CHAT: xabar yuborish (matn yoki rasm, ikkalasi ham mumkin) ---
   if (d.op === 'support.send') {
     var text = trim_(d.text, 900);
-    if (!text) return json_({ ok: false, error: 'matn kerak' });
+    var media = String(d.mediaUrl || '');
+    if (!text && !media) return json_({ ok: false, error: 'matn yoki rasm kerak' });
     var mid = 'msg_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     var toId = d.toId || 'admin'; // admin yoki boshqa user
-    sheet_('Messages').appendRow([mid, uid, toId, text, d.type || 'text', d.mediaUrl || '', Date.now(), 0]);
+    var mtype = media ? 'image' : (d.type || 'text');
+    sheet_('Messages').appendRow([mid, uid, toId, text, mtype, media, Date.now(), 0]);
     return json_({ ok: true, id: mid });
   }
 
@@ -666,6 +668,59 @@ function handleAdmin_(d) {
     case 'stats':
       return json_({ ok: true, stats: adminStats_() });
     case 'announce':      return handleAnnounce_(d);
+    // --- Foydalanuvchilar (admin.html action:'admin' orqali chaqiradi) ---
+    case 'users.list': {
+      var ul = rows_('Users')
+        .sort(function (a, b) { return (+b.last || 0) - (+a.last || 0); })
+        .map(function (u) {
+          return { id: u.id, tg: u.tg || '', name: u.name || '', role: u.role || 'user',
+                   status: u.status || 'active', sessions: u.sessions || 0,
+                   last: u.last || 0, createdAt: u.createdAt || 0 };
+        });
+      return json_({ ok: true, users: ul, total: ul.length });
+    }
+    case 'users.update': {
+      if (!d.userId) return json_({ ok: false, error: 'userId kerak' });
+      var ur = findRow_('Users', 'id', d.userId);
+      if (!ur) return json_({ ok: false, error: 'foydalanuvchi topilmadi' });
+      if (d.status !== undefined) cellSet_('Users', ur, 'status', d.status);
+      if (d.role !== undefined) cellSet_('Users', ur, 'role', d.role);
+      return json_({ ok: true, updated: d.userId });
+    }
+    case 'users.detail': {
+      if (!d.userId) return json_({ ok: false, error: 'userId kerak' });
+      var ud = findRow_('Users', 'id', d.userId);
+      if (!ud) return json_({ ok: false, error: 'foydalanuvchi topilmadi' });
+      return json_({ ok: true, user: ud, stats: {
+        likes: rows_('Likes').filter(function (l) { return String(l.userId) === d.userId; }).length,
+        comments: rows_('Comments').filter(function (c) { return String(c.userId) === d.userId; }).length,
+        views: rows_('Views').filter(function (v) { return String(v.userId) === d.userId; }).length
+      }});
+    }
+    // --- Support chat (admin tomoni) ---
+    case 'support.adminList': {
+      var am = rows_('Messages')
+        .sort(function (a, b) { return (+b.ts) - (+a.ts); })
+        .slice(0, 300);
+      return json_({ ok: true, messages: am });
+    }
+    case 'support.list': {
+      var su = trim_(d.uid, 40);
+      var sm = rows_('Messages')
+        .filter(function (m) { return String(m.fromId) === su || String(m.toId) === su; })
+        .sort(function (a, b) { return (+a.ts) - (+b.ts); })
+        .slice(-100);
+      return json_({ ok: true, messages: sm });
+    }
+    case 'support.reply': {
+      if (!d.toUserId) return json_({ ok: false, error: 'toUserId kerak' });
+      var rt = trim_(d.text, 900);
+      var rmedia = String(d.mediaUrl || '');
+      if (!rt && !rmedia) return json_({ ok: false, error: 'matn kerak' });
+      var rid = 'reply_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      sheet_('Messages').appendRow([rid, 'admin', d.toUserId, rt, rmedia ? 'image' : 'text', rmedia, Date.now(), 0]);
+      return json_({ ok: true, id: rid });
+    }
     default: return json_({ ok: false, error: 'op topilmadi: ' + d.op });
   }
 }

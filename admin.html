@@ -636,7 +636,7 @@ function renderVideos(){
   const list=DB.videos.filter(v=>(!f||v.cat===f)&&(v.title+v.cat+(v.yt||'')).toLowerCase().includes(q));
   $('#vRows').innerHTML=list.map((v,i)=>`<tr>
    <td>${thumbCell(v,i)}</td>
-   <td><b>${esc(v.title)}</b><div style="font-size:11px;color:var(--muted)">${esc(String(v.desc||'').slice(0,40))}</div></td>
+   <td><b>${esc(v.title)}</b>${v.seriesId?` <span class="badge b-i" title="Serial">📺 ${esc(v.seriesTitle||v.seriesId)}${v.season?' S'+esc(v.season):''}${v.episode?' E'+esc(v.episode):''}</span>`:''}<div style="font-size:11px;color:var(--muted)">${esc(String(v.desc||'').slice(0,40))}</div></td>
    <td><span class="badge b-i">${esc(v.cat)}</span></td>
    <td class="mono" style="font-size:11px">${esc(ytId(v.yt)||v.yt||'—')}</td><td>${esc(v.dur||'—')}</td>
    <td>${fmt(+v.views||0)}</td>
@@ -900,9 +900,14 @@ function editVideo(id){
    {k:'views',label:'Boshlang‘ich ko‘rishlar (hisoblagich)'},{k:'featured',label:'Bosh sahifa slideri',type:'check',on:'⭐ Tavsiya etilgan'},
    {k:'live',label:'Jonli efir',type:'check',on:'🔴 LIVE belgisi'},
    {k:'status',label:'Holat',type:'select',opts:['active','draft']},
+   {k:'seriesId',label:'Serial ID (bo‘sh = yakka video)',mono:1,ph:'naruto-2024'},
+   {k:'seriesTitle',label:'Serial nomi',ph:'Naruto'},
+   {k:'season',label:'Mavsum (season)',ph:'1'},{k:'episode',label:'Qism (episode)',ph:'1'},
    {k:'tags',label:'Teglar (vergul bilan)',ph:'anime, 2024, o‘zbekcha'},
    {k:'desc',label:'Tavsif',type:'textarea'}],v,o=>{
     o.featured=+o.featured; o.live=+o.live; o.views=+o.views||0;
+    o.season=o.season?+o.season:''; o.episode=o.episode?+o.episode:'';
+    o.seriesId=(o.seriesId||'').trim(); o.seriesTitle=(o.seriesTitle||'').trim();
     o.yt=(ytId(o.yt)||o.yt).trim(); o.id=id||o.id;
     editing.kind='v';
     const i=DB.videos.findIndex(x=>x.id===o.id);

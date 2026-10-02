@@ -863,9 +863,79 @@ html,body{max-width:100%}
 @keyframes lsSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes lsSlide{0%{transform:translateX(-100%)}100%{transform:translateX(400%)}}
 @keyframes lsFade{0%,100%{opacity:1}50%{opacity:.5}}
+.ic-svg{width:1.15em;height:1.15em;display:inline-block;vertical-align:-0.22em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.icon-btn .ic-svg{width:20px;height:20px;vertical-align:middle}
+#tabbar .ic-svg{width:23px;height:23px}
+#tabbar button.on .ic-svg{stroke-width:2.4}
+.search .ic-svg{width:18px;height:18px;vertical-align:middle;opacity:.7}
+.search-x .ic-svg{width:15px;height:15px;vertical-align:middle}
+.notice .ic .ic-svg{width:17px;height:17px}
+.notice .x .ic-svg{width:14px;height:14px}
+.row .ic .ic-svg{width:19px;height:19px}
+.pbtn .ic-svg{width:16px;height:16px}
+.cmt-send .ic-svg{width:17px;height:17px}
+.fav-pin .ic-svg,.share-pin .ic-svg{width:15px;height:15px}
+h2 .ic-svg{width:19px;height:19px}
+.pi-meta .ic-svg{width:15px;height:15px;vertical-align:-0.25em}
+.pi-meta .ic-svg{stroke-width:2}
+.plb .ic-svg{width:17px;height:17px}
+.cmt-head .ic-svg{width:16px;height:16px}
+.pbtn.on .ic-svg{fill:var(--accent);stroke:var(--accent)}
+.pbtn.on #pLikeTxt{color:var(--accent)}
+.fav-pin.on .ic-svg{fill:#ff4d6d;stroke:#ff4d6d}
+.card .ic-svg{width:14px;height:14px}
+.card .sub .ic-svg{width:13px;height:13px;vertical-align:-0.22em}
+.card .kicker .ic-svg{width:13px;height:13px;vertical-align:-0.2em}
+.nrow .sub .ic-svg{width:13px;height:13px;vertical-align:-0.22em}
+.s-meta .ic-svg{width:13px;height:13px;vertical-align:-0.22em}
+.btn .ic-svg{width:15px;height:15px;vertical-align:-0.2em}
+.cacts button .ic-svg{width:14px;height:14px;vertical-align:-0.2em}
+.cacts button.voted .ic-svg{fill:#ff4d6d;stroke:#ff4d6d}
+.reader-meta .ic-svg,.rmeta .ic-svg{width:13px;height:13px;vertical-align:-0.22em}
+.srow .ic-svg,.s-result .ic-svg{width:13px;height:13px;vertical-align:-0.22em}
+.empty .ic-svg,.big .ic-svg{width:44px;height:44px;stroke-width:1.5;opacity:.5}
+.chip .ic-svg{width:14px;height:14px;vertical-align:-0.2em}
+.sec-h h2 .ic-svg,.sec-h .ic-svg{width:17px;height:17px;vertical-align:-0.2em}
 </style>
 </head>
 <body>
+<!-- ============ SVG ICON SPRITE (premium modern icons) ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></symbol>
+    <symbol id="i-news" viewBox="0 0 24 24"><path d="M4 5h13v14H4z"/><path d="M17 8h3v9a2 2 0 0 1-3 1.7"/><path d="M7 9h7M7 12.5h7M7 16h4"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.5S3.5 15 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6C20.5 15 12 20.5 12 20.5z"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.3 0 2-.9 2-1.8 0-1.3-1-1.7-1-2.7 0-.8.7-1.5 1.6-1.5H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8z"/><circle cx="7.5" cy="11" r="1.1"/><circle cx="10" cy="7" r="1.1"/><circle cx="14.5" cy="7.2" r="1.1"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-comment" viewBox="0 0 24 24"><path d="M20 12a7.5 7.5 0 0 1-10.9 6.7L4 20l1.4-4.6A7.5 7.5 0 1 1 20 12z"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 14a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V20a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 7.9 18l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 4 12.6H4a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 6 7.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 11.4 4V4a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8z"/></symbol>
+    <symbol id="i-device" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v4h4"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8.5a6 6 0 1 0-12 0c0 6-2.5 7.5-2.5 7.5h17S18 14.5 18 8.5z"/><path d="M13.7 20a2 2 0 0 1-3.4 0"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v6c0 4.2 3 7.4 7 9 4-1.6 7-4.8 7-9V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V5h6v2"/><path d="M6.5 7 7.5 20h9L17.5 7"/><path d="M10 11v6M14 11v6"/></symbol>
+    <symbol id="i-tv" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="m8 3 4 3 4-3"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3 3 10.5l7 3 3 7z"/><path d="M21 3 10 14"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="m4 18 5-5 4 4 3-2.5 4 3.5"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3.5 2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1L3.2 10l6.1-.9z"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 8 6 12l4 4"/><path d="M6 12h9"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 7.6v.6"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-megaphone" viewBox="0 0 24 24"><path d="M4 10v4a1 1 0 0 0 1 1h2l8 4V5L7 9H5a1 1 0 0 0-1 1z"/><path d="M18.5 9a4 4 0 0 1 0 6"/></symbol>
+    <symbol id="i-vol" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18V6L7.5 9.5z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6M18 6.8a7.5 7.5 0 0 1 0 10.4"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18V6L7.5 9.5z"/><path d="m16 10 4 4M20 10l-4 4"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="M6 5v14l9-7z"/><path d="M18 5v14"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><path d="M9 4H4v5"/><path d="M15 4h5v5"/><path d="M15 20h5v-5"/><path d="M9 20H4v-5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5.2l3.2 2"/></symbol>
+  </defs>
+</svg>
 <!-- LOADING SCREEN -->
 <div id="loadingScreen">
   <div class="ls-logo">
@@ -888,17 +958,17 @@ html,body{max-width:100%}
         IPLUS <em>MEDIA</em>
       </div>
       <label class="search" id="searchWrap">
-        <span>🔍</span><input id="q" placeholder="Video, yangilik yoki YouTube link…" autocomplete="off"
+        <span><svg class="ic-svg" aria-hidden="true"><use href="#i-search"></use></svg></span><input id="q" placeholder="Video, yangilik yoki YouTube link…" autocomplete="off"
           role="searchbox" aria-label="Qidiruv">
-        <button class="search-x" id="qClear" type="button" aria-label="Qidiruvni tozalash" hidden>✕</button>
+        <button class="search-x" id="qClear" type="button" aria-label="Qidiruvni tozalash" hidden><svg class="ic-svg" aria-hidden="true"><use href="#i-x"></use></svg></button>
       </label>
-      <button class="icon-btn" id="themeQuick" title="Tez tema" aria-label="Temalar do'koni">🎨</button>
+      <button class="icon-btn" id="themeQuick" title="Tez tema" aria-label="Temalar do'koni"><svg class="ic-svg" aria-hidden="true"><use href="#i-palette"></use></svg></button>
       <button class="avatar" id="avaBtn" aria-label="Profil"><img id="avaImg" alt="" hidden><span id="avaTxt">A</span></button>
     </header>
 
     <div class="notice" id="noticeBar" hidden>
-      <span class="ic">📢</span><span id="noticeTxt"></span>
-      <button class="x" id="noticeX" type="button" aria-label="E'lonni yopish">✕</button>
+      <span class="ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-megaphone"></use></svg></span><span id="noticeTxt"></span>
+      <button class="x" id="noticeX" type="button" aria-label="E'lonni yopish"><svg class="ic-svg" aria-hidden="true"><use href="#i-x"></use></svg></button>
     </div>
 
     <!-- ============ HOME ============ -->
@@ -913,7 +983,7 @@ html,body{max-width:100%}
       </div>
       <div class="sec">
         <div class="chips" id="homeChips"></div>
-        <div class="sec-h"><h2>🔥 <i>Sening uchun</i></h2><span class="more" id="cntAll"></span></div>
+        <div class="sec-h"><h2><svg class="ic-svg" aria-hidden="true"><use href="#i-star"></use></svg> <i>Sening uchun</i></h2><span class="more" id="cntAll"></span></div>
         <div class="grid" id="videoGrid"></div>
       </div>
     </section>
@@ -922,7 +992,7 @@ html,body{max-width:100%}
     <section class="screen" id="scr-search">
       <div class="sec" style="margin-top:16px">
         <div id="srchRecent" hidden>
-          <div class="sec-h"><h2>🕘 <i>Oxirgi qidiruvlar</i></h2>
+          <div class="sec-h"><h2><svg class="ic-svg" aria-hidden="true"><use href="#i-history"></use></svg> <i>Oxirgi qidiruvlar</i></h2>
             <button class="srch-clear" id="srchWipe" type="button">Tarixni tozalash</button></div>
           <div class="srch-recent" id="srchChips"></div>
         </div>
@@ -942,7 +1012,7 @@ html,body{max-width:100%}
           <div class="nlead" id="nLead"></div>
           <div class="nlist" id="nSide"></div>
         </div>
-        <div class="sec-h" style="margin-top:22px"><h2>🗂️ <i>Barcha yangiliklar</i></h2></div>
+        <div class="sec-h" style="margin-top:22px"><h2><svg class="ic-svg" aria-hidden="true"><use href="#i-news"></use></svg> <i>Barcha yangiliklar</i></h2></div>
         <div class="nlist" id="nList"></div>
       </div>
     </section>
@@ -951,8 +1021,8 @@ html,body{max-width:100%}
     <section class="screen" id="scr-fav">
       <div class="sec" style="margin-top:14px">
         <div class="chips" id="favTabs">
-          <button class="chip on" data-ft="v">🎬 Videolar</button>
-          <button class="chip" data-ft="n">📰 Saqlangan yangiliklar</button>
+          <button class="chip on" data-ft="v"><svg class="ic-svg" aria-hidden="true"><use href="#i-tv"></use></svg> Videolar</button>
+          <button class="chip" data-ft="n"><svg class="ic-svg" aria-hidden="true"><use href="#i-news"></use></svg> Saqlangan yangiliklar</button>
         </div>
         <div id="favContent"></div>
       </div>
@@ -982,12 +1052,12 @@ html,body{max-width:100%}
         <div class="stat"><b id="stTheme">0</b><span>TEMA</span></div>
       </div>
       <div class="rows">
-        <div class="row" id="rowTheme"><span class="ic">🎨</span> Temalar do'koni <span class="chev">›</span></div>
-        <div class="row" id="rowSupport"><span class="ic">💬</span> Qo'llab-quvvatlash <span class="chev">›</span></div>
-        <div class="row" id="rowShare"><span class="ic"></span> Do'stlarga ulashish <span class="chev">›</span></div>
-        <div class="row" id="rowWatchHistory"><span class="ic"></span> Tomosha tarixi <span class="chev">›</span></div>
-        <div class="row" id="rowSettings"><span class="ic">⚙️</span> Sozlanmalar <span class="chev">›</span></div>
-        <div class="row" id="rowAdmin"><span class="ic">️</span> Admin boshqaruv paneli <span class="chev">›</span></div>
+        <div class="row" id="rowTheme"><span class="ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-palette"></use></svg></span> Temalar do'koni <span class="chev">›</span></div>
+        <div class="row" id="rowSupport"><span class="ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-comment"></use></svg></span> Qo'llab-quvvatlash <span class="chev">›</span></div>
+        <div class="row" id="rowShare"><span class="ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-share"></use></svg></span> Do'stlarga ulashish <span class="chev">›</span></div>
+        <div class="row" id="rowWatchHistory"><span class="ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-history"></use></svg></span> Tomosha tarixi <span class="chev">›</span></div>
+        <div class="row" id="rowSettings"><span class="ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-gear"></use></svg></span> Sozlanmalar <span class="chev">›</span></div>
+        <div class="row" id="rowAdmin"><span class="ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-shield"></use></svg></span> Admin boshqaruv paneli <span class="chev">›</span></div>
       </div>
     </section>
     </section>
@@ -996,19 +1066,19 @@ html,body{max-width:100%}
   <!-- ============ TABBAR ============ -->
   <nav id="tabbar" aria-label="Asosiy navigatsiya">
     <span id="tabSlider" aria-hidden="true"></span>
-    <button class="on" data-tab="home" aria-label="Bosh sahifa" aria-current="page"><span class="ic">🏠</span>Bosh</button>
-    <button data-tab="news" aria-label="Yangiliklar"><span class="ic">📰</span>Yangiliklar</button>
-    <button data-tab="fav" aria-label="Sevimlilar"><span class="ic">❤️</span>Sevimli</button>
-    <button data-tab="profile" aria-label="Profil"><span class="ic">👤</span>Profil</button>
+    <button class="on" data-tab="home" aria-label="Bosh sahifa" aria-current="page"><span class="ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-home"></use></svg></span>Bosh</button>
+    <button data-tab="news" aria-label="Yangiliklar"><span class="ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-news"></use></svg></span>Yangiliklar</button>
+    <button data-tab="fav" aria-label="Sevimlilar"><span class="ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-heart"></use></svg></span>Sevimli</button>
+    <button data-tab="profile" aria-label="Profil"><span class="ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-user"></use></svg></span>Profil</button>
   </nav>
 </div>
 
 <!-- ============ PLAYER OVERLAY (custom IPLUS MEDIA player) ============ -->
 <div id="player" role="dialog" aria-modal="true">
   <div class="p-top">
-    <button class="icon-btn" id="pClose" aria-label="Yopish">✕</button>
+    <button class="icon-btn" id="pClose" aria-label="Yopish"><svg class="ic-svg" aria-hidden="true"><use href="#i-x"></use></svg></button>
     <h3 id="pTitle"></h3>
-    <button class="icon-btn" id="pCmtBtn" aria-label="Izohlar">💬</button>
+    <button class="icon-btn" id="pCmtBtn" aria-label="Izohlar"><svg class="ic-svg" aria-hidden="true"><use href="#i-comment"></use></svg></button>
   </div>
   <div class="p-wrap">
     <div class="p-main">
@@ -1020,7 +1090,7 @@ html,body{max-width:100%}
         <div class="pl-toast" id="plTapL"><b>↺ 10s</b></div>
         <div class="pl-toast" id="plTapR"><b>10s ↻</b></div>
         <div class="pl-end" id="plEnd" hidden>
-          <div class="big">🎬</div>
+          <div class="big"><svg class="ic-svg" aria-hidden="true"><use href="#i-play"></use></svg></div>
           <h3 id="plEndT">Video tugadi</h3>
           <p id="plEndS">Davomini ko'rasizmi?</p>
           <div class="row2">
@@ -1029,7 +1099,7 @@ html,body{max-width:100%}
           </div>
         </div>
         <div class="pl-err" id="plErr" hidden>
-          <div class="big">📡</div><h3>Bu video shu yerda o'ynamaydi</h3>
+          <div class="big"><svg class="ic-svg" aria-hidden="true"><use href="#i-info"></use></svg></div><h3>Bu video shu yerda o'ynamaydi</h3>
           <p>YouTube bu videoni joylashtirishni cheklagan bo'lishi mumkin.</p>
           <button class="pbtn main" id="plErrRetry" type="button">↺ Qayta urinish</button>
         </div>
@@ -1041,12 +1111,12 @@ html,body{max-width:100%}
             <button class="plb mini" id="plFwd" title="10 soniya oldinga" aria-label="10 soniya oldinga">↻</button>
             <span class="pl-time"><span id="plT">0:00</span> / <span id="plD">0:00</span></span>
             <span class="pl-grow"></span>
-            <button class="plb mini" id="plVol" aria-label="Ovoz">🔊</button>
+            <button class="plb mini" id="plVol" aria-label="Ovoz"><svg class="ic-svg" aria-hidden="true"><use href="#i-vol"></use></svg></button>
             <input type="range" id="plVolR" class="pl-volr" min="0" max="100" value="100" aria-label="Ovoz balandligi">
             <button class="plb speed" id="plSpeed" title="Tezlik" aria-label="Tezlik">1×</button>
-            <button class="plb mini" id="plNext" title="Keyingi video" aria-label="Keyingi video">⏭</button>
-            <button class="plb mini" id="plFs" title="To'liq ekran" aria-label="To'liq ekran">⛶</button>
-            <button class="plb mini pl-fsx" id="plFsX" title="To'liq ekrandan chiqish" aria-label="To'liq ekrandan chiqish">✕</button>
+            <button class="plb mini" id="plNext" title="Keyingi video" aria-label="Keyingi video"><svg class="ic-svg" aria-hidden="true"><use href="#i-next"></use></svg></button>
+            <button class="plb mini" id="plFs" title="To'liq ekran" aria-label="To'liq ekran"><svg class="ic-svg" aria-hidden="true"><use href="#i-expand"></use></svg></button>
+            <button class="plb mini pl-fsx" id="plFsX" title="To'liq ekrandan chiqish" aria-label="To'liq ekrandan chiqish"><svg class="ic-svg" aria-hidden="true"><use href="#i-x"></use></svg></button>
           </div>
         </div>
       </div>
@@ -1054,16 +1124,16 @@ html,body{max-width:100%}
         <div class="tagrow" id="pTags"></div>
         <h3 class="pi-title" id="piTitle"></h3>
         <div class="pi-meta">
-          <span id="pViews">👁 0</span><span id="pLikesN">🤍 0</span><span id="pCmtsN">💬 0</span><span id="pCat"></span>
+          <span id="pViews"><svg class="ic-svg" aria-hidden="true"><use href="#i-eye"></use></svg> 0</span><span id="pLikesN"><svg class="ic-svg" aria-hidden="true"><use href="#i-heart"></use></svg> 0</span><span id="pCmtsN"><svg class="ic-svg" aria-hidden="true"><use href="#i-comment"></use></svg> 0</span><span id="pCat"></span>
         </div>
         <p class="pi-desc" id="pDesc"></p>
         <div class="pi-acts">
-          <button class="pbtn" id="pLike" type="button">🤍 Layk</button>
-          <button class="pbtn" id="pShare" type="button">📤 Ulashish</button>
-          <button class="pbtn" id="pJump" type="button">💬 Izohlar <b id="pCmtN"></b></button>
+          <button class="pbtn" id="pLike" type="button"><svg class="ic-svg" aria-hidden="true"><use href="#i-heart"></use></svg> <span id="pLikeTxt">Layk</span></button>
+          <button class="pbtn" id="pShare" type="button"><svg class="ic-svg" aria-hidden="true"><use href="#i-share"></use></svg> Ulashish</button>
+          <button class="pbtn" id="pJump" type="button"><svg class="ic-svg" aria-hidden="true"><use href="#i-comment"></use></svg> Izohlar <b id="pCmtN"></b></button>
         </div>
         <div class="cmt-box" id="cmtBox">
-          <div class="cmt-head">💬 Izohlar <span class="n" id="cmtCount"></span>
+          <div class="cmt-head"><svg class="ic-svg" aria-hidden="true"><use href="#i-comment"></use></svg> Izohlar <span class="n" id="cmtCount"></span>
             <span class="cmt-live">jonli</span></div>
           <div class="cmt-list" id="cmtList"></div>
           <button class="cmt-more" id="cmtMore" type="button" hidden>Yana izohlarni ko'rsatish</button>
@@ -1073,7 +1143,7 @@ html,body{max-width:100%}
         <span class="ava" id="cmtAva">A</span>
         <textarea class="field" id="cmtText" placeholder="Izoh yozing…" maxlength="900" rows="1"
           aria-label="Izoh matni"></textarea>
-        <button class="cmt-send" id="cmtSend" type="button" aria-label="Izohni yuborish" disabled>➤</button>
+        <button class="cmt-send" id="cmtSend" type="button" aria-label="Izohni yuborish" disabled><svg class="ic-svg" aria-hidden="true"><use href="#i-send"></use></svg></button>
       </div>
     </div>
     <div class="p-side" id="pSide"></div>
@@ -1085,7 +1155,7 @@ html,body{max-width:100%}
   <div class="veil" data-close></div>
   <div class="panel">
     <div class="grab"></div>
-    <h2>🎨 Temalar do'koni</h2>
+    <h2><svg class="ic-svg" aria-hidden="true"><use href="#i-palette"></use></svg> Temalar do'koni</h2>
     <p class="hint">Bitta temani tanlang — butun ilova: fon, animatsiyalar, tugmalar va shrift o'sha olam ruhiga kiradi.</p>
     <div class="t-tabs" id="tTabs"></div>
     <div class="t-grid" id="tGrid"></div>
@@ -1109,7 +1179,7 @@ html,body{max-width:100%}
   <div class="veil" data-close></div>
   <div class="panel">
     <div class="grab"></div>
-    <h2>📤 Ulashish</h2>
+    <h2><svg class="ic-svg" aria-hidden="true"><use href="#i-share"></use></svg> Ulashish</h2>
     <p class="hint" id="shHint">IPLUS MEDIA</p>
     <div class="sh-list" id="shList"></div>
     <div class="sh-link"><span id="shUrl"></span><button id="shCopy" type="button">Nusxa</button></div>
@@ -1122,7 +1192,7 @@ html,body{max-width:100%}
   <div class="veil" data-close></div>
   <div class="panel" style="max-height:92dvh">
     <div class="grab"></div>
-    <h2>💬 Qo'llab-quvvatlash</h2>
+    <h2><svg class="ic-svg" aria-hidden="true"><use href="#i-comment"></use></svg> Qo'llab-quvvatlash</h2>
     <p class="hint">Admin bilan bog'laning. Tezkor javob olish uchun @Hayotiy_davom ga Telegram orqali ham murojat qilishingiz mumkin.</p>
     <div class="cmt-list" id="supportList" style="margin-top:12px;max-height:50dvh;overflow-y:auto"></div>
     <div class="cmt-add" id="supportAdd">
@@ -1143,13 +1213,13 @@ html,body{max-width:100%}
   <div class="veil" data-close></div>
   <div class="panel">
     <div class="grab"></div>
-    <h2>⚙️ Sozlanmalar</h2>
+    <h2><svg class="ic-svg" aria-hidden="true"><use href="#i-gear"></use></svg> Sozlanmalar</h2>
     <p class="hint">Ilova xususiyatlari va shaxsiy sozlamalar</p>
     <div style="margin-top:16px;display:grid;gap:12px">
-      <div class="row"><span class="ic">🔔</span> Bildirishnomalar <span class="switch on" id="swNotif"></span></div>
+      <div class="row"><span class="ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-bell"></use></svg></span> Bildirishnomalar <span class="switch on" id="swNotif"></span></div>
       <div class="row"><span class="ic">✨</span> Animatsiyalar <span class="switch on" id="swMotion"></span></div>
       <div class="row"><span class="ic"></span> Faqat Wi-Fi'da HD <span class="switch" id="swHd"></span></div>
-      <div class="row" id="rowDevicesInSettings"><span class="ic">📱</span> Qurilmalarim <span class="chev">›</span></div>
+      <div class="row" id="rowDevicesInSettings"><span class="ic"><svg class="ic-svg" aria-hidden="true"><use href="#i-device"></use></svg></span> Qurilmalarim <span class="chev">›</span></div>
       <div class="row" id="rowResetInSettings"><span class="ic"></span> Ma'lumotlarni tozalash <span class="chev">›</span></div>
     </div>
     <button class="btn ghost" data-close style="margin-top:18px">Yopish</button>
@@ -1175,7 +1245,7 @@ html,body{max-width:100%}
   <div class="veil" data-close></div>
   <div class="panel">
     <div class="grab"></div>
-    <h2>📱 Qurilmalarim</h2>
+    <h2><svg class="ic-svg" aria-hidden="true"><use href="#i-device"></use></svg> Qurilmalarim</h2>
     <p class="hint">Shu akkauntga kirgan barcha qurilmalar ro'yxati</p>
     <div id="devicesList" style="margin-top:12px;display:grid;gap:10px"></div>
     <button class="btn ghost" data-close style="margin-top:14px">Yopish</button>
@@ -1262,7 +1332,10 @@ function artOf(i,vars){ // har karta/hero uchun noyob gradient "muqova"
 /* ============================ STATE / STORAGE ============================ */
 const LS = {
   get(k,d){ try{ const v=localStorage.getItem('aurum.'+k); return v?JSON.parse(v):d }catch(e){ return d } },
-  set(k,v){ try{ localStorage.setItem('aurum.'+k,JSON.stringify(v)) }catch(e){} }
+  set(k,v){ try{ localStorage.setItem('aurum.'+k,JSON.stringify(v)) }catch(e){} },
+  remove(k){ try{ localStorage.removeItem('aurum.'+k) }catch(e){} },
+  /* massivni mustahkam o'qish: eski ikki marta kodlangan yoki oddiy holatni ham boshqaradi */
+  arr(k){ let v=this.get(k,null); if(typeof v==='string'){ try{ v=JSON.parse(v) }catch(e){ v=[] } } return Array.isArray(v)?v:[] }
 };
 /* doimiy foydalanuvchi ID: Telegram'da tg<id>, tashqarida qurilmaviy u<random> */
 if(!LS.get('uid',null)) LS.set('uid','u'+Date.now().toString(36)+Math.random().toString(36).slice(2,8));
@@ -1374,6 +1447,8 @@ function toast(msg,emoji){
   setTimeout(()=>{el.classList.add('out'); setTimeout(()=>el.remove(),350)},2400);
 }
 function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+/* Premium SVG icon helper — sprite'dan symbol chaqiradi */
+const ic=(n,cls='')=>`<svg class="ic-svg${cls?' '+cls:''}" aria-hidden="true"><use href="#i-${n}"></use></svg>`;
 /* YouTube link → video ID (watch?v=, youtu.be, shorts, embed yoki toza ID) */
 function ytId(s){
   s=String(s||'').trim();
@@ -1546,12 +1621,12 @@ function videoCard(v,i){
       ${+v.live?'<span class="live">LIVE</span>':''}
       <span class="dur">${esc(v.dur||'—')}</span>
       <button class="fav-pin ${liked?'on':''}" data-like="${esc(v.id)}" type="button"
-        aria-label="${liked?'Laykni olib tashlash':'Layk bosish'}">${liked?'❤️':'🤍'}</button>
-      <button class="share-pin" data-share="v:${esc(v.id)}" type="button" aria-label="Ulashish">↗</button>
+        aria-label="${liked?'Laykni olib tashlash':'Layk bosish'}">${ic('heart')}</button>
+      <button class="share-pin" data-share="v:${esc(v.id)}" type="button" aria-label="Ulashish">${ic('share')}</button>
       <span class="playmini"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
     </div>
-    <div class="body"><div class="kicker">${esc(v.cat)}</div><h4>${esc(v.title)}</h4>
-      <div class="sub"><span>👁 ${fmt(+v.views||0)}</span><span>·</span><span>${liked?'❤️':'🤍'} ${fmt(S.likeCounts[v.id]||0)}</span><span>·</span><span>💬 ${fmt(cmts)}</span></div>
+    <div class="body"><div class="kicker">${esc(v.cat)}${v.seriesId?` · ${ic('tv')} ${esc(v.seriesTitle||v.seriesId)}${v.episode?' · '+esc(v.episode)+'-qism':''}`:''}</div><h4>${esc(v.title)}</h4>
+      <div class="sub"><span>${ic('eye')} ${fmt(+v.views||0)}</span><span>·</span><span>${ic('heart')} ${fmt(S.likeCounts[v.id]||0)}</span><span>·</span><span>${ic('comment')} ${fmt(cmts)}</span></div>
     </div></div>`;
 }
 function renderHome(){
@@ -1562,7 +1637,7 @@ function renderHome(){
       <div class="art"></div>
       <div class="meta"><span class="badge">✦ Featured · ${esc(v.cat)}</span>
         <h3>${esc(v.title)}</h3><p>${esc(v.desc||'')}</p>
-        <div class="s-meta"><span>👁 ${fmt(v.views||0)} ko'rish</span><span>⏱ ${v.dur}</span><span>❤️ ${fmt(S.likeCounts[v.id]||0)}</span></div></div>
+        <div class="s-meta"><span>${ic('eye')} ${fmt(v.views||0)} ko'rish</span><span>${ic('clock')} ${v.dur}</span><span>${ic('heart')} ${fmt(S.likeCounts[v.id]||0)}</span></div></div>
       <span class="play-fab"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
     </div>`).join('');
   $('#heroDots').innerHTML = feats.map((_,i)=>`<i class="${i===0?'on':''}"></i>`).join('');
@@ -1572,8 +1647,8 @@ function renderHome(){
   const list=S.videos.filter(v=>S.homeCat==='Hammasi'||v.cat===S.homeCat);
   $('#videoGrid').innerHTML = list.length? list.map(videoCard).join('') :
     (S.videos.length
-      ? `<div class="empty" style="grid-column:1/-1"><div class="big">🗂️</div><h3>Bu kategoriyada video yo'q</h3><p>«Hammasi» bo'limini tanlang yoki boshqa kategoriyani ko'ring.</p></div>`
-      : `<div class="empty" style="grid-column:1/-1"><div class="big">🎬</div><h3>Hali videolar yo'q</h3><p>Kontent backend'dan keladi — admin boshqaruv paneli orqali video qo'shing.</p></div>`);
+      ? `<div class="empty" style="grid-column:1/-1"><div class="big">${ic('tv')}</div><h3>Bu kategoriyada video yo'q</h3><p>«Hammasi» bo'limini tanlang yoki boshqa kategoriyani ko'ring.</p></div>`
+      : `<div class="empty" style="grid-column:1/-1"><div class="big">${ic('tv')}</div><h3>Hali videolar yo'q</h3><p>Kontent backend'dan keladi — admin boshqaruv paneli orqali video qo'shing.</p></div>`);
   $('#cntAll').textContent=list.length? list.length+' ta video':'';
   // continue watching
   const hIds=Object.keys(S.hist).sort((a,b)=>S.hist[b].t-S.hist[a].t).slice(0,8);
@@ -1610,7 +1685,7 @@ async function toggleLike(id){
   if(ix>-1) S.myLikes.splice(ix,1); else S.myLikes.push(id);
   if(S.likeCounts[id]==null) S.likeCounts[id]=0;
   S.likeCounts[id]=Math.max(0,S.likeCounts[id]+(ix>-1?-1:1));
-  renderHome(); if(document.contains($('#videoGrid'))) $$('[data-like="'+id+'"]').forEach(b=>{b.classList.toggle('on',S.myLikes.includes(id));b.textContent=S.myLikes.includes(id)?'❤️':'🤍'});
+  renderHome(); if(document.contains($('#videoGrid'))) $$('[data-like="'+id+'"]').forEach(b=>{b.classList.toggle('on',S.myLikes.includes(id))});
   updatePlayerLikeUI();
   if(ix===-1 && !S.favs.includes(id)){ S.favs.push(id); LS.set('favs',S.favs); renderFav(); renderStats(); toast('Layklading — sevkli videolarga ham qo\'shildi','❤️'); if(navigator.vibrate)navigator.vibrate(18); }
   const j=await api({action:'social', op:'like', uid:S.uid, videoId:id});
@@ -1627,16 +1702,16 @@ function nRow(n,i){
   return `<div class="nrow" data-news="${esc(n.id)}" style="animation-delay:${Math.min(i*50,400)}ms">
     <div class="nart" style="--nbg:${artOf(i*2+3)}">${n.emoji||'📰'}</div>
     <div class="ntx"><h4>${esc(n.title)}</h4>
-      <div class="sub"><b>${esc(n.cat)}</b><span>·</span>${esc(n.src||'IPLUS MEDIA')}${+n.hot?' <span class="hot">🔥 HOT</span>':''}<span>·</span>${esc(n.time||'')} · ${+n.read||3} daq<span>·</span><span>👁 ${fmt(+n.reads||0)}</span></div>
+      <div class="sub"><b>${esc(n.cat)}</b><span>·</span>${esc(n.src||'IPLUS MEDIA')}${+n.hot?' <span class="hot">🔥 HOT</span>':''}<span>·</span>${esc(n.time||'')} · ${+n.read||3} daq<span>·</span><span>${ic('eye')} ${fmt(+n.reads||0)}</span></div>
     </div>
-    <button class="share-pin" data-share="n:${esc(n.id)}" type="button" aria-label="Ulashish">↗</button>
+    <button class="share-pin" data-share="n:${esc(n.id)}" type="button" aria-label="Ulashish">${ic('share')}</button>
   </div>`;
 }
 function renderNews(){
   if(!S.news.length){
     $('#tickText').textContent='';
     $('#newsChips').innerHTML=''; $('#nLead').innerHTML=''; $('#nSide').innerHTML='';
-    $('#nList').innerHTML=`<div class="empty"><div class="big">📭</div><h3>Hali yangiliklar yo'q</h3><p>Admin boshqaruv paneli orqali yangilik qo'shilsa, shu yerda real vaqtda paydo bo'ladi.</p></div>`;
+    $('#nList').innerHTML=`<div class="empty"><div class="big">${ic('news')}</div><h3>Hali yangiliklar yo'q</h3><p>Admin boshqaruv paneli orqali yangilik qo'shilsa, shu yerda real vaqtda paydo bo'ladi.</p></div>`;
     return;
   }
   $('#tickText').textContent = S.news.filter(n=>+n.hot).map(n=>n.title).join('   ✦   ') || S.news[0]?.title || '';
@@ -1651,7 +1726,7 @@ function renderNews(){
     <p style="font-size:11px;opacity:.7;margin-top:8px">${esc(lead.src||'IPLUS MEDIA')} · ${esc(lead.time||'')} · ${+lead.read||3} daqiqa · 👁 ${fmt(+lead.reads||0)}</p></div></div>`:'';
   $('#nSide').innerHTML = side.map(nRow).join('');
   $('#nList').innerHTML = rest.map((n,i)=>nRow(n,i)).join('') ||
-    `<div class="empty"><div class="big">🗂️</div><h3>Bu bo'lim bo'sh</h3><p>«${esc(S.newsCat)}» kategoriyasida hozircha yangilik yo'q.</p></div>`;
+    `<div class="empty"><div class="big">${ic('news')}</div><h3>Bu bo'lim bo'sh</h3><p>«${esc(S.newsCat)}» kategoriyasida hozircha yangilik yo'q.</p></div>`;
   bindNews();
 }
 let readerThread=null;
@@ -1671,18 +1746,18 @@ function openReader(id){
     <h2 style="font-family:var(--font-h);font-size:22px;line-height:1.3">${esc(n.title)}</h2>
     <div class="reader-hero" style="--nbg:${artOf(7)}">${n.emoji||'📰'}</div>
     <div class="n-stats">
-      <span>👁 <b id="rcReads">${fmt(+n.reads||0)}</b> o'qilgan</span>
-      <span>⏱ ${+n.read||3} daqiqa</span>
-      <span>💬 ${fmt(cmts)} izoh</span>
-      <span>📰 ${esc(n.src||'IPLUS MEDIA')}</span>
+      <span>${ic('eye')} <b id="rcReads">${fmt(+n.reads||0)}</b> o'qilgan</span>
+      <span>${ic('clock')} ${+n.read||3} daqiqa</span>
+      <span>${ic('comment')} ${fmt(cmts)} izoh</span>
+      <span>${ic('news')} ${esc(n.src||'IPLUS MEDIA')}</span>
     </div>
     <div class="reader-body"><p class="drop">${esc(n.body||'').split('\n\n').join('</p><p>')}</p></div>
     <div class="reader-acts">
-      <button class="btn" id="rSave" type="button">${saved?'💛 Saqlangan':'🔖 Saqlash'}</button>
-      <button class="btn ghost" id="rShare" type="button">📤 Ulashish</button>
+      <button class="btn" id="rSave" type="button">${saved?ic('check')+' Saqlangan':ic('star')+' Saqlash'}</button>
+      <button class="btn ghost" id="rShare" type="button">${ic('share')} Ulashish</button>
     </div>
     <div class="cmt-box" id="rcBox">
-      <div class="cmt-head">💬 Izohlar <span class="n" id="rcCount"></span>
+      <div class="cmt-head">${ic('comment')} Izohlar <span class="n" id="rcCount"></span>
         <span class="cmt-live">jonli</span></div>
       <div class="cmt-list" id="rcList"></div>
       <button class="cmt-more" id="rcMore" type="button" hidden>Yana izohlarni ko'rsatish</button>
@@ -1691,12 +1766,12 @@ function openReader(id){
       <span class="ava" id="rcAva">A</span>
       <textarea class="field" id="rcText" placeholder="Fikringizni yozing…" maxlength="900" rows="1"
         aria-label="Izoh matni"></textarea>
-      <button class="cmt-send" id="rcSend" type="button" aria-label="Izohni yuborish" disabled>➤</button>
+      <button class="cmt-send" id="rcSend" type="button" aria-label="Izohni yuborish" disabled>${ic('send')}</button>
     </div>`;
   $('#rSave').onclick=()=>{ const ix=S.saved.indexOf(id);
     if(ix>-1)S.saved.splice(ix,1); else S.saved.push(id);
     LS.set('saved',S.saved); renderFav();
-    $('#rSave').textContent=S.saved.includes(id)?'💛 Saqlangan':'🔖 Saqlash';
+    $('#rSave').innerHTML=S.saved.includes(id)?ic('check')+' Saqlangan':ic('star')+' Saqlash';
     toast(ix>-1?'Saqlangan yangiliklardan olib tashlandi':'Yangilik saqlandi','🔖'); };
   $('#rShare').onclick=()=>openShare('n',id,n.title);
   const pn=document.querySelector('#readerSheet .panel'); pn.scrollTop=0; pn.querySelector('.rprog i').style.width='0%';
@@ -1714,12 +1789,12 @@ function renderFav(){
   $$('#favTabs .chip').forEach(b=>b.classList.toggle('on',b.dataset.ft===S.favTab));
   if(S.favTab==='v'){
     const list=S.videos.filter(v=>S.favs.includes(v.id));
-    c.innerHTML = list.length? `<div class="sec-h" style="margin-top:6px"><h2>❤️ <i>Sevimli videolar</i></h2></div><div class="grid">${list.map(videoCard).join('')}</div>` :
-      `<div class="empty"><div class="big">🎬</div><h3>Hali sevimli video yo'q</h3><p>Bosh sahifadagi kartadagi ❤️ tugmasini bosing — video shu yerda paydo bo'ladi.</p></div>`;
+    c.innerHTML = list.length? `<div class="sec-h" style="margin-top:6px"><h2>${ic('heart')} <i>Sevimli videolar</i></h2></div><div class="grid">${list.map(videoCard).join('')}</div>` :
+      `<div class="empty"><div class="big">${ic('heart')}</div><h3>Hali sevimli video yo'q</h3><p>Bosh sahifadagi kartadagi layk tugmasini bosing — video shu yerda paydo bo'ladi.</p></div>`;
   }else{
     const list=S.news.filter(n=>S.saved.includes(n.id));
-    c.innerHTML = list.length? `<div class="sec-h" style="margin-top:6px"><h2>🔖 <i>Saqlangan yangiliklar</i></h2></div><div class="nlist">${list.map(nRow).join('')}</div>` :
-      `<div class="empty"><div class="big">📰</div><h3>Bu bo'lim bo'sh</h3><p>Yangilikni o'qib bo'lgach 🔖 tugmasi bilan saqlab qo'ying.</p></div>`;
+    c.innerHTML = list.length? `<div class="sec-h" style="margin-top:6px"><h2>${ic('star')} <i>Saqlangan yangiliklar</i></h2></div><div class="nlist">${list.map(nRow).join('')}</div>` :
+      `<div class="empty"><div class="big">${ic('news')}</div><h3>Bu bo'lim bo'sh</h3><p>Yangilikni o'qib bo'lgach saqlash tugmasi bilan saqlab qo'ying.</p></div>`;
   }
   bindPlay(); bindNews();
   renderStats();
@@ -1895,10 +1970,10 @@ function renderSearch(){
   $('#srchRecent').hidden=!!q;
   if(!q){
     $('#srchChips').innerHTML=S.searchHist.map(h=>
-      `<button type="button" data-sh="${esc(h)}">🕘 ${esc(h)}</button>`).join('') ||
+      `<button type="button" data-sh="${esc(h)}">${ic('history')} ${esc(h)}</button>`).join('') ||
       `<span style="font-size:12.5px;color:var(--muted)">Hozircha tarix bo'sh.</span>`;
     $$('#srchChips [data-sh]').forEach(b=>b.onclick=()=>{ $('#q').value=b.dataset.sh; renderSearch(); });
-    box.innerHTML=`<div class="sec-h"><h2>✨ <i>Mashhur yo'nalishlar</i></h2></div>
+    box.innerHTML=`<div class="sec-h"><h2>${ic('star')} <i>Mashhur yo'nalishlar</i></h2></div>
       <div class="srch-recent">${[...new Set(S.videos.map(v=>v.cat).filter(Boolean))].slice(0,12)
         .map(c=>`<button type="button" data-sc="${esc(c)}">${esc(c)}</button>`).join('')}</div>
       <p style="font-size:12.5px;color:var(--muted);margin-top:16px;line-height:1.7">
@@ -1908,14 +1983,14 @@ function renderSearch(){
   }
   const r=searchAll(q);
   if(!r.v.length && !r.n.length){
-    box.innerHTML=`<div class="empty"><div class="big">🔍</div><h3>«${esc(q)}» bo'yicha hech narsa topilmadi</h3>
+    box.innerHTML=`<div class="empty"><div class="big">${ic('search')}</div><h3>«${esc(q)}» bo'yicha hech narsa topilmadi</h3>
       <p>So'zni qisqartiring yoki boshqacha yozing. YouTube havolasini tashlasangiz — video darhol ochiladi.</p></div>`;
     return;
   }
   const vRow=x=>`<div class="s-res" data-sv="${esc(x.id)}">
       <i class="art" style="--tbg:${bgOf(x,S.videos.indexOf(x))}"></i>
       <div class="tx"><b>${hl(x.title,tk)}</b>
-        <span>${hl(x.cat||'Video',tk)} · 👁 ${fmt(+x.views||0)} · 💬 ${fmt(S.commentCounts[x.id]||0)}</span></div>
+        <span>${hl(x.cat||'Video',tk)} · ${ic('eye')} ${fmt(+x.views||0)} · ${ic('comment')} ${fmt(S.commentCounts[x.id]||0)}</span></div>
       <span class="go" aria-hidden="true">›</span></div>`;
   const nRowS=x=>`<div class="s-res" data-sn="${esc(x.id)}">
       <i class="art txt" style="--tbg:${artOf(S.news.indexOf(x))}">${x.emoji||'📰'}</i>
@@ -1923,9 +1998,9 @@ function renderSearch(){
         <span>${hl(x.cat||'Yangilik',tk)} · ${esc(x.src||'IPLUS MEDIA')} · ${+x.read||3} daq</span></div>
       <span class="go" aria-hidden="true">›</span></div>`;
   box.innerHTML=
-    (r.v.length?`<div class="sec-h"><h2>🎬 <i>Videolar</i></h2><span class="more">${r.v.length}</span></div>
+    (r.v.length?`<div class="sec-h"><h2>${ic('tv')} <i>Videolar</i></h2><span class="more">${r.v.length}</span></div>
       <div style="display:grid;gap:9px">${r.v.map(vRow).join('')}</div>`:'')+
-    (r.n.length?`<div class="sec-h" style="margin-top:20px"><h2>📰 <i>Yangiliklar</i></h2><span class="more">${r.n.length}</span></div>
+    (r.n.length?`<div class="sec-h" style="margin-top:20px"><h2>${ic('news')} <i>Yangiliklar</i></h2><span class="more">${r.n.length}</span></div>
       <div style="display:grid;gap:9px">${r.n.map(nRowS).join('')}</div>`:'');
   $$('#srchResults [data-sv]').forEach(el=>el.onclick=()=>openPlayer(el.dataset.sv));
   $$('#srchResults [data-sn]').forEach(el=>el.onclick=()=>openReader(el.dataset.sn));
@@ -2068,21 +2143,26 @@ function openPlayer(id){
   const vid=ytId(v.yt)||'';
   pl$('pTitle').textContent=v.title; pl$('piTitle').textContent=v.title;
   pl$('pDesc').textContent=v.desc||''; pl$('pCat').textContent=v.cat||'';
-  pl$('pViews').textContent='👁 '+fmt(+v.views||0);
-  pl$('pCmtsN').textContent='💬 '+fmt(S.commentCounts[v.id]||0);
+  pl$('pViews').innerHTML=ic('eye')+' '+fmt(+v.views||0);
+  pl$('pCmtsN').innerHTML=ic('comment')+' '+fmt(S.commentCounts[v.id]||0);
   pl$('pCmtN').textContent=(S.commentCounts[v.id]||0)?'('+(S.commentCounts[v.id]||0)+')':'';
   const tags=String(v.tags||'').split(/[,;]/).map(t=>t.trim()).filter(Boolean).slice(0,6);
-  pl$('pTags').innerHTML=(v.cat?`<span class="tag">${esc(v.cat)}</span>`:'')+
+  pl$('pTags').innerHTML=(v.seriesId?`<span class="tag" style="color:var(--accent2)">${ic('tv')} ${esc(v.seriesTitle||v.seriesId)}${v.season?' S'+esc(v.season):''}${v.episode?' E'+esc(v.episode):''}</span>`:'')+
+    (v.cat?`<span class="tag">${esc(v.cat)}</span>`:'')+
     (+v.live?'<span class="tag" style="color:#ff6b6b">🔴 LIVE</span>':'')+
     tags.map(t=>`<span class="tag" style="color:var(--muted)">#${esc(t)}</span>`).join('');
   pl$('plErr').hidden=true; pl$('plSpin').style.opacity=1;
   pl$('pStage').classList.add('paused','idle-start');
   const hist=S.hist[id]||{};
   ytEnsure(vid, (hist.pct>2&&hist.pct<97)?(+hist.sec||0):0);
-  pl$('pSide').innerHTML=`<h4 style="font-size:13px;letter-spacing:.1em;text-transform:uppercase;opacity:.6;margin-bottom:10px">Navbatda</h4>
-    <div class="side-videos">${S.videos.filter(x=>x.id!==id).slice(0,8).map((x,j)=>`
+  const sameSeries=v.seriesId?S.videos.filter(x=>x.id!==id&&x.seriesId===v.seriesId)
+    .sort((a,b)=>(+a.season||1)-(+b.season||1)||(+a.episode||0)-(+b.episode||0)):[];
+  const others=S.videos.filter(x=>x.id!==id&&!(v.seriesId&&x.seriesId===v.seriesId));
+  const sideList=sameSeries.concat(others).slice(0,8);
+  pl$('pSide').innerHTML=`<h4 style="font-size:13px;letter-spacing:.1em;text-transform:uppercase;opacity:.6;margin-bottom:10px">${sameSeries.length?'Shu serial qismlari':'Navbatda'}</h4>
+    <div class="side-videos">${sideList.map((x,j)=>`
       <div class="sv" data-splay="${esc(x.id)}"><i style="--tbg:${bgOf(x,j)}"></i>
-        <div><b>${esc(x.title)}</b><span>${esc(x.cat)} · ${esc(x.dur||'—')} · ♡ ${fmt(S.likeCounts[x.id]||0)}</span></div></div>`).join('')
+        <div><b>${x.seriesId&&x.episode?esc(x.episode)+'-qism · ':''}${esc(x.title)}</b><span>${esc(x.cat)} · ${esc(x.dur||'—')} · ♡ ${fmt(S.likeCounts[x.id]||0)}</span></div></div>`).join('')
       ||'<p style="font-size:12px;opacity:.55">Boshqa video yo\'q.</p>'}</div>`;
   $$('[data-splay]').forEach(el=>el.onclick=()=>openPlayer(el.dataset.splay));
   updatePlayerLikeUI();
@@ -2094,9 +2174,15 @@ function openPlayer(id){
   cmtReset(id);
   ctlShow();
 }
-/* — keyingi video — */
+/* — keyingi video (serial bo'lsa keyingi qism) — */
 function nextVideo(){
   if(!curVideo||!S.videos.length) return null;
+  if(curVideo.seriesId){
+    const eps=S.videos.filter(x=>x.seriesId===curVideo.seriesId)
+      .sort((a,b)=>(+a.season||1)-(+b.season||1)||(+a.episode||0)-(+b.episode||0));
+    const ei=eps.findIndex(x=>x.id===curVideo.id);
+    if(ei>-1&&ei<eps.length-1) return eps[ei+1];
+  }
   const i=S.videos.findIndex(x=>x.id===curVideo.id);
   return S.videos[(i+1)%S.videos.length]||null;
 }
@@ -2128,7 +2214,7 @@ async function countView(){
   if(!j||!j.ok) { viewedFor=null; return; }
   const v=S.videos.find(x=>x.id===id);
   if(v) v.views=j.views;
-  if(curVideo&&curVideo.id===id) pl$('pViews').textContent='👁 '+fmt(+j.views||0);
+  if(curVideo&&curVideo.id===id) pl$('pViews').innerHTML=ic('eye')+' '+fmt(+j.views||0);
   
   // Tomosha tarixiga qo'shish
   addToWatchHistory(curVideo);
@@ -2136,12 +2222,13 @@ async function countView(){
 
 function addToWatchHistory(video){
   try{
-    const h = JSON.parse(LS.get('watchHistory')||'[]');
+    if(!video||!video.id) return;
+    const h = LS.arr('watchHistory');
     const existing = h.findIndex(x => x.id === video.id);
     if(existing >= 0) h.splice(existing, 1);
     h.unshift({ id: video.id, title: video.title, cat: video.cat, ts: Date.now() });
     if(h.length > 100) h.length = 100;
-    LS.set('watchHistory', JSON.stringify(h));
+    LS.set('watchHistory', h);
   }catch(e){ console.warn('addToWatchHistory error:', e); }
 }
 async function pollCounters(){
@@ -2152,16 +2239,16 @@ async function pollCounters(){
   const v=S.videos.find(x=>x.id===id);
   if(v){ v.views=j.views; }
   S.likeCounts[id]=j.likes; S.commentCounts[id]=j.comments;
-  pl$('pViews').textContent='👁 '+fmt(+j.views||0);
-  pl$('pCmtsN').textContent='💬 '+fmt(+j.comments||0);
+  pl$('pViews').innerHTML=ic('eye')+' '+fmt(+j.views||0);
+  pl$('pCmtsN').innerHTML=ic('comment')+' '+fmt(+j.comments||0);
   updatePlayerLikeUI();
 }
 function updatePlayerLikeUI(){
   if(!curVideo) return;
   const liked=S.myLikes.includes(curVideo.id);
-  pl$('pLike').textContent=liked?'❤️ Layklandi':'🤍 Layk';
+  pl$('pLikeTxt').textContent=liked?'Layklandi':'Layk';
   pl$('pLike').classList.toggle('on',liked);
-  pl$('pLikesN').textContent='🤍 '+fmt(S.likeCounts[curVideo.id]||0);
+  pl$('pLikesN').innerHTML=ic('heart')+' '+fmt(S.likeCounts[curVideo.id]||0);
 }
 /* — to'liq ekran: brauzer API, iOS'da esa kengaytirilgan sahna — */
 function toggleFs(){
@@ -2176,16 +2263,20 @@ function toggleFs(){
     return; 
   }
   const req=st.requestFullscreen||st.webkitRequestFullscreen;
-  if(req){ try{ const p=req.call(st); if(p&&p.catch) p.catch(()=>pseudoFs()); }catch(e){ pseudoFs(); } }
+  if(req){ try{ const p=req.call(st);
+    if(p&&p.then){ p.then(()=>{ st.classList.add('fs'); enterFsChrome(); }).catch(()=>pseudoFs()); }
+    else { st.classList.add('fs'); enterFsChrome(); }
+  }catch(e){ pseudoFs(); } }
   else pseudoFs();
+}
+function enterFsChrome(){
+  try{ screen.orientation?.lock?.('landscape').catch(()=>{}); }catch(e){}
+  try{ const tg=window.Telegram?.WebApp; if(tg){ tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000'); } }catch(e){}
+  ctlShow();
 }
 function pseudoFs(){
   pl$('pStage').classList.add('fs');
-  // Landshaft rejimi
-  try{ screen.orientation?.lock?.('landscape').catch(()=>{}); }catch(e){}
-  // Telegram WebApp headerni yashirish
-  try{ const tg=window.Telegram?.WebApp; if(tg){ tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000'); } }catch(e){}
-  ctlShow();
+  enterFsChrome();
 }
 function exitFs(){
   const x=document.exitFullscreen||document.webkitExitFullscreen;
@@ -2213,13 +2304,17 @@ pl$('plSpeed').onclick=()=>{ speedIx=(speedIx+1)%SPEEDS.length; LS.set('speedIx'
   try{ yt.setPlaybackRate(SPEEDS[speedIx]); }catch(e){}
   pl$('plSpeed').textContent=SPEEDS[speedIx]+'×'; toast('Tezlik: '+SPEEDS[speedIx]+'×','⏩'); ctlShow(); };
 pl$('plVolR').oninput=e=>{ const n=+e.target.value; try{ yt.setVolume(n); n>0?yt.unMute():yt.mute(); }catch(x){}
-  pl$('plVol').textContent=n===0?'🔇':(n<50?'🔉':'🔊'); lastVol=n||lastVol; };
+  pl$('plVol').innerHTML=n===0?ic('mute'):ic('vol'); lastVol=n||lastVol; };
 pl$('plVol').onclick=()=>{ try{ const v=yt.isMuted()?(lastVol||80):0; yt.setVolume(v); v?yt.unMute():yt.mute();
-  pl$('plVolR').value=v; pl$('plVol').textContent=v?'🔊':'🔇'; }catch(e){} ctlShow(); };
+  pl$('plVolR').value=v; pl$('plVol').innerHTML=v?ic('vol'):ic('mute'); }catch(e){} ctlShow(); };
 pl$('plFs').onclick=toggleFs;
 pl$('plFsX').onclick=()=>{ pl$('pStage').classList.remove('fs'); try{ screen.orientation?.unlock?.(); }catch(e){} ctlShow(); };
 pl$('plBackFs').onclick=()=>{ if(pl$('pStage').classList.contains('fs')){ pl$('pStage').classList.remove('fs'); try{ screen.orientation?.unlock?.(); }catch(e){} ctlShow(); } };
-document.addEventListener('fullscreenchange',()=>{ try{ if(document.fullscreenElement) yt.playVideo(); }catch(e){} });
+document.addEventListener('fullscreenchange',()=>{ try{
+  if(document.fullscreenElement||document.webkitFullscreenElement){ yt.playVideo(); }
+  else { pl$('pStage').classList.remove('fs'); try{ screen.orientation?.unlock?.(); }catch(x){}
+    try{ const tg=window.Telegram?.WebApp; if(tg){ tg.setHeaderColor(null); tg.setBackgroundColor(null); } }catch(x){} }
+}catch(e){} });
 $('#pShare').onclick=()=>openShare(curVideo?'v':null,curVideo&&curVideo.id,curVideo&&curVideo.title);
 $('#pLike').onclick=()=>{ if(curVideo) toggleLike(curVideo.id); };
 function closePlayer(){
@@ -2259,8 +2354,8 @@ function Thread(prefix,itemId,onCount){
         <div class="cx">${esc(c.text)}</div>
         <div class="cacts">
           <button type="button" data-vote="${esc(c.id)}" class="${voted?'voted':''}"
-            aria-label="Izohga ovoz berish">${voted?'❤️':'🤍'} ${+c.likes||''}</button>
-          ${mine?`<button type="button" data-del="${esc(c.id)}">🗑 O'chirish</button>`:''}
+            aria-label="Izohga ovoz berish">${ic('heart')} ${+c.likes||''}</button>
+          ${mine?`<button type="button" data-del="${esc(c.id)}">${ic('trash')} O'chirish</button>`:''}
         </div></div></div>`;
   };
   T.render=(loading)=>{
@@ -2336,7 +2431,7 @@ function cmtReset(id){
   if(cmtThread) cmtThread.stop();
   cmtThread=Thread('cmt',id,n=>{
     S.commentCounts[id]=n;
-    pl$('pCmtsN').textContent='💬 '+fmt(n);
+    pl$('pCmtsN').innerHTML=ic('comment')+' '+fmt(n);
     pl$('pCmtN').textContent=n?'('+n+')':'';
     const b=pl$('pCmtBtn'); if(b) b.setAttribute('aria-label','Izohlar '+n);
   });
@@ -2430,9 +2525,9 @@ $('#rowResetInSettings').onclick=()=>{
 /* Watch History oynasi */
 function renderWatchHistory(){
   const list=$('#watchHistoryList');
-  const history = JSON.parse(LS.get('watchHistory')||'[]');
+  const history = LS.arr('watchHistory');
   if(!history.length){
-    list.innerHTML='<div class="empty" style="padding:24px;text-align:center"><div class="big">📭</div><h3>Hali tomosha tarixi yo\'q</h3><p>Ko\'rgan videolaringiz shu yerda paydo bo\'ladi.</p></div>';
+    list.innerHTML='<div class="empty" style="padding:24px;text-align:center"><div class="big"><svg class="ic-svg" aria-hidden="true"><use href="#i-history"></use></svg></div><h3>Hali tomosha tarixi yo\'q</h3><p>Ko\'rgan videolaringiz shu yerda paydo bo\'ladi.</p></div>';
     $('#clearAllHistory').style.display='none';
     return;
   }
@@ -2443,11 +2538,14 @@ function renderWatchHistory(){
       <div class="ntx"><h4>${esc(v.title||v.id)}</h4><div class="sub">${esc(v.cat||'')} · ${timeAgo(+v.ts||Date.now())}</div></div>
       <button class="icon-btn wh-del" data-widx="${i}" type="button" aria-label="O'chirish">×</button>
     </div>`).join('');
+  list.querySelectorAll('.nrow').forEach(row=>{
+    row.onclick=()=>{ const v=history[+row.dataset.widx]; if(v&&v.id) openPlayer(v.id); };
+  });
   list.querySelectorAll('.wh-del').forEach(btn=>{
     btn.onclick=(e)=>{
       e.stopPropagation();
       const idx=+btn.dataset.widx;
-      const h=JSON.parse(LS.get('watchHistory')||'[]');
+      const h=LS.arr('watchHistory');
       h.splice(idx,1);
       LS.set('watchHistory',h);
       renderWatchHistory();
@@ -2495,47 +2593,52 @@ function getCurrentDeviceInfo(){
 
 function registerCurrentDevice(){
   try{
-    const devices = JSON.parse(LS.get('devices')||'[]');
+    const devices = LS.arr('devices');
     const current = getCurrentDeviceInfo();
     const existingIdx = devices.findIndex(d => d.id === current.id);
     if(existingIdx >= 0){
       devices[existingIdx].lastSeen = current.lastSeen;
       devices[existingIdx].active = true;
+      devices[existingIdx].name = current.name;
+      devices[existingIdx].platform = current.platform;
     } else {
       devices.push(current);
     }
-    LS.set('devices', JSON.stringify(devices));
+    LS.set('devices', devices);
   }catch(e){ console.warn('registerCurrentDevice error:', e); }
 }
 
 function renderDevices(){
   const list=$('#devicesList');
-  const devices = JSON.parse(LS.get('devices')||'[]');
+  let devices = LS.arr('devices');
   const current = getCurrentDeviceInfo();
-  
+
   if(!devices.length){
     registerCurrentDevice();
-    return renderDevices();
+    devices = LS.arr('devices');
   }
-  
+
   list.innerHTML = devices.map(d => {
     const isCurrent = d.id === current.id;
     return `
     <div class="row" style="padding:12px">
-      <span class="ic">${isCurrent ? '✅' : '📱'}</span>
+      <span class="ic">${isCurrent ? ic('check') : ic('device')}</span>
       <div style="flex:1;min-width:0">
         <div style="font-weight:600;font-size:13px">${esc(d.name)}</div>
         <div style="font-size:11px;color:var(--muted);margin-top:2px">${esc(d.platform)} · ${esc(d.lastSeen)}</div>
       </div>
-      ${isCurrent ? '<span class="pill">Hozirgi</span>' : `<button class="copy-id" onclick="removeDevice('${d.id}')" type="button">O'chirish</button>`}
+      ${isCurrent ? '<span class="pill">Hozirgi</span>' : `<button class="copy-id" data-deldev="${esc(d.id)}" type="button">O'chirish</button>`}
     </div>`;
   }).join('');
+  list.querySelectorAll('[data-deldev]').forEach(b=>{
+    b.onclick=()=>removeDevice(b.dataset.deldev);
+  });
 }
 
 function removeDevice(id){
-  let devices = JSON.parse(LS.get('devices')||'[]');
+  let devices = LS.arr('devices');
   devices = devices.filter(d => d.id !== id);
-  LS.set('devices', JSON.stringify(devices));
+  LS.set('devices', devices);
   renderDevices();
   toast('Qurilma o\'chirildi','✓');
 }
@@ -2590,7 +2693,9 @@ async function renderSupportChat(){
   // Setup send button
   const text=$('#supportText');
   const send=$('#supportSend');
-  text.oninput=()=>{ send.disabled=!text.value.trim(); send.classList.toggle('ready',!!text.value.trim()); };
+  const syncSend=()=>{ const ok=!!text.value.trim()||!!pendingSupportImg; send.disabled=!ok; send.classList.toggle('ready',ok); };
+  text.oninput=syncSend;
+  syncSend();
   send.onclick=sendSupportMessage;
 }
 
