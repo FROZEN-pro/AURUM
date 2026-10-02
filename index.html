@@ -14,7 +14,7 @@
    IPLUS MEDIA · themeable streaming web-app
    Barcha vizual tokenlar CSS custom properties orqali —
    tema almashtirganda butun ilova (fon, tugmalar, shrift,
-   animatsiya, particles) qayta bo’yaladi.
+   animatsiya, particles) qayta bo'yaladi.
    ============================================================ */
 :root{
   --bg0:#0b0b0e; --bg1:#141419; --bg2:#1d1d26;
@@ -92,7 +92,7 @@ main{flex:1;min-width:0;padding:0 var(--pad) calc(var(--tab-h) + env(safe-area-i
 .avatar{width:40px;height:40px;border-radius:var(--r-btn);background:var(--grad);flex:none;
   display:grid;place-items:center;font-weight:800;color:#fff;border:0;box-shadow:var(--glow)}
 
-/* ---------- bo’lim sarlavhalari ---------- */
+/* ---------- bo'lim sarlavhalari ---------- */
 .sec{margin-top:26px}
 .sec-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;gap:10px}
 .sec-h h2{font-family:var(--font-h);font-size:19px;font-weight:800;letter-spacing:.01em}
@@ -378,8 +378,8 @@ main{flex:1;min-width:0;padding:0 var(--pad) calc(var(--tab-h) + env(safe-area-i
 .pi-acts{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
 
 /* ---------- IZOHLAR — plejer va reader uchun umumiy blok.
-   Ranglar kontekst o‘zgaruvchilari orqali: qora pleyerda oq,
-   temali sheet’da tema ranglarida. ---------- */
+   Ranglar kontekst o'zgaruvchilari orqali: qora pleyerda oq,
+   temali sheet'da tema ranglarida. ---------- */
 #player{--cmt-fg:#fff;--cmt-dim:rgba(255,255,255,.6);--cmt-bg:rgba(255,255,255,.08);
   --cmt-line:rgba(255,255,255,.14);--cmt-bar:rgba(8,8,12,.84)}
 .sheet .panel{--cmt-fg:var(--text);--cmt-dim:var(--muted);--cmt-bg:var(--surface);
@@ -412,7 +412,7 @@ main{flex:1;min-width:0;padding:0 var(--pad) calc(var(--tab-h) + env(safe-area-i
 .cmt-more{display:block;margin:10px auto 0;padding:9px 18px;border-radius:99px;background:var(--cmt-bg);
   border:1px solid var(--cmt-line);color:var(--cmt-fg);font-size:12.5px;font-weight:600}
 .cmt-empty{text-align:center;padding:26px 10px;color:var(--cmt-dim);font-size:13px;line-height:1.6}
-/* — yopishqoq yozish paneli: izohlar doim ochiq, matn maydoni doim ko‘rinadi — */
+/* — yopishqoq yozish paneli: izohlar doim ochiq, matn maydoni doim ko'rinadi — */
 .cmt-add{position:sticky;bottom:0;z-index:6;display:flex;gap:9px;align-items:flex-end;
   padding:10px 16px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--cmt-line);
   background:var(--cmt-bar);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
@@ -471,7 +471,7 @@ main{flex:1;min-width:0;padding:0 var(--pad) calc(var(--tab-h) + env(safe-area-i
 .search-x:hover{color:var(--text)}
 .search-x[hidden]{display:none}
 
-/* ============================ E’LON BANNERI ============================ */
+/* ============================ E'LON BANNERI ============================ */
 .notice{display:flex;gap:10px;align-items:flex-start;margin-top:12px;padding:12px 12px 12px 14px;border-radius:var(--r);
   background:color-mix(in srgb,var(--accent) 12%,var(--surface));
   border:1px solid color-mix(in srgb,var(--accent) 32%,var(--line));
@@ -496,7 +496,7 @@ main{flex:1;min-width:0;padding:0 var(--pad) calc(var(--tab-h) + env(safe-area-i
 .sh-link button{flex:none;color:var(--accent);font-weight:700;font-size:11.5px;padding:4px 8px;border-radius:8px;
   background:var(--surface2)}
 
-/* ============================ PLEYER: YAKUN EKRANI + TO‘LIQ EKRAN ============================ */
+/* ============================ PLEYER: YAKUN EKRANI + TO'LIQ EKRAN ============================ */
 .pl-end{position:absolute;inset:0;z-index:3;display:grid;place-content:center;justify-items:center;gap:12px;
   padding:22px;text-align:center;color:#fff;opacity:0;pointer-events:none;transition:opacity .4s;
   background:radial-gradient(120% 100% at 50% 40%,rgba(12,12,18,.9),rgba(0,0,0,.97))}
@@ -720,14 +720,14 @@ main{flex:1;min-width:0;padding:0 var(--pad) calc(var(--tab-h) + env(safe-area-i
 
 /* ============================================================
    SMARTFON QATLAMI — ilova faqat telefon kengligiga moslanadi:
-   gorizontal shishish yo‘q, hech narsa kesilmaydi.
+   gorizontal shishish yo'q, hech narsa kesilmaydi.
    ============================================================ */
 [hidden]{display:none!important}
 html,body{max-width:100%}
 @media (max-width:720px){
   :root{--r:16px;--r-sm:11px;--pad:13px;--tab-h:64px}
   body{font-size:14px}
-  /* — topbar: izuv maydoni kichrayishiga yo‘l qo‘ymaydi — */
+  /* — topbar: izuv maydoni kichrayishiga yo'l qo'ymaydi — */
   .topbar{gap:8px;padding:calc(9px + env(safe-area-inset-top)) 0 9px}
   .topbar>*{min-width:0}
   .logo{font-size:17px;gap:7px;flex:none}
@@ -737,7 +737,7 @@ html,body{max-width:100%}
   .search input{min-width:0;font-size:13px}
   .icon-btn,.avatar{width:36px;height:36px;font-size:15px}
   .avatar{font-size:13px}
-  /* — bo‘limlar — */
+  /* — bo'limlar — */
   .sec{margin-top:20px}
   .sec-h{margin-bottom:10px}
   .sec-h h2{font-size:16.5px}
@@ -786,11 +786,11 @@ html,body{max-width:100%}
   .rows{gap:8px}
   .row{padding:12px 13px;gap:11px;font-size:13.5px}
   .row .ic{width:33px;height:33px;font-size:15px;border-radius:10px}
-  /* — tema do‘koni — */
+  /* — tema do'koni — */
   .sheet .panel{padding:15px 14px calc(18px + env(safe-area-inset-bottom));
     border-radius:22px 22px 0 0;max-height:90dvh}
   .sheet .panel h2{font-size:19px}
-  /* kitobcha (reader) telefonda pastdan ochiladigan to‘liq varaq bo‘ladi */
+  /* kitobcha (reader) telefonda pastdan ochiladigan to'liq varaq bo'ladi */
   #readerSheet .panel{left:0!important;right:0!important;top:auto!important;bottom:0!important;
     transform:none!important;width:auto;max-width:none;margin:0;border-radius:22px 22px 0 0;
     max-height:92dvh;animation:sheetUp .45s cubic-bezier(.22,1,.36,1)}
@@ -823,7 +823,7 @@ html,body{max-width:100%}
   .s-res .art{width:64px}
   .s-res .art.txt{width:48px;height:48px;font-size:20px}
   .s-res b{font-size:13px}
-  /* — ulashish va e’lon — */
+  /* — ulashish va e'lon — */
   .sh-opt{padding:11px 12px;gap:10px}
   .sh-opt .ic{width:34px;height:34px;font-size:16px}
   .notice{font-size:12.5px;padding:11px 10px 11px 12px}
@@ -892,13 +892,13 @@ html,body{max-width:100%}
           role="searchbox" aria-label="Qidiruv">
         <button class="search-x" id="qClear" type="button" aria-label="Qidiruvni tozalash" hidden>✕</button>
       </label>
-      <button class="icon-btn" id="themeQuick" title="Tez tema" aria-label="Temalar do‘koni">🎨</button>
+      <button class="icon-btn" id="themeQuick" title="Tez tema" aria-label="Temalar do'koni">🎨</button>
       <button class="avatar" id="avaBtn" aria-label="Profil"><img id="avaImg" alt="" hidden><span id="avaTxt">A</span></button>
     </header>
 
     <div class="notice" id="noticeBar" hidden>
       <span class="ic">📢</span><span id="noticeTxt"></span>
-      <button class="x" id="noticeX" type="button" aria-label="E’lonni yopish">✕</button>
+      <button class="x" id="noticeX" type="button" aria-label="E'lonni yopish">✕</button>
     </div>
 
     <!-- ============ HOME ============ -->
@@ -976,9 +976,9 @@ html,body{max-width:100%}
         </div>
       </div>
       <div class="stats">
-        <div class="stat"><b id="stWatch">0</b><span>KO‘RILGAN</span></div>
+        <div class="stat"><b id="stWatch">0</b><span>KO'RILGAN</span></div>
         <div class="stat"><b id="stFav">0</b><span>SEVIMLI</span></div>
-        <div class="stat"><b id="stNews">0</b><span>O‘QILGAN</span></div>
+        <div class="stat"><b id="stNews">0</b><span>O'QILGAN</span></div>
         <div class="stat"><b id="stTheme">0</b><span>TEMA</span></div>
       </div>
       <div class="rows">
@@ -1016,21 +1016,21 @@ html,body{max-width:100%}
         <button class="pl-back" id="plBackFs" aria-label="Orqaga qaytish">←</button>
         <div id="ytHost"></div>
         <div class="pl-spin" id="plSpin"><i></i></div>
-        <button class="pl-big" id="plBig" aria-label="Ko‘rishni boshlash"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+        <button class="pl-big" id="plBig" aria-label="Ko'rishni boshlash"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
         <div class="pl-toast" id="plTapL"><b>↺ 10s</b></div>
         <div class="pl-toast" id="plTapR"><b>10s ↻</b></div>
         <div class="pl-end" id="plEnd" hidden>
           <div class="big">🎬</div>
           <h3 id="plEndT">Video tugadi</h3>
-          <p id="plEndS">Davomini ko‘rasizmi?</p>
+          <p id="plEndS">Davomini ko'rasizmi?</p>
           <div class="row2">
             <button class="pbtn main" id="plEndNext" type="button">⏭ Keyingi video</button>
-            <button class="pbtn" id="plEndReplay" type="button">↺ Qayta ko‘rish</button>
+            <button class="pbtn" id="plEndReplay" type="button">↺ Qayta ko'rish</button>
           </div>
         </div>
         <div class="pl-err" id="plErr" hidden>
-          <div class="big">📡</div><h3>Bu video shu yerda o’ynamaydi</h3>
-          <p>YouTube bu videoni joylashtirishni cheklagan bo’lishi mumkin.</p>
+          <div class="big">📡</div><h3>Bu video shu yerda o'ynamaydi</h3>
+          <p>YouTube bu videoni joylashtirishni cheklagan bo'lishi mumkin.</p>
           <button class="pbtn main" id="plErrRetry" type="button">↺ Qayta urinish</button>
         </div>
         <div class="pl-ctl" id="plCtl">
@@ -1045,8 +1045,8 @@ html,body{max-width:100%}
             <input type="range" id="plVolR" class="pl-volr" min="0" max="100" value="100" aria-label="Ovoz balandligi">
             <button class="plb speed" id="plSpeed" title="Tezlik" aria-label="Tezlik">1×</button>
             <button class="plb mini" id="plNext" title="Keyingi video" aria-label="Keyingi video">⏭</button>
-            <button class="plb mini" id="plFs" title="To‘liq ekran" aria-label="To‘liq ekran">⛶</button>
-            <button class="plb mini pl-fsx" id="plFsX" title="To‘liq ekrandan chiqish" aria-label="To‘liq ekrandan chiqish">✕</button>
+            <button class="plb mini" id="plFs" title="To'liq ekran" aria-label="To'liq ekran">⛶</button>
+            <button class="plb mini pl-fsx" id="plFsX" title="To'liq ekrandan chiqish" aria-label="To'liq ekrandan chiqish">✕</button>
           </div>
         </div>
       </div>
@@ -1066,7 +1066,7 @@ html,body{max-width:100%}
           <div class="cmt-head">💬 Izohlar <span class="n" id="cmtCount"></span>
             <span class="cmt-live">jonli</span></div>
           <div class="cmt-list" id="cmtList"></div>
-          <button class="cmt-more" id="cmtMore" type="button" hidden>Yana izohlarni ko‘rsatish</button>
+          <button class="cmt-more" id="cmtMore" type="button" hidden>Yana izohlarni ko'rsatish</button>
         </div>
       </div>
       <div class="cmt-add" id="cmtAdd">
@@ -1085,8 +1085,8 @@ html,body{max-width:100%}
   <div class="veil" data-close></div>
   <div class="panel">
     <div class="grab"></div>
-    <h2>🎨 Temalar do‘koni</h2>
-    <p class="hint">Bitta temani tanlang — butun ilova: fon, animatsiyalar, tugmalar va shrift o‘sha olam ruhiga kiradi.</p>
+    <h2>🎨 Temalar do'koni</h2>
+    <p class="hint">Bitta temani tanlang — butun ilova: fon, animatsiyalar, tugmalar va shrift o'sha olam ruhiga kiradi.</p>
     <div class="t-tabs" id="tTabs"></div>
     <div class="t-grid" id="tGrid"></div>
     <button class="btn ghost" data-close style="margin-top:18px">Yopish</button>
@@ -1186,15 +1186,15 @@ html,body{max-width:100%}
 
 <script>
 /* ============================================================
-   CONFIG — GitHub Pages’da qo’yganingizdan keyin shu qatorni
-   to’ldiring (code.gs → Deploy → Web app URL):
+   CONFIG — GitHub Pages'da qo'yganingizdan keyin shu qatorni
+   to'ldiring (code.gs → Deploy → Web app URL):
    ============================================================ */
 window.APP_CONFIG = {
   API_URL: "https://script.google.com/macros/s/AKfycbysfIFbYeJIE5eaINhc2BElTQd96zMvFRAR6wUvTFSHQMjod-6PGNg4m4m5UZgQ7Socaw/exec",
   ADMIN_PANEL: "admin.html",
   BOT_USERNAME: "iplus_media_bot"
 };
-/* code.gs’dagi OWNERS bilan bir xil — Telegram ID orqali avtomatik admin */
+/* code.gs'dagi OWNERS bilan bir xil — Telegram ID orqali avtomatik admin */
 const TG_OWNERS = ['858310974', '2004566289'];
 
 /* ============================ THEMES ============================ */
@@ -1213,7 +1213,7 @@ const THEMES = [
   fx:{type:'rise',n:34},
   v:{bg0:'#04050e',bg1:'#080b1c',bg2:'#0c1028',text:'#d9e2ff',muted:'#7f8ab8',
   accent:'#7c5cff',accent2:'#38d9f5',fontH:"'Orbitron',sans-serif"}},
- {id:'spirited-away', cat:'anime', name:'Ruhlar olami', sub:'Sitsi kema · tush ko’lati', emoji:'🏮',
+ {id:'spirited-away', cat:'anime', name:'Ruhlar olami', sub:'Sitsi kema · tush ko\'lati', emoji:'🏮',
   fx:{type:'mote',n:22},
   v:{bg0:'#0b1a1e',bg1:'#10262b',bg2:'#153036',text:'#fdeef2',muted:'#93b3ae',
   accent:'#e85d6f',accent2:'#f6c9a0',fontH:"'Zen Maru Gothic',sans-serif"}},
@@ -1229,7 +1229,7 @@ const THEMES = [
   fx:{type:'confetti',n:30},
   v:{bg0:'#fdf7e8',bg1:'#faf0da',bg2:'#f5e9cc',text:'#2b2b46',muted:'#8b87a5',
   accent:'#2f6fed',accent2:'#ff5c8a',fontH:"'Fredoka',sans-serif",light:1}},
- {id:'avengers', cat:'cinema', name:'Avengers', sub:'Marvel · po’lat va alanga', emoji:'🛡️',
+ {id:'avengers', cat:'cinema', name:'Avengers', sub:'Marvel · po\'lat va alanga', emoji:'🛡️',
   fx:{type:'spark',n:24},
   v:{bg0:'#0a0c12',bg1:'#10131d',bg2:'#161a27',text:'#eef1f7',muted:'#8c93a8',
   accent:'#e62429',accent2:'#f2a516',fontH:"'Bebas Neue',sans-serif"}},
@@ -1241,11 +1241,11 @@ const THEMES = [
   fx:{type:'star',n:46},
   v:{bg0:'#050b18',bg1:'#0a1426',bg2:'#0e1b31',text:'#e8eefb',muted:'#7e8db0',
   accent:'#3f7cbf',accent2:'#e8c982',fontH:"'Playfair Display',serif"}},
- {id:'classic-light', cat:'classic', name:'Klassik · Yorug’', sub:'Sof oq · kun rejimi', emoji:'☀️',
+ {id:'classic-light', cat:'classic', name:'Klassik · Yorug\'', sub:'Sof oq · kun rejimi', emoji:'☀️',
   fx:{type:'none'},
   v:{bg0:'#f5f6fa',bg1:'#ffffff',bg2:'#eef0f6',text:'#15171e',muted:'#6b7280',
   accent:'#4f46e5',accent2:'#0ea5e9',fontH:"'Inter',sans-serif",light:1}},
- {id:'classic-dark', cat:'classic', name:'Klassik · Tun', sub:'Netflix ruhidagi premium qorong’i', emoji:'🌙',
+ {id:'classic-dark', cat:'classic', name:'Klassik · Tun', sub:'Netflix ruhidagi premium qorong\'i', emoji:'🌙',
   fx:{type:'none'},
   v:{bg0:'#0b0b0e',bg1:'#131318',bg2:'#1b1b22',text:'#f2f3f7',muted:'#9aa0b4',
   accent:'#8b7cf8',accent2:'#4cc9f0',fontH:"'Inter',sans-serif"}},
@@ -1264,7 +1264,7 @@ const LS = {
   get(k,d){ try{ const v=localStorage.getItem('aurum.'+k); return v?JSON.parse(v):d }catch(e){ return d } },
   set(k,v){ try{ localStorage.setItem('aurum.'+k,JSON.stringify(v)) }catch(e){} }
 };
-/* doimiy foydalanuvchi ID: Telegram’da tg<id>, tashqarida qurilmaviy u<random> */
+/* doimiy foydalanuvchi ID: Telegram'da tg<id>, tashqarida qurilmaviy u<random> */
 if(!LS.get('uid',null)) LS.set('uid','u'+Date.now().toString(36)+Math.random().toString(36).slice(2,8));
 const S = {
   uid: LS.get('uid'),
@@ -1278,7 +1278,7 @@ const S = {
   read:   LS.get('read',[]),
   user:   LS.get('user',null),        // {name, tg, role, tgId, photo, premium}
   themeSwitches: LS.get('themeSwitches',0),
-  videos: [], news: [],               // faqat backend’dan (real ma’lumot)
+  videos: [], news: [],               // faqat backend'dan (real ma'lumot)
   likeCounts: {}, commentCounts: {}, myLikes: LS.get('myLikes',[]),
   tab:'home', homeCat:'Hammasi', newsCat:'Hammasi', favTab:'v',
   searchHist: LS.get('searchHist',[])
@@ -1392,15 +1392,15 @@ function bgOf(v,i,q){
 }
 
 /* ---------- Matnni solishtirish uchun normallashtirish ----------
-   O‘zbek lotin yozuvida bir xil so‘z turli belgi bilan yoziladi:
-   o‘ / o' / oʼ / o` — qidiruv bularning hammasini bir xil tushunadi.
-   Apostrof belgilari butunlay tashlab yuboriladi: «o‘zbek» = «ozbek» = «o'zbek». */
+   O'zbek lotin yozuvida bir xil so'z turli belgi bilan yoziladi:
+   o' / o' / oʼ / o` — qidiruv bularning hammasini bir xil tushunadi.
+   Apostrof belgilari butunlay tashlab yuboriladi: «o'zbek» = «ozbek» = «o'zbek». */
 const APOS=/[\u2018\u2019\u02BB\u02BC\u00B4\u0060']/;
 function uz(s){
   return String(s==null?'':s).toLowerCase().split('').filter(c=>!APOS.test(c)).join('')
     .replace(/\s+/g,' ').trim();
 }
-/* Normallashtirilgan belgidan asl matndagi indeksga o‘tish — <mark> uchun */
+/* Normallashtirilgan belgidan asl matndagi indeksga o'tish — <mark> uchun */
 function uzMap(s){
   const src=String(s==null?'':s); let t=''; const map=[];
   for(let i=0;i<src.length;i++){
@@ -1411,7 +1411,7 @@ function uzMap(s){
   return {t,map};
 }
 function toks(q){ return uz(q).split(' ').filter(Boolean); }
-/* Har bir so‘z matnda bo‘lishi shart (AND). Boshlanish > butun so‘z > ichida. */
+/* Har bir so'z matnda bo'lishi shart (AND). Boshlanish > butun so'z > ichida. */
 function matchScore(text,tk){
   if(!tk.length) return 0;
   const t=uz(text); if(!t) return 0;
@@ -1424,7 +1424,7 @@ function matchScore(text,tk){
   }
   return score;
 }
-/* Topilgan so‘zlarni natijada <mark> bilan ajratib ko‘rsatish */
+/* Topilgan so'zlarni natijada <mark> bilan ajratib ko'rsatish */
 function hl(s,tk){
   const src=String(s==null?'':s);
   if(!tk.length) return esc(src);
@@ -1434,7 +1434,7 @@ function hl(s,tk){
     if(k.length<2) return;
     let from=0,ix;
     while((ix=t.indexOf(k,from))>=0){
-      /* asl matndagi oraliq ham belgilanadi — tushirib qoldirilgan apostroflar <mark>ni bo‘lib yubormasin */
+      /* asl matndagi oraliq ham belgilanadi — tushirib qoldirilgan apostroflar <mark>ni bo'lib yubormasin */
       const a=map[ix], b=map[ix+k.length-1];
       if(a!=null&&b!=null) for(let o=a;o<=b;o++) hit[o]=1;
       from=ix+k.length;
@@ -1479,7 +1479,7 @@ async function copyText(t){
   document.body.appendChild(ta); ta.select();
   let done=false; try{ done=document.execCommand('copy'); }catch(e){}
   ta.remove();
-  toast(done?'Havola nusxalandi':'Nusxalab bo‘lmadi',done?'📋':'⚠️');
+  toast(done?'Havola nusxalandi':'Nusxalab bo\'lmadi',done?'📋':'⚠️');
 }
 
 /* ---------- Ulashish oynasi ---------- */
@@ -1491,10 +1491,10 @@ function openShare(kind,id,title){
   const opts=[
     {ic:'📲',t:'Boshqa ilovada ulashish',s:'Telefon menzusi orqali',need:!!navigator.share,
      act:()=>navigator.share({title:'IPLUS MEDIA',text,url}).catch(()=>{})},
-    {ic:'✈️',t:'Telegram’ga yuborish',s:'Chat, guruh yoki kanalga',act:()=>tgOpen(tgShare)},
+    {ic:'✈️',t:'Telegram\'ga yuborish',s:'Chat, guruh yoki kanalga',act:()=>tgOpen(tgShare)},
     {ic:'🤖',t:'Bot orqali ochiladigan havola',s:bot||'—',need:!!bot,
      act:()=>{copyText(bot); tgOpen(bot);}},
-    {ic:'💬',t:'WhatsApp',s:'Do‘stlarga yuborish',
+    {ic:'💬',t:'WhatsApp',s:'Do\'stlarga yuborish',
      act:()=>extOpen(`https://wa.me/?text=${encodeURIComponent(text+' '+url)}`)},
     {ic:'📘',t:'Facebook',s:'Devorda ulashish',
      act:()=>extOpen(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`)},
@@ -1527,7 +1527,7 @@ function timeAgo(ts){
   return new Date(+ts).toLocaleDateString();
 }
 
-/* ============================ TRACKING (Sheets’ga boradi) ============================ */
+/* ============================ TRACKING (Sheets'ga boradi) ============================ */
 function track(event,itemId,meta){
   const payload={event,itemId,meta:meta||'',userId:S.uid,theme:S.theme,ts:Date.now()};
   if(window.APP_CONFIG.API_URL){
@@ -1572,8 +1572,8 @@ function renderHome(){
   const list=S.videos.filter(v=>S.homeCat==='Hammasi'||v.cat===S.homeCat);
   $('#videoGrid').innerHTML = list.length? list.map(videoCard).join('') :
     (S.videos.length
-      ? `<div class="empty" style="grid-column:1/-1"><div class="big">🗂️</div><h3>Bu kategoriyada video yo‘q</h3><p>«Hammasi» bo‘limini tanlang yoki boshqa kategoriyani ko‘ring.</p></div>`
-      : `<div class="empty" style="grid-column:1/-1"><div class="big">🎬</div><h3>Hali videolar yo‘q</h3><p>Kontent backend’dan keladi — admin boshqaruv paneli orqali video qo‘shing.</p></div>`);
+      ? `<div class="empty" style="grid-column:1/-1"><div class="big">🗂️</div><h3>Bu kategoriyada video yo'q</h3><p>«Hammasi» bo'limini tanlang yoki boshqa kategoriyani ko'ring.</p></div>`
+      : `<div class="empty" style="grid-column:1/-1"><div class="big">🎬</div><h3>Hali videolar yo'q</h3><p>Kontent backend'dan keladi — admin boshqaruv paneli orqali video qo'shing.</p></div>`);
   $('#cntAll').textContent=list.length? list.length+' ta video':'';
   // continue watching
   const hIds=Object.keys(S.hist).sort((a,b)=>S.hist[b].t-S.hist[a].t).slice(0,8);
@@ -1602,7 +1602,7 @@ function bindNews(){
   });
 }
 
-/* ============================ LIKE (real-time, ♥ = sevklilar bilan bog’liq) ============================ */
+/* ============================ LIKE (real-time, ♥ = sevklilar bilan bog'liq) ============================ */
 let likeBusy=false;
 async function toggleLike(id){
   if(likeBusy) return; likeBusy=true;
@@ -1612,7 +1612,7 @@ async function toggleLike(id){
   S.likeCounts[id]=Math.max(0,S.likeCounts[id]+(ix>-1?-1:1));
   renderHome(); if(document.contains($('#videoGrid'))) $$('[data-like="'+id+'"]').forEach(b=>{b.classList.toggle('on',S.myLikes.includes(id));b.textContent=S.myLikes.includes(id)?'❤️':'🤍'});
   updatePlayerLikeUI();
-  if(ix===-1 && !S.favs.includes(id)){ S.favs.push(id); LS.set('favs',S.favs); renderFav(); renderStats(); toast('Layklading — sevkli videolarga ham qo’shildi','❤️'); if(navigator.vibrate)navigator.vibrate(18); }
+  if(ix===-1 && !S.favs.includes(id)){ S.favs.push(id); LS.set('favs',S.favs); renderFav(); renderStats(); toast('Layklading — sevkli videolarga ham qo\'shildi','❤️'); if(navigator.vibrate)navigator.vibrate(18); }
   const j=await api({action:'social', op:'like', uid:S.uid, videoId:id});
   if(j.ok){ S.likeCounts[id]=j.count; if(j.liked!==S.myLikes.includes(id)){ /* server holati ustun */
       const k=S.myLikes.indexOf(id); if(j.liked&&k===-1)S.myLikes.push(id); if(!j.liked&&k>-1)S.myLikes.splice(k,1); } }
@@ -1636,7 +1636,7 @@ function renderNews(){
   if(!S.news.length){
     $('#tickText').textContent='';
     $('#newsChips').innerHTML=''; $('#nLead').innerHTML=''; $('#nSide').innerHTML='';
-    $('#nList').innerHTML=`<div class="empty"><div class="big">📭</div><h3>Hali yangiliklar yo‘q</h3><p>Admin boshqaruv paneli orqali yangilik qo‘shilsa, shu yerda real vaqtda paydo bo‘ladi.</p></div>`;
+    $('#nList').innerHTML=`<div class="empty"><div class="big">📭</div><h3>Hali yangiliklar yo'q</h3><p>Admin boshqaruv paneli orqali yangilik qo'shilsa, shu yerda real vaqtda paydo bo'ladi.</p></div>`;
     return;
   }
   $('#tickText').textContent = S.news.filter(n=>+n.hot).map(n=>n.title).join('   ✦   ') || S.news[0]?.title || '';
@@ -1651,7 +1651,7 @@ function renderNews(){
     <p style="font-size:11px;opacity:.7;margin-top:8px">${esc(lead.src||'IPLUS MEDIA')} · ${esc(lead.time||'')} · ${+lead.read||3} daqiqa · 👁 ${fmt(+lead.reads||0)}</p></div></div>`:'';
   $('#nSide').innerHTML = side.map(nRow).join('');
   $('#nList').innerHTML = rest.map((n,i)=>nRow(n,i)).join('') ||
-    `<div class="empty"><div class="big">🗂️</div><h3>Bu bo‘lim bo‘sh</h3><p>«${esc(S.newsCat)}» kategoriyasida hozircha yangilik yo‘q.</p></div>`;
+    `<div class="empty"><div class="big">🗂️</div><h3>Bu bo'lim bo'sh</h3><p>«${esc(S.newsCat)}» kategoriyasida hozircha yangilik yo'q.</p></div>`;
   bindNews();
 }
 let readerThread=null;
@@ -1671,7 +1671,7 @@ function openReader(id){
     <h2 style="font-family:var(--font-h);font-size:22px;line-height:1.3">${esc(n.title)}</h2>
     <div class="reader-hero" style="--nbg:${artOf(7)}">${n.emoji||'📰'}</div>
     <div class="n-stats">
-      <span>👁 <b id="rcReads">${fmt(+n.reads||0)}</b> o‘qilgan</span>
+      <span>👁 <b id="rcReads">${fmt(+n.reads||0)}</b> o'qilgan</span>
       <span>⏱ ${+n.read||3} daqiqa</span>
       <span>💬 ${fmt(cmts)} izoh</span>
       <span>📰 ${esc(n.src||'IPLUS MEDIA')}</span>
@@ -1685,7 +1685,7 @@ function openReader(id){
       <div class="cmt-head">💬 Izohlar <span class="n" id="rcCount"></span>
         <span class="cmt-live">jonli</span></div>
       <div class="cmt-list" id="rcList"></div>
-      <button class="cmt-more" id="rcMore" type="button" hidden>Yana izohlarni ko‘rsatish</button>
+      <button class="cmt-more" id="rcMore" type="button" hidden>Yana izohlarni ko'rsatish</button>
     </div>
     <div class="cmt-add flat" id="rcAdd">
       <span class="ava" id="rcAva">A</span>
@@ -1715,11 +1715,11 @@ function renderFav(){
   if(S.favTab==='v'){
     const list=S.videos.filter(v=>S.favs.includes(v.id));
     c.innerHTML = list.length? `<div class="sec-h" style="margin-top:6px"><h2>❤️ <i>Sevimli videolar</i></h2></div><div class="grid">${list.map(videoCard).join('')}</div>` :
-      `<div class="empty"><div class="big">🎬</div><h3>Hali sevimli video yo‘q</h3><p>Bosh sahifadagi kartadagi ❤️ tugmasini bosing — video shu yerda paydo bo‘ladi.</p></div>`;
+      `<div class="empty"><div class="big">🎬</div><h3>Hali sevimli video yo'q</h3><p>Bosh sahifadagi kartadagi ❤️ tugmasini bosing — video shu yerda paydo bo'ladi.</p></div>`;
   }else{
     const list=S.news.filter(n=>S.saved.includes(n.id));
     c.innerHTML = list.length? `<div class="sec-h" style="margin-top:6px"><h2>🔖 <i>Saqlangan yangiliklar</i></h2></div><div class="nlist">${list.map(nRow).join('')}</div>` :
-      `<div class="empty"><div class="big">📰</div><h3>Bu bo‘lim bo‘sh</h3><p>Yangilikni o‘qib bo‘lgach 🔖 tugmasi bilan saqlab qo‘ying.</p></div>`;
+      `<div class="empty"><div class="big">📰</div><h3>Bu bo'lim bo'sh</h3><p>Yangilikni o'qib bo'lgach 🔖 tugmasi bilan saqlab qo'ying.</p></div>`;
   }
   bindPlay(); bindNews();
   renderStats();
@@ -1759,8 +1759,8 @@ function renderProfile(){
   paintAvatar('#pAvaImg','#pAvaTxt',name.slice(0,1).toUpperCase(),src);
   paintAvatar('#avaImg','#avaTxt',name.slice(0,1).toUpperCase(),src);
   $('#pPremium').classList.toggle('premium',!!u);
-  $('#pPremium').textContent=u?(u.premium?'✦ Telegram PREMIUM':'✦ Telegram a’zo'):'✦ Mehmon';
-  $('#rowAdmin').classList.toggle('hidden', !(u?.role==='admin'||TG_OWNERS.includes(tgId))); // faqat admin’ga
+  $('#pPremium').textContent=u?(u.premium?'✦ Telegram PREMIUM':'✦ Telegram a\'zo'):'✦ Mehmon';
+  $('#rowAdmin').classList.toggle('hidden', !(u?.role==='admin'||TG_OWNERS.includes(tgId))); // faqat admin'ga
 }
 $('#pIdCopy').addEventListener('click',async e=>{
   e.stopPropagation();
@@ -1786,7 +1786,7 @@ function go(tab){
 function moveSlider(){
   const s=$('#tabSlider'), b=$(`#tabbar button[data-tab="${S.tab}"]`);
   if(!s) return;
-  if(!b){ s.style.opacity='0'; return; }   // qidiruv ekrani — tabbar’da tugmasi yo‘q
+  if(!b){ s.style.opacity='0'; return; }   // qidiruv ekrani — tabbar'da tugmasi yo'q
   s.style.opacity='1';
   if(matchMedia('(min-width:920px)').matches){
     s.style.left=b.offsetLeft+'px'; s.style.width='3px';
@@ -1869,7 +1869,7 @@ function searchAll(q){
     s+=matchScore(x.cat,tk)*2;
     s+=matchScore(x.desc,tk);
     const yid=ytId(x.yt);
-    if(yid && uz(q).indexOf(uz(yid))>=0) s+=12;      // YouTube ID bo‘yicha topish
+    if(yid && uz(q).indexOf(uz(yid))>=0) s+=12;      // YouTube ID bo'yicha topish
     if(s>0) v.push({x,s:s+(+x.featured?1:0)+(+x.views||0)/1e6});
   });
   S.news.forEach(x=>{
@@ -1896,20 +1896,20 @@ function renderSearch(){
   if(!q){
     $('#srchChips').innerHTML=S.searchHist.map(h=>
       `<button type="button" data-sh="${esc(h)}">🕘 ${esc(h)}</button>`).join('') ||
-      `<span style="font-size:12.5px;color:var(--muted)">Hozircha tarix bo‘sh.</span>`;
+      `<span style="font-size:12.5px;color:var(--muted)">Hozircha tarix bo'sh.</span>`;
     $$('#srchChips [data-sh]').forEach(b=>b.onclick=()=>{ $('#q').value=b.dataset.sh; renderSearch(); });
-    box.innerHTML=`<div class="sec-h"><h2>✨ <i>Mashhur yo‘nalishlar</i></h2></div>
+    box.innerHTML=`<div class="sec-h"><h2>✨ <i>Mashhur yo'nalishlar</i></h2></div>
       <div class="srch-recent">${[...new Set(S.videos.map(v=>v.cat).filter(Boolean))].slice(0,12)
         .map(c=>`<button type="button" data-sc="${esc(c)}">${esc(c)}</button>`).join('')}</div>
       <p style="font-size:12.5px;color:var(--muted);margin-top:16px;line-height:1.7">
-        Sarlavha, kategoriya, teg yoki YouTube havolasi bo‘yicha qidiring. Barcha so‘zlar mos kelishi kerak.</p>`;
+        Sarlavha, kategoriya, teg yoki YouTube havolasi bo'yicha qidiring. Barcha so'zlar mos kelishi kerak.</p>`;
     $$('#srchResults [data-sc]').forEach(b=>b.onclick=()=>{ $('#q').value=b.dataset.sc; renderSearch(); });
     return;
   }
   const r=searchAll(q);
   if(!r.v.length && !r.n.length){
-    box.innerHTML=`<div class="empty"><div class="big">🔍</div><h3>«${esc(q)}» bo‘yicha hech narsa topilmadi</h3>
-      <p>So‘zni qisqartiring yoki boshqacha yozing. YouTube havolasini tashlasangiz — video darhol ochiladi.</p></div>`;
+    box.innerHTML=`<div class="empty"><div class="big">🔍</div><h3>«${esc(q)}» bo'yicha hech narsa topilmadi</h3>
+      <p>So'zni qisqartiring yoki boshqacha yozing. YouTube havolasini tashlasangiz — video darhol ochiladi.</p></div>`;
     return;
   }
   const vRow=x=>`<div class="s-res" data-sv="${esc(x.id)}">
@@ -1957,7 +1957,7 @@ $('#q').addEventListener('keydown',e=>{
   if(e.key==='Escape'){ $('#q').blur(); }
 });
 
-/* ============================ E’LON (backend settings.notice) ============================ */
+/* ============================ E'LON (backend settings.notice) ============================ */
 function renderNotice(txt){
   txt=String(txt||'').trim();
   const bar=$('#noticeBar');
@@ -1996,7 +1996,7 @@ async function ytEnsure(vid,startAt){
   YT.ready(()=>{
     yt=new YT.Player('ytFrame',{
       videoId:vid,
-      /* YouTube’ning o’z interfeysi butunlay yashiriladi — faqat IPLUS MEDIA boshqaruvi */
+      /* YouTube'ning o'z interfeysi butunlay yashiriladi — faqat IPLUS MEDIA boshqaruvi */
       playerVars:{controls:0,disablekb:1,modestbranding:1,rel:0,iv_load_policy:3,playsinline:1,
         fs:0,hl:'uz',color:'white',cc_load_policy:0,annotations:0,showinfo:0,autohide:1,
         origin:location.origin,widget_referrer:location.origin},
@@ -2083,7 +2083,7 @@ function openPlayer(id){
     <div class="side-videos">${S.videos.filter(x=>x.id!==id).slice(0,8).map((x,j)=>`
       <div class="sv" data-splay="${esc(x.id)}"><i style="--tbg:${bgOf(x,j)}"></i>
         <div><b>${esc(x.title)}</b><span>${esc(x.cat)} · ${esc(x.dur||'—')} · ♡ ${fmt(S.likeCounts[x.id]||0)}</span></div></div>`).join('')
-      ||'<p style="font-size:12px;opacity:.55">Boshqa video yo‘q.</p>'}</div>`;
+      ||'<p style="font-size:12px;opacity:.55">Boshqa video yo\'q.</p>'}</div>`;
   $$('[data-splay]').forEach(el=>el.onclick=()=>openPlayer(el.dataset.splay));
   updatePlayerLikeUI();
   $('#player').classList.add('open'); document.body.style.overflow='hidden';
@@ -2109,7 +2109,7 @@ function playNext(){
 function showEnd(){
   const nx=nextVideo();
   pl$('plEndT').textContent='Video tugadi';
-  pl$('plEndS').textContent=nx?'Keyingisi: '+nx.title:'Bu videoni qayta ko‘rishingiz mumkin';
+  pl$('plEndS').textContent=nx?'Keyingisi: '+nx.title:'Bu videoni qayta ko\'rishingiz mumkin';
   pl$('plEndNext').hidden=!nx;
   const e=pl$('plEnd'); e.hidden=false;
   requestAnimationFrame(()=>e.classList.add('on'));
@@ -2118,7 +2118,7 @@ function showEnd(){
 function hideEnd(){ const e=pl$('plEnd'); if(!e) return; e.classList.remove('on'); e.hidden=true; }
 pl$('plEndNext').onclick=()=>{ hideEnd(); playNext(); };
 pl$('plEndReplay').onclick=()=>{ hideEnd(); try{ yt.seekTo(0,true); yt.playVideo(); }catch(e){} };
-/* — ko‘rishlar: real vaqtda va takrorlanmas — */
+/* — ko'rishlar: real vaqtda va takrorlanmas — */
 let viewedFor=null, cntTick=null;
 async function countView(){
   if(!curVideo||viewedFor===curVideo.id) return;
@@ -2129,6 +2129,20 @@ async function countView(){
   const v=S.videos.find(x=>x.id===id);
   if(v) v.views=j.views;
   if(curVideo&&curVideo.id===id) pl$('pViews').textContent='👁 '+fmt(+j.views||0);
+  
+  // Tomosha tarixiga qo'shish
+  addToWatchHistory(curVideo);
+}
+
+function addToWatchHistory(video){
+  try{
+    const h = JSON.parse(LS.get('watchHistory')||'[]');
+    const existing = h.findIndex(x => x.id === video.id);
+    if(existing >= 0) h.splice(existing, 1);
+    h.unshift({ id: video.id, title: video.title, cat: video.cat, ts: Date.now() });
+    if(h.length > 100) h.length = 100;
+    LS.set('watchHistory', JSON.stringify(h));
+  }catch(e){ console.warn('addToWatchHistory error:', e); }
 }
 async function pollCounters(){
   if(!curVideo||!$('#player').classList.contains('open')) return;
@@ -2149,23 +2163,35 @@ function updatePlayerLikeUI(){
   pl$('pLike').classList.toggle('on',liked);
   pl$('pLikesN').textContent='🤍 '+fmt(S.likeCounts[curVideo.id]||0);
 }
-/* — to‘liq ekran: brauzer API, iOS’da esa kengaytirilgan sahna — */
+/* — to'liq ekran: brauzer API, iOS'da esa kengaytirilgan sahna — */
 function toggleFs(){
   const st=pl$('pStage');
   if(document.fullscreenElement||document.webkitFullscreenElement){ exitFs(); return; }
-  if(st.classList.contains('fs')){ st.classList.remove('fs'); try{ screen.orientation?.unlock?.(); }catch(e){} ctlShow(); return; }
+  if(st.classList.contains('fs')){ 
+    st.classList.remove('fs'); 
+    try{ screen.orientation?.unlock?.(); }catch(e){} 
+    // Telegram WebApp header ko'rsatish
+    try{ const tg=window.Telegram?.WebApp; if(tg){ tg.setHeaderColor(null); tg.setBackgroundColor(null); } }catch(e){}
+    ctlShow(); 
+    return; 
+  }
   const req=st.requestFullscreen||st.webkitRequestFullscreen;
   if(req){ try{ const p=req.call(st); if(p&&p.catch) p.catch(()=>pseudoFs()); }catch(e){ pseudoFs(); } }
   else pseudoFs();
 }
 function pseudoFs(){
   pl$('pStage').classList.add('fs');
+  // Landshaft rejimi
   try{ screen.orientation?.lock?.('landscape').catch(()=>{}); }catch(e){}
+  // Telegram WebApp headerni yashirish
+  try{ const tg=window.Telegram?.WebApp; if(tg){ tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000'); } }catch(e){}
   ctlShow();
 }
 function exitFs(){
   const x=document.exitFullscreen||document.webkitExitFullscreen;
   try{ x&&x.call(document); }catch(e){}
+  try{ screen.orientation?.unlock?.(); }catch(e){}
+  try{ const tg=window.Telegram?.WebApp; if(tg){ tg.setHeaderColor(null); tg.setBackgroundColor(null); } }catch(e){}
 }
 /* — seek bar (pointer drag) — */
 (function(){
@@ -2210,7 +2236,7 @@ $('#pClose').onclick=closePlayer;
 
 /* ============================ IZOHLAR (real vaqt · video va yangilik) ============================ */
 const CMT_PAGE=15;
-/* Bitta komponent ikki joyda ishlaydi: pleyer (prefix "cmt") va yangilik o‘quvchisi (prefix "rc") */
+/* Bitta komponent ikki joyda ishlaydi: pleyer (prefix "cmt") va yangilik o'quvchisi (prefix "rc") */
 function Thread(prefix,itemId,onCount){
   const g=n=>document.getElementById(prefix+n);
   const T={ id:itemId, items:[], votes:{}, all:false, timer:null, busy:false,
@@ -2234,7 +2260,7 @@ function Thread(prefix,itemId,onCount){
         <div class="cacts">
           <button type="button" data-vote="${esc(c.id)}" class="${voted?'voted':''}"
             aria-label="Izohga ovoz berish">${voted?'❤️':'🤍'} ${+c.likes||''}</button>
-          ${mine?`<button type="button" data-del="${esc(c.id)}">🗑 O‘chirish</button>`:''}
+          ${mine?`<button type="button" data-del="${esc(c.id)}">🗑 O'chirish</button>`:''}
         </div></div></div>`;
   };
   T.render=(loading)=>{
@@ -2243,7 +2269,7 @@ function Thread(prefix,itemId,onCount){
       ? `<div class="cmt-empty">Yuklanmoqda…</div>`
       : (T.items.length
           ? (T.all?T.items:T.items.slice(0,CMT_PAGE)).map(T.row).join('')
-          : `<div class="cmt-empty">Hali izoh yo‘q.<br>Birinchi bo‘lib fikr bildiring 💬</div>`);
+          : `<div class="cmt-empty">Hali izoh yo'q.<br>Birinchi bo'lib fikr bildiring 💬</div>`);
     if(T.more) T.more.hidden = !!loading || T.items.length<=CMT_PAGE || T.all;
     if(T.list){
       T.list.querySelectorAll('[data-vote]').forEach(b=>b.onclick=()=>T.vote(b.dataset.vote));
@@ -2271,10 +2297,10 @@ function Thread(prefix,itemId,onCount){
     c.likes=j.likes; T.render();
   };
   T.del=async(id)=>{
-    if(!confirm('Izohingiz o‘chirilsinmi?')) return;
+    if(!confirm('Izohingiz o\'chirilsinmi?')) return;
     const j=await api({action:'social',op:'comment.delete',commentId:id,uid:S.uid});
-    if(j&&j.ok){ T.items=T.items.filter(c=>c.id!==id); T.render(); toast('Izoh o‘chirildi','🗑'); }
-    else toast(j?.error||'O‘chirib bo‘lmadi','⚠️');
+    if(j&&j.ok){ T.items=T.items.filter(c=>c.id!==id); T.render(); toast('Izoh o\'chirildi','🗑'); }
+    else toast(j?.error||'O\'chirib bo\'lmadi','⚠️');
   };
   T.post=async()=>{
     const txt=T.text?T.text.value.trim():'';
@@ -2348,7 +2374,7 @@ document.addEventListener('click',e=>{
   track('share',id,kind);
 },true);
 
-/* ============================ THEME SHEET (do’kon) ============================ */
+/* ============================ THEME SHEET (do'kon) ============================ */
 let tCat='anime';
 function renderThemeShop(){
   $('#tTabs').innerHTML=CATS.map(c=>`<button class="chip ${c.id===tCat?'on':''}" data-tc="${c.id}">${c.emoji} ${c.name}</button>`).join('');
@@ -2374,13 +2400,13 @@ $('#avaBtn').onclick=()=>go('profile');
 function bindSwitch(el,key,after){
   el.onclick=()=>{ S[key]=!S[key]; LS.set(key,S[key]); el.classList.toggle('on',S[key]); after&&after(); track('setting',key,String(S[key])); };
 }
-bindSwitch($('#swNotif'),'notif',()=>toast(S.notif?'Bildirishnomalar yoqildi 🟢':'Bildirishnomalar o’chirildi ⚪','🔔'));
+bindSwitch($('#swNotif'),'notif',()=>toast(S.notif?'Bildirishnomalar yoqildi 🟢':'Bildirishnomalar o\'chirildi ⚪','🔔'));
 bindSwitch($('#swMotion'),'motion',()=>{applyTheme(S.theme,false); toast(S.motion?'Sihrlar qaytdi ✨':'Animatsiyalar tejamkor holatda','⚡')});
-bindSwitch($('#swHd'),'hd',()=>toast(S.hd?'HD faqat Wi-Fi’da 📶':'HD hamma joyda ⚡','📶'));
+bindSwitch($('#swHd'),'hd',()=>toast(S.hd?'HD faqat Wi-Fi\'da 📶':'HD hamma joyda ⚡','📶'));
 document.documentElement.dataset.motion=S.motion?'on':'off';
 $('#swMotion').classList.toggle('on',S.motion); $('#swNotif').classList.toggle('on',S.notif); $('#swHd').classList.toggle('on',S.hd);
 
-$('#rowShare').onclick=()=>openShare(null,null,'IPLUS MEDIA — o’z olamingni tanla va streaming zavqini his et!');
+$('#rowShare').onclick=()=>openShare(null,null,'IPLUS MEDIA — o\'z olamingni tanla va streaming zavqini his et!');
 $('#rowAdmin').onclick=()=>{
   const tg=window.Telegram?.WebApp;
   if(tg?.initData){ try{ sessionStorage.setItem('aurum.tgInit',tg.initData) }catch(e){} }
@@ -2437,36 +2463,73 @@ $('#clearAllHistory').onclick=()=>{
   }
 };
 
-/* Qurilmalar ro’yxati */
+/* Qurilmalar ro'yxati */
+function getCurrentDeviceInfo(){
+  const ua = navigator.userAgent;
+  const isMobile = /Mobile|Android|iPhone|iPad|iPod/.test(ua);
+  let platform = 'Boshqa';
+  let deviceName = 'Noma\'lum qurilma';
+  
+  if(/iPhone/.test(ua)) { platform = 'iOS'; deviceName = 'iPhone'; }
+  else if(/iPad/.test(ua)) { platform = 'iOS'; deviceName = 'iPad'; }
+  else if(/Android/.test(ua)) { platform = 'Android'; deviceName = isMobile ? 'Android telefon' : 'Android planshet'; }
+  else if(/Windows/.test(ua)) { platform = 'Windows'; deviceName = 'Windows kompyuter'; }
+  else if(/Mac/.test(ua)) { platform = 'macOS'; deviceName = 'Mac kompyuter'; }
+  else if(/Linux/.test(ua)) { platform = 'Linux'; deviceName = 'Linux kompyuter'; }
+  
+  let browser = '';
+  if(/Chrome/.test(ua) && !/Edg/.test(ua)) browser = 'Chrome';
+  else if(/Safari/.test(ua) && !/Chrome/.test(ua)) browser = 'Safari';
+  else if(/Firefox/.test(ua)) browser = 'Firefox';
+  else if(/Edg/.test(ua)) browser = 'Edge';
+  
+  return {
+    id: 'dev_' + S.uid + '_' + platform + '_' + (isMobile ? 'mobile' : 'desktop'),
+    name: deviceName + (browser ? ' (' + browser + ')' : ''),
+    platform: platform,
+    lastSeen: new Date().toLocaleString('uz-UZ'),
+    active: true,
+    isMobile: isMobile
+  };
+}
+
+function registerCurrentDevice(){
+  try{
+    const devices = JSON.parse(LS.get('devices')||'[]');
+    const current = getCurrentDeviceInfo();
+    const existingIdx = devices.findIndex(d => d.id === current.id);
+    if(existingIdx >= 0){
+      devices[existingIdx].lastSeen = current.lastSeen;
+      devices[existingIdx].active = true;
+    } else {
+      devices.push(current);
+    }
+    LS.set('devices', JSON.stringify(devices));
+  }catch(e){ console.warn('registerCurrentDevice error:', e); }
+}
+
 function renderDevices(){
   const list=$('#devicesList');
   const devices = JSON.parse(LS.get('devices')||'[]');
-  const currentDevice = {
-    name: navigator.userAgent.includes('Mobile') ? '📱 Mobil qurilma' : '💻 Kompyuter',
-    platform: /iPhone|iPad|iPod/.test(navigator.userAgent) ? 'iOS' : 
-              /Android/.test(navigator.userAgent) ? 'Android' : 
-              /Windows/.test(navigator.userAgent) ? 'Windows' : 
-              /Mac/.test(navigator.userAgent) ? 'macOS' : 'Boshqa',
-    lastSeen: new Date().toLocaleString('uz-UZ'),
-    active: true
-  };
+  const current = getCurrentDeviceInfo();
   
-  // Agar bo’sh bo’lsa, hozirgi qurilmani qo’shamiz
   if(!devices.length){
-    devices.push({...currentDevice, id: 'dev_' + Date.now()});
-    LS.set('devices', JSON.stringify(devices));
+    registerCurrentDevice();
+    return renderDevices();
   }
   
-  list.innerHTML = devices.map(d => `
+  list.innerHTML = devices.map(d => {
+    const isCurrent = d.id === current.id;
+    return `
     <div class="row" style="padding:12px">
-      <span class="ic">${d.active ? '✅' : '📱'}</span>
+      <span class="ic">${isCurrent ? '✅' : '📱'}</span>
       <div style="flex:1;min-width:0">
         <div style="font-weight:600;font-size:13px">${esc(d.name)}</div>
         <div style="font-size:11px;color:var(--muted);margin-top:2px">${esc(d.platform)} · ${esc(d.lastSeen)}</div>
       </div>
-      ${!d.active ? `<button class="copy-id" onclick="removeDevice('${d.id}')" type="button">O’chirish</button>` : '<span class="pill">Hozirgi</span>'}
-    </div>
-  `).join('');
+      ${isCurrent ? '<span class="pill">Hozirgi</span>' : `<button class="copy-id" onclick="removeDevice('${d.id}')" type="button">O'chirish</button>`}
+    </div>`;
+  }).join('');
 }
 
 function removeDevice(id){
@@ -2474,10 +2537,10 @@ function removeDevice(id){
   devices = devices.filter(d => d.id !== id);
   LS.set('devices', JSON.stringify(devices));
   renderDevices();
-  toast('Qurilma o\’chirildi','🗑️');
+  toast('Qurilma o\'chirildi','✓');
 }
 
-/* Qo’llab-quvvatlash chat */
+/* Qo'llab-quvvatlash chat */
 let supportPollTimer = null;
 
 async function renderSupportChat(){
@@ -2488,7 +2551,7 @@ async function renderSupportChat(){
     list.innerHTML = '<div class="cmt-empty">Yuklanmoqda...</div>';
   }
   
-  // Backend’dan xabarlarni olish
+  // Backend'dan xabarlarni olish
   try {
     const r = await fetch(APP_CONFIG.API_URL, {
       method: 'POST',
@@ -2508,7 +2571,7 @@ async function renderSupportChat(){
     }
   } catch(e) {
     console.warn('renderSupportChat', e);
-    // Fallback: localStorage’dan o’qish
+    // Fallback: localStorage'dan o'qish
     const local = JSON.parse(LS.get('supportMessages')||'[]');
     if(local.length){
       renderSupportMessages(local);
@@ -2517,7 +2580,7 @@ async function renderSupportChat(){
       renderSupportMessages([{
         id: 'sys_1',
         fromId: 'system',
-        text: 'Assalomu alaykum! Qo\’llab-quvvatlash xizmatiga xush kelibsiz. Savolingizni yozing, admin tezda javob beradi.\n\nTezkor aloqa uchun @Hayotiy_davom ga Telegram orqali ham murojat qilishingiz mumkin.',
+        text: 'Assalomu alaykum! Qo\'llab-quvvatlash xizmatiga xush kelibsiz. Savolingizni yozing, admin tezda javob beradi.\n\nTezkor aloqa uchun @Hayotiy_davom ga Telegram orqali ham murojat qilishingiz mumkin.',
         ts: Date.now(),
         type: 'system'
       }]);
@@ -2587,13 +2650,18 @@ async function sendSupportMessage(){
   send.textContent = '...';
   
   try {
+    // Faqat rasm yoki matn+rasm yuborish mumkin
     const payload = { action: 'social', op: 'support.send', uid: S.uid };
-    if(hasText) payload.text = text.value.trim();
+    
     if(hasImg){
+      // Rasm mavjud bo'lsa - image type
       payload.type = 'image';
       payload.mediaUrl = pendingSupportImg;
-    } else {
+      if(hasText) payload.text = text.value.trim();
+    } else if(hasText){
+      // Faqat matn
       payload.type = 'text';
+      payload.text = text.value.trim();
     }
     
     const r = await fetch(APP_CONFIG.API_URL, { method: 'POST', body: JSON.stringify(payload) });
@@ -2634,7 +2702,7 @@ async function fetchNewMessages(){
   } catch(e){ /* silent */ }
 }
 
-// Sheet yopilganda polling’ni to’xtatish
+// Sheet yopilganda polling'ni to'xtatish
 document.querySelectorAll('[data-close]').forEach(el => {
   el.addEventListener('click', () => {
     if(supportPollTimer){
@@ -2665,6 +2733,7 @@ async function tgAuth(){
     (u.likes||[]).forEach(v=>{ if(!S.myLikes.includes(v))S.myLikes.push(v); if(!S.favs.includes(v))S.favs.push(v); });
     LS.set('myLikes',S.myLikes); LS.set('favs',S.favs);
     renderHome(); renderFav(); renderProfile(); renderStats(); updatePlayerLikeUI?.();
+    registerCurrentDevice(); // Qurilmani ro'yxatga olish
     track('login','tg'); toast(`Xush kelibsiz, ${S.user.name}!`,'✈️');
   };
   try{
@@ -2732,7 +2801,7 @@ function handleDeepLink(){
   }, 15000);
   
   try {
-    await tgInit();               // Telegram bo’lsa — uid shu yerda tg<id> ga aylanadi
+    await tgInit();               // Telegram bo'lsa — uid shu yerda tg<id> ga aylanadi
     await loadRemote();
     renderHome(); renderNews(); renderFav(); renderStats(); renderSearch();
     if(!handleDeepLink() && location.search) history.replaceState(null,'',location.pathname+location.hash);
