@@ -26,7 +26,7 @@ function getSS_() {
 }
 var SCHEMA = {
   Videos:        ['id','yt','title','cat','dur','views','featured','desc','status','createdAt','tags','live','seriesId','episode','season','seriesTitle'],
-  News:          ['id','title','cat','src','time','read','hot','emoji','body','status','createdAt','tags','reads'],
+  News:          ['id','title','cat','src','time','read','hot','emoji','body','status','createdAt','tags','reads','media'],
   Users:         ['id','tg','name','role','theme','sessions','last','status','createdAt'],
   Events:        ['ts','userId','event','itemId','theme','meta'],
   Settings:      ['key','value'],
@@ -668,6 +668,7 @@ function handleAdmin_(d) {
     case 'stats':
       return json_({ ok: true, stats: adminStats_() });
     case 'announce':      return handleAnnounce_(d);
+    case 'upload':        return handleUpload_(d);
     // --- Foydalanuvchilar (admin.html action:'admin' orqali chaqiradi) ---
     case 'users.list': {
       var ul = rows_('Users')
@@ -723,6 +724,34 @@ function handleAdmin_(d) {
     }
     default: return json_({ ok: false, error: 'op topilmadi: ' + d.op });
   }
+}
+// --- MEDIA UPLOAD: device'dan rasm/video → Google Drive → ko'rsatiladigan URL ---
+// Admin paneldan keladi (action:'admin', op:'upload'), adminAuth_ bilan himoyalangan.
+function handleUpload_(d) {
+  var data = String(d.data || '');
+  var m = data.match(/^data:([^;,]+)?[;,]?base64,(.*)$/);
+  var b64 = m ? m[2] : data;              // "data:...;base64," prefiksi bo'lsa ham, yo'qsa ham
+  var mime = (m && m[1]) || d.mime || 'application/octet-stream';
+  if (!b64) return json_({ ok: false, error: ' fayl ma\'lumotlari bo\'sh' });
+  var kind = /^image\//.test(mime) ? 'image' : (/^video\//.test(mime) ? 'video' : 'file');
+  try {
+    var res = uploadToDrive_(b64, mime, d.name || (kind + '_' + Date.now()), kind);
+    return json_({ ok: true, url: res.url, id: res.id, embed: res.embed, kind: kind });
+  } catch (e) {
+    return json_({ ok: false, error: 'yuklab bo\'lmadi: ' + String(e) });
+  }
+}
+function uploadToDrive_(b64, mime, name, kind) {
+  var blob = Utilities.base64Decode(b64);
+  var safe = trim_(String(name || 'media'), 80).replace(/[\\/:*?"<>|]/g, '_');
+  var file = DriveApp.createFile(Utilities.newBlob(blob, mime, 'news_' + Date.now().toString(36) + '_' + safe));
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  var id = file.getId();
+  // Rasm → lh3 (web <img> uchun ishonchli), video → Drive preview iframe, boshqa → preview.
+  var url   = kind === 'image' ? 'https://lh3.googleusercontent.com/d/' + id
+            : 'https://drive.google.com/file/d/' + id + '/preview';
+  var embed = 'https://drive.google.com/file/d/' + id + '/preview';
+  return { id: id, url: url, embed: embed };
 }
 function settings_() {
   return rows_('Settings').map(function (s) { return { key: String(s.key), value: String(s.value == null ? '' : s.value) }; });

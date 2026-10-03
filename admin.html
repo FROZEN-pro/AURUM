@@ -876,10 +876,12 @@ function openModal(title,fields,obj,onSave){
     ${f.type==='textarea'?`<textarea data-k="${f.k}" rows="3">${esc(obj[f.k]??'')}</textarea>`
     :f.type==='select'?`<select data-k="${f.k}">${f.opts.map(o=>`<option ${String(obj[f.k])===String(o)?'selected':''}>${esc(o)}</option>`).join('')}</select>`
     :f.type==='check'?`<label style="display:flex;gap:8px;align-items:center;text-transform:none;font-size:13px"><input type="checkbox" style="width:auto" data-k="${f.k}" ${obj[f.k]?'checked':''}> ${f.on||'Ha'}</label>`
+    :f.type==='media'?`<div id="mMediaWrap"></div>`
     :`<input data-k="${f.k}" value="${esc(obj[f.k]??'')}" placeholder="${f.ph||''}" class="${f.mono?'mono':''}">`}
     </div>`).join('');
   $('#mBody').style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0 10px';
   $$('#mBody textarea').forEach(t=>t.closest('.f').style.gridColumn='span 2');
+  const _mw=$('#mBody #mMediaWrap'); if(_mw){ _mw.closest('.f').style.gridColumn='span 2'; initMediaWidget(obj); }
   $('#modal').classList.add('open');
 }
 $('#mCancel').onclick=()=>$('#modal').classList.remove('open');
@@ -922,11 +924,75 @@ function editNews(id){
    {k:'read',label:'O‘qish daqiqasi'},{k:'emoji',label:'Emoji ikonka'},
    {k:'hot',label:'HOT',type:'check',on:'🔥 HOT belgisi'},{k:'status',label:'Holat',type:'select',opts:['active','draft']},
    {k:'tags',label:'Teglar (vergul bilan)',ph:'iqtisod, dollar, bozor'},
+   {k:'media',label:'Media — suratlar / video (device yoki YouTube)',type:'media'},
    {k:'body',label:'Matn (bo‘sh qator = paragraf)',type:'textarea'}],n,o=>{
     o.hot=+o.hot; o.read=+o.read||3; o.id=id||o.id; editing.kind='n';
+    try{ var arr=JSON.parse(o.media||'[]'); o.media = (Array.isArray(arr)&&arr.length)?JSON.stringify(arr):''; }catch(e){ o.media=o.media||''; }
     const i=DB.news.findIndex(x=>x.id===o.id);
     if(i>-1)DB.news[i]=o; else DB.news.unshift(o);
   });
+}
+
+/* ============================ NEWS MEDIA EDITOR ============================ */
+// obj.media — JSON satr: [{t:'img'|'yt'|'vid', u:...}]. Device'dan upload → Drive URL,
+// yoki YouTube havolasi → video ID. admin 'upload' op'i (code.gs) orqali ishlaydi.
+function initMediaWidget(obj){
+  let arr=[]; try{ arr=JSON.parse(obj.media||'[]'); }catch(e){ arr=[]; }
+  if(!Array.isArray(arr)) arr=[];
+  const wrap=$('#mMediaWrap'); if(!wrap) return;
+  const sync=()=>{ if(editing) editing.obj.media = arr.length?JSON.stringify(arr):''; };
+  const btnS='width:auto;cursor:pointer;font-size:12.5px';
+  function paint(){
+    const items=arr.map((m,i)=>{
+      let inner='';
+      if(m.t==='img') inner=`<img src="${esc(m.u)}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block">`;
+      else if(m.t==='yt') inner=`<img src="https://i.ytimg.com/vi/${esc(m.u)}/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover;display:block"><span style="position:absolute;inset:auto 0 0 0;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:2px 4px;text-align:center">▶ YouTube</span>`;
+      else inner=`<span style="display:grid;place-items:center;width:100%;height:100%;font-size:22px;background:var(--card2)">🎬</span>`;
+      return `<div style="position:relative;width:88px;height:88px;border-radius:10px;overflow:hidden;border:1px solid var(--line2)">${inner}
+        <button data-mm="${i}" type="button" title="Olib tashlash" style="position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;border:none;background:rgba(0,0,0,.65);color:#fff;font-size:13px;line-height:1;cursor:pointer">✕</button></div>`;
+    }).join('');
+    wrap.innerHTML=`
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 10px">
+        <label class="btn sm ghost" style="${btnS}">📷 Rasm qo'shish<input id="mmImg" type="file" accept="image/*" multiple hidden></label>
+        <label class="btn sm ghost" style="${btnS}">🎬 Video yuklash<input id="mmVid" type="file" accept="video/*" hidden></label>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input id="mmYT" placeholder="YouTube havolasi (youtu.be / watch?v=)" style="flex:1;margin:0">
+        <button id="mmYTadd" type="button" class="btn sm" style="${btnS}">＋ YouTube</button>
+      </div>
+      <div id="mmGrid" style="display:flex;flex-wrap:wrap;gap:8px">${items||'<span class="sub" style="font-size:12px">Hali media yo\u2019q.</span>'}</div>
+      <div id="mmStatus" class="sub" style="font-size:12px;margin-top:8px"></div>`;
+    wrap.querySelectorAll('[data-mm]').forEach(b=>b.onclick=()=>{ arr.splice(+b.dataset.mm,1); sync(); paint(); });
+    $('#mmImg').onchange=e=>uploadMedia(e.target.files,'image');
+    $('#mmVid').onchange=e=>uploadMedia(e.target.files,'video');
+    $('#mmYTadd').onclick=addYouTube;
+  }
+  const setSt=t=>{ const s=$('#mmStatus'); if(s) s.textContent=t; };
+  function uploadMedia(files,kind){
+    const list=[...files]; if(!list.length) return;
+    list.forEach(f=>{
+      const maxMb = kind==='video'?60:8;
+      if(f.size>maxMb*1048576){ setSt('\u26a0\ufe0f "'+f.name+'" juda katta ('+(f.size/1048576).toFixed(1)+'MB, \u2264'+maxMb+'MB)'); return; }
+      setSt('\u23f3 Yuklanmoqda: '+f.name+'…');
+      const rd=new FileReader();
+      rd.onerror=()=>setSt('\u26a0\ufe0f Faylni o\u2019qib bo\u2019lmadi: '+f.name);
+      rd.onload=async()=>{
+        try{
+          const j=await api('upload',{name:f.name, mime:f.type||(kind==='video'?'video/mp4':'image/jpeg'), data:String(rd.result)});
+          if(j.ok){ arr.push(kind==='video'?{t:'vid',u:j.url||j.embed||j.id}:{t:'img',u:j.url||j.id}); sync(); setSt('\u2713 '+f.name+' qo\u2019shildi'); }
+          else setSt('\u26a0\ufe0f '+(j.error||'yuklash xatosi'));
+        }catch(e){ setSt('\u26a0\ufe0f '+e); }
+        paint();
+      };
+      rd.readAsDataURL(f);
+    });
+  }
+  function addYouTube(){
+    const el=$('#mmYT'); const raw=(el&&el.value||'').trim(); const id=ytId(raw);
+    if(!id){ setSt('\u26a0\ufe0f YouTube havolasi noto\u2019g\u2019ri.'); return; }
+    arr.push({t:'yt',u:id}); sync(); if(el) el.value=''; setSt('\u2713 YouTube qo\u2019shildi'); paint();
+  }
+  paint();
 }
 
 /* ============================ ANNOUNCE ============================ */

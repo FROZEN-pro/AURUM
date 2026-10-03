@@ -212,6 +212,20 @@ main{flex:1;min-width:0;padding:0 var(--pad) calc(var(--tab-h) + env(safe-area-i
 .nrow .sub{font-size:11px;color:var(--muted);margin-top:4px;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
 .nrow .sub b{color:var(--accent)}
 .hot{color:#ff6b6b;font-weight:800;font-size:10px;letter-spacing:.08em}
+/* News media — suratlar / video */
+.nrow .nart{position:relative}
+.nrow .nart.hasimg{background-size:cover;background-position:center;font-size:0}
+.nplay{position:absolute;right:5px;bottom:5px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.66);display:grid;place-items:center;font-size:10px;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.45)}
+.nmed{display:inline-flex;align-items:center;gap:2px;color:var(--muted);font-size:11px}
+.nmedia{margin:2px 0 16px;display:flex;flex-direction:column;gap:10px}
+.nmedia-gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.nmedia-gallery.solo{grid-template-columns:1fr}
+.nmedia-img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--card);cursor:zoom-in;display:block}
+.nmedia-video{position:relative;width:100%;aspect-ratio:16/9;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:#000}
+.nmedia-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.news-lb{position:fixed;inset:0;z-index:160;background:rgba(0,0,0,.93);display:none;place-items:center;padding:16px}
+.news-lb.on{display:grid}
+.news-lb img{max-width:100%;max-height:100%;border-radius:var(--r);object-fit:contain}
 
 /* ============================ FAV ============================ */
 .empty{text-align:center;padding:56px 20px;color:var(--muted)}
@@ -1698,11 +1712,39 @@ async function toggleLike(id){
 }
 
 /* ============================ RENDER: NEWS ============================ */
+function newsMediaList(n){ try{ const a=JSON.parse((n&&n.media)||'[]'); return Array.isArray(a)?a.filter(m=>m&&m.u):[]; }catch(e){ return []; } }
+function mediaBadge(n){ const m=newsMediaList(n); if(!m.length) return '';
+  const img=m.filter(x=>x.t==='img').length, vid=m.filter(x=>x.t==='yt'||x.t==='vid').length;
+  const p=[]; if(img) p.push('📷'+(img>1?img:'')); if(vid) p.push('🎬'+(vid>1?vid:''));
+  return `<span class="nmed">${p.join(' ')}</span>`;
+}
+function newsMediaHTML(n,skipFirst){
+  const m=newsMediaList(n); if(!m.length) return '';
+  let imgs=m.filter(x=>x.t==='img'); if(skipFirst) imgs=imgs.slice(1);
+  const vids=m.filter(x=>x.t==='yt'||x.t==='vid');
+  if(!imgs.length && !vids.length) return '';
+  let html='';
+  if(imgs.length) html+=`<div class="nmedia-gallery${imgs.length===1?' solo':''}">`+
+    imgs.map(x=>`<img class="nmedia-img" src="${esc(x.u)}" alt="" loading="lazy" onclick="newsZoom(this.src)">`).join('')+`</div>`;
+  vids.forEach(x=>{
+    const src=x.t==='yt'?'https://www.youtube.com/embed/'+encodeURIComponent(x.u):esc(x.u);
+    html+=`<div class="nmedia-video"><iframe src="${src}" title="video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`;
+  });
+  return `<div class="nmedia">${html}</div>`;
+}
+function newsZoom(src){
+  let lb=document.getElementById('newsLb');
+  if(!lb){ lb=document.createElement('div'); lb.id='newsLb'; lb.className='news-lb'; lb.innerHTML='<img alt="">'; lb.onclick=()=>lb.classList.remove('on'); document.body.appendChild(lb); }
+  lb.querySelector('img').src=src; lb.classList.add('on');
+}
 function nRow(n,i){
+  const m=newsMediaList(n); const firstImg=m.find(x=>x.t==='img'); const hasVid=m.some(x=>x.t==='yt'||x.t==='vid');
+  const art=firstImg?`<div class="nart hasimg" style="background-image:url('${esc(firstImg.u)}')">${hasVid?'<span class="nplay">▶</span>':''}</div>`
+    :`<div class="nart" style="--nbg:${artOf(i*2+3)}">${n.emoji||'📰'}${hasVid?'<span class="nplay">▶</span>':''}</div>`;
   return `<div class="nrow" data-news="${esc(n.id)}" style="animation-delay:${Math.min(i*50,400)}ms">
-    <div class="nart" style="--nbg:${artOf(i*2+3)}">${n.emoji||'📰'}</div>
+    ${art}
     <div class="ntx"><h4>${esc(n.title)}</h4>
-      <div class="sub"><b>${esc(n.cat)}</b><span>·</span>${esc(n.src||'IPLUS MEDIA')}${+n.hot?' <span class="hot">🔥 HOT</span>':''}<span>·</span>${esc(n.time||'')} · ${+n.read||3} daq<span>·</span><span>${ic('eye')} ${fmt(+n.reads||0)}</span></div>
+      <div class="sub"><b>${esc(n.cat)}</b><span>·</span>${esc(n.src||'IPLUS MEDIA')}${+n.hot?' <span class="hot">🔥 HOT</span>':''}${mediaBadge(n)?' '+mediaBadge(n):''}<span>·</span>${esc(n.time||'')} · ${+n.read||3} daq<span>·</span><span>${ic('eye')} ${fmt(+n.reads||0)}</span></div>
     </div>
     <button class="share-pin" data-share="n:${esc(n.id)}" type="button" aria-label="Ulashish">${ic('share')}</button>
   </div>`;
@@ -1720,10 +1762,13 @@ function renderNews(){
   $('#newsChips').innerHTML = cats.map(c=>`<button class="chip ${c===S.newsCat?'on':''}" data-ncat="${esc(c)}">${esc(c)}</button>`).join('');
   const list=S.news.filter(n=>S.newsCat==='Hammasi'||n.cat===S.newsCat);
   const lead=list[0], side=list.slice(1,4), rest=list.slice(1);
-  $('#nLead').innerHTML = lead?`<div class="nlead" data-news="${esc(lead.id)}"><div class="art" style="--nbg:${artOf(2)}"></div>
+  const leadImg=lead?newsMediaList(lead).find(x=>x.t==='img'):null;
+  const leadVid=lead?newsMediaList(lead).some(x=>x.t==='yt'||x.t==='vid'):false;
+  $('#nLead').innerHTML = lead?`<div class="nlead" data-news="${esc(lead.id)}"><div class="art"${leadImg?` style="background-image:url('${esc(leadImg.u)}')"`:` style="--nbg:${artOf(2)}"`}></div>
+    ${leadVid?'<span class="nplay" style="width:38px;height:38px;font-size:15px;right:12px;bottom:12px">▶</span>':''}
     <div class="meta"><span class="tag" style="border-color:rgba(255,255,255,.4);color:#fff;background:rgba(255,255,255,.14)">${esc(lead.cat)}</span>
     <h3>${esc(lead.title)}</h3><p>${esc(String(lead.body||'').split('\n')[0])}</p>
-    <p style="font-size:11px;opacity:.7;margin-top:8px">${esc(lead.src||'IPLUS MEDIA')} · ${esc(lead.time||'')} · ${+lead.read||3} daqiqa · 👁 ${fmt(+lead.reads||0)}</p></div></div>`:'';
+    <p style="font-size:11px;opacity:.7;margin-top:8px">${esc(lead.src||'IPLUS MEDIA')} · ${esc(lead.time||'')} · ${+lead.read||3} daqiqa · 👁 ${fmt(+lead.reads||0)}${mediaBadge(lead)?' · '+mediaBadge(lead):''}</p></div></div>`:'';
   $('#nSide').innerHTML = side.map(nRow).join('');
   $('#nList').innerHTML = rest.map((n,i)=>nRow(n,i)).join('') ||
     `<div class="empty"><div class="big">${ic('news')}</div><h3>Bu bo'lim bo'sh</h3><p>«${esc(S.newsCat)}» kategoriyasida hozircha yangilik yo'q.</p></div>`;
@@ -1738,13 +1783,15 @@ function openReader(id){
   const saved=S.saved.includes(id);
   const cmts=S.commentCounts['news:'+id]||0;
   const tags=String(n.tags||'').split(/[,;]/).map(t=>t.trim()).filter(Boolean).slice(0,6);
+  const rimg=newsMediaList(n).find(x=>x.t==='img');
   $('#readerInner').innerHTML=`
     <div class="tagrow"><span class="tag">${esc(n.cat||'Yangilik')}</span>
       ${+n.hot?'<span class="tag" style="color:#ff6b6b">🔥 HOT</span>':''}
       <span class="tag" style="color:var(--muted)">${esc(n.time||'')}</span>
       ${tags.map(t=>`<span class="tag" style="color:var(--muted)">#${esc(t)}</span>`).join('')}</div>
     <h2 style="font-family:var(--font-h);font-size:22px;line-height:1.3">${esc(n.title)}</h2>
-    <div class="reader-hero" style="--nbg:${artOf(7)}">${n.emoji||'📰'}</div>
+    <div class="reader-hero"${rimg?` style="background-image:url('${esc(rimg.u)}');background-size:cover;background-position:center"`:` style="--nbg:${artOf(7)}"`}>${rimg?'':(n.emoji||'📰')}</div>
+    ${newsMediaHTML(n,true)}
     <div class="n-stats">
       <span>${ic('eye')} <b id="rcReads">${fmt(+n.reads||0)}</b> o'qilgan</span>
       <span>${ic('clock')} ${+n.read||3} daqiqa</span>
