@@ -1881,6 +1881,7 @@ $$('#tabbar button').forEach(b=>b.addEventListener('click',e=>{
   if(navigator.vibrate)navigator.vibrate(8);
 }));
 function openSheet(sel){$(sel).classList.add('open'); document.body.style.overflow='hidden'}
+function closeSheet(sel){const el=$(sel); if(el) el.classList.remove('open');}
 function closeSheets(){
   $$('.sheet').forEach(s=>s.classList.remove('open'));
   document.body.style.overflow='';
